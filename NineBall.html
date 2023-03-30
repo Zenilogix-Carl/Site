@@ -11,6 +11,14 @@
             padding-bottom: 3px;
         }
 
+        input {
+            font-size: 20pt;
+        }
+
+        button {
+            font-size: 18pt;
+        }
+
         table, th, td {
             border: 1px solid grey;
             border-collapse: collapse;
@@ -23,6 +31,7 @@
         }
         body {
             font-family: Verdana, sans-serif;
+            font-size: 20pt;
             padding: 0px;
             margin: 0px;
             overflow-x: hidden;
@@ -72,6 +81,8 @@
         var startingPlayer = currentPlayer;
         var player1Score = 0;
         var player2Score = 0;
+        var player1RackScore = 0;
+        var player2RackScore = 0;
 
         function clearRackIfConfirmed() {
             if (window.confirm("Reset the current rack?")) {
@@ -104,6 +115,8 @@
             ballStates = Array(ballCount).fill("normal");
             player1Score = 0;
             player2Score = 0;
+            player1RackScore = 0;
+            player2RackScore = 0;
             clearRack();
             matchInnings = 0;
             currentInnings = 0;
@@ -198,8 +211,8 @@
         }
 
         function updateScore() {
-            var player1RackScore = 0;
-            var player2RackScore = 0;
+            player1RackScore = 0;
+            player2RackScore = 0;
             var parent1 = document.getElementById("player1-balls");
             while (parent1.firstChild) {
                 parent1.firstChild.remove();
@@ -212,11 +225,11 @@
                 var ballState = ballStates[i];
                 if ((currentPlayer == player1 && ballState == "won") || (currentPlayer == player2 && ballState == "lost")) {
                     player1RackScore += values[i];
-                    addPoolBall("player1-balls", i+1, '22px');
+                    addPoolBall("player1-balls", i+1, '30px');
                 }
                 if ((currentPlayer == player1 && ballState == "lost") || (currentPlayer == player2 && ballState == "won")) {
                     player2RackScore+=values[i];
-                    addPoolBall("player2-balls", i + 1, '22px');
+                    addPoolBall("player2-balls", i + 1, '30px');
                 }
             }
 
@@ -225,6 +238,9 @@
 
             player1Element.innerHTML = player1Score + player1RackScore;
             player2Element.innerHTML = player2Score + player2RackScore;
+
+            onPlayer1GoalChange();
+            onPlayer2GoalChange();
         }
 
         function setplayer1Defensives() {
@@ -383,7 +399,7 @@
             g.appendChild(circle);
             var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
             text.setAttribute("x", 50);
-            text.setAttribute("y", 50);
+            text.setAttribute("y", 53);
             text.setAttribute("text-anchor", "middle");
             text.setAttribute("dominant-baseline", "middle");
             text.setAttribute("font-weight", "bold");
@@ -527,6 +543,16 @@
         function onPlayer2Change() {
             player2Name = document.getElementById("player2-input").value;
         }
+
+        function onPlayer1GoalChange() {
+            var rem = document.getElementById("player1-goal").value - player1Score - player1RackScore;
+            document.getElementById("player1-needs").innerHTML = rem < 0 ? 0 : rem;
+        }
+
+        function onPlayer2GoalChange() {
+            var rem = document.getElementById("player2-goal").value - player2Score - player2RackScore;
+            document.getElementById("player2-needs").innerHTML = rem < 0 ? 0 : rem;
+        }
     </script>
 </head>
 <body onload='onLoad()'>
@@ -567,20 +593,20 @@
             <td>
                 <div style="display: flex; white-space: nowrap">
                     <button style="vertical-align: middle" onclick="player1Shooting()">
-                        <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="10" cy="10" r="8" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                        <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                     </button>
                     &nbsp;
                     <input type="text" id="player1-input" size="15" oninput="onPlayer1Change()" />
                 </div>
             </td>
             <td style="text-align: right">
-                <span>11</span>/
+                <span id="player1-needs"></span>/
             </td>
             <td>
                 <input type="text" id="player1-goal" size="2" oninput="onPlayer1GoalChange()" />
             </td>
             <td style="text-align: center"><span id="player1-score">0</span></td>
-            <td><div id="player1-balls" style="padding-top: 3px;padding-left: 3px"></div></td>
+            <td><div id="player1-balls" style="padding-top: 3px; padding-left: 3px; padding-bottom: 0px"></div></td>
             <td style="text-align: center">
                 <span id="player1-defensives">0</span>
                 <button class="buttons" onclick="addplayer1Defensive()"><b>+</b></button>
@@ -591,20 +617,20 @@
             <td>
                 <div style="display: flex; white-space: nowrap">
                     <button style="vertical-align: middle" onclick="player2Shooting()">
-                        <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="10" cy="10" r="8" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                        <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                     </button>
                     &nbsp;
                     <input type="text" id="player2-input" size="15" oninput="onPlayer2Change()" />
                 </div>
             </td>
             <td style="text-align: right">
-                <span>3</span>/
+                <span id="player2-needs"></span>/
             </td>
             <td>
                 <input type="text" id="player2-goal" size="2" oninput="onPlayer2GoalChange()" />
             </td>
             <td style="text-align: center"><span id="player2-score">0</span></td>
-            <td><div id="player2-balls" style="padding-top: 3px;padding-left: 3px"></div></td>
+            <td><div id="player2-balls" style="padding-top: 3px; padding-left: 3px; padding-bottom: 0px"></div></td>
             <td style="text-align: center">
                 <span id="player2-defensives">0</span>
                 <button class="buttons" onclick="addplayer2Defensive()"><b>+</b></button>

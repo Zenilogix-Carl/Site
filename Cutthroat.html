@@ -11,13 +11,23 @@
             padding-bottom: 3px;
         }
 
+        input {
+            font-size: 20pt;
+        }
+
         table, th, td {
             border: 1px solid grey;
             border-collapse: collapse;
         }
 
+        td {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
         body {
             font-family: Verdana, sans-serif;
+            font-size: 20pt;
             padding: 0px;
             margin: 0px;
             overflow-y: hidden;
@@ -135,7 +145,7 @@
                 var ballState = ballStates[number - 1];
                 if (ballState > 0) {
                     var playerBalls = 'player' + ballState + '-balls';
-                    addPoolBall(playerBalls, number, '25px');
+                    addPoolBall(playerBalls, number, '40px');
 
                     var playerIndex = ballState - 1;
 
@@ -165,7 +175,7 @@
                     var base = getCategoryBase(playerCategory2);
                     for (var b = 0; b < ballCount / categories.length; b++) {
                         if (ballStates[base+b] == 0) {
-                            addPoolBall('player' + (p2+1) + '-owns', base+b+1, '25px');
+                            addPoolBall('player' + (p2+1) + '-owns', base+b+1, '40px');
                         }
                     }
                 }
@@ -173,7 +183,7 @@
                 if (!isOut(p2, categories)) {
                     for (var b2 = 0; b2 < ballCount; b2++) {
                         if (canPlayBall(p2, categories, ballStates, b2+1)) {
-                            addPoolBall('player' + (p2 + 1) + '-canShoot', b2 + 1, '25px');
+                            addPoolBall('player' + (p2 + 1) + '-canShoot', b2 + 1, '40px');
                         }
                     }
                 }
@@ -469,7 +479,7 @@
             g.appendChild(circle);
             var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
             text.setAttribute("x", 50);
-            text.setAttribute("y", 50);
+            text.setAttribute("y", 53);
             text.setAttribute("text-anchor", "middle");
             text.setAttribute("dominant-baseline", "middle");
             text.setAttribute("font-weight", "bold");
@@ -632,7 +642,7 @@
                 <td>
                     <div style="display: flex; white-space: nowrap">
                         <button style="vertical-align: middle" onclick="player1Shooting()">
-                            <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="10" cy="10" r="8" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                            <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
                         <input type="text" id="player1-input" size="15" oninput="onPlayerChange(0)" />
@@ -647,7 +657,7 @@
                 <td>
                     <div style="display: flex; white-space: nowrap">
                         <button style="vertical-align: middle" onclick="player2Shooting()">
-                            <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="10" cy="10" r="8" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                            <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
                         <input type="text" id="player2-input" size="15" oninput="onPlayerChange(1)" />
@@ -662,7 +672,7 @@
                 <td>
                     <div style="display: flex; white-space: nowrap">
                         <button style="vertical-align: middle" onclick="player3Shooting()">
-                            <svg id="player3-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="10" cy="10" r="8" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                            <svg id="player3-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
                         <input type="text" id="player3-input" size="15" oninput="onPlayerChange(2)" />
