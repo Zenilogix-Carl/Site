@@ -1,0 +1,696 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .buttons {
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+        }
+
+        input {
+            font-size: 20pt;
+        }
+
+        table, th, td {
+            border: 1px solid grey;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        body {
+            font-family: Verdana, sans-serif;
+            font-size: 20pt;
+            padding: 0px;
+            margin: 0px;
+            overflow-y: hidden;
+            width: 100vw;
+            height: 100vmin;
+        }
+    </style>
+    <script src="Billiards.js"></script>
+    <script>
+        // Ball states:
+        // 0 = in-play
+        // 1..3 = won by player
+        // -1 out-of-play
+        // Player "number" is 1..3 but where arrays are involved, player 1 occupies element 0, etc.
+        const ballCount = 15;
+
+        const playerCategoryNames = [
+            "Open", "Not Low", "Not Middle", "High", "Not High", "Middle", "Low", "Foul"];
+
+        const ballsToPlay = [
+            "1..15", "1..15", "1..15", "1..10", "1..15", "1..5 &amp; 10..15", "6..15"];
+
+        var ballOrder = [];
+
+        var ballStates = Array(ballCount).fill(0);
+
+        var defaultPlayerNames = ["Player 1", "Player 2", "Player 3"];
+        var playerNames = defaultPlayerNames;
+
+        var currentPlayerIndex = 0;
+        var startingPlayerIndex = currentPlayerIndex;
+
+        function clearRackIfConfirmed() {
+            if (window.confirm("Reset the current rack?")) {
+                clearRack();
+            }
+        }
+
+        function clearRack() {
+            ballStates = Array(ballCount).fill(0);
+            ballOrder = [];
+            for (var i = 1; i <= ballCount; i++) {
+                updateBallState('main', i);
+            }
+
+            updateScore();
+        }
+
+        function startMatchIfConfirmed() {
+            if (window.confirm("Start a new match (clear current status)?")) {
+                startMatch();
+            }
+        }
+
+        function startMatch() {
+            ballStates = Array(ballCount).fill(0);
+            clearRack();
+            startingPlayerIndex = currentPlayerIndex;
+        }
+
+        function nextPlayer() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % 3;
+        }
+
+        function missedShot() {
+            nextPlayer();
+            setCurrentPlayer();
+            updateBallStates('main');
+        }
+
+        function player1Shooting() {
+            if (currentPlayerIndex != 0) {
+                currentPlayerIndex = 0;
+                setCurrentPlayer();
+                updateBallStates('main');
+            }
+        }
+
+        function player2Shooting() {
+            if (currentPlayerIndex != 1) {
+                currentPlayerIndex = 1;
+                setCurrentPlayer();
+                updateBallStates('main');
+            }
+        }
+
+        function player3Shooting() {
+            if (currentPlayerIndex != 2) {
+                currentPlayerIndex = 2;
+                setCurrentPlayer();
+                updateBallStates('main');
+            }
+        }
+
+        function updateScore() {
+            for (var p = 1; p <= 3; p++) {
+                var parent = document.getElementById('player' + p + '-balls');
+                while (parent.firstChild) {
+                    parent.firstChild.remove();
+                }
+                parent = document.getElementById('player' + p + '-owns');
+                while (parent.firstChild) {
+                    parent.firstChild.remove();
+                }
+                parent = document.getElementById('player' + p + '-canShoot');
+                while (parent.firstChild) {
+                    parent.firstChild.remove();
+                }
+            }
+
+            var categories = Array(3).fill(0);
+
+            for (var i = 0; i < ballOrder.length; i++) {
+                var number = ballOrder[i];
+                var ballCategory = getBallCategory(number);
+                var ballState = ballStates[number - 1];
+                if (ballState > 0) {
+                    var playerBalls = 'player' + ballState + '-balls';
+                    addPoolBall(playerBalls, number, '40px');
+
+                    var playerIndex = ballState - 1;
+
+                    var playerCategory = categories[playerIndex];
+                    if (isCategoryUndecided(playerCategory)) {
+                        playerCategory |= ballCategory;
+                        categories[playerIndex] = playerCategory;
+                    }
+
+                    if (isCategoryDecided(playerCategory, categories.length)) {
+                        var outStandingCategory = remainingCategories(playerCategory, categories.length);
+                        for (var j = 0; j < categories.length; j++) {
+                            if (j != playerIndex && isCategoryUndecided(categories[j])) {
+                                categories[j] |= outStandingCategory;
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (var p2 = 0; p2 < playerNames.length; p2++) {
+                document.getElementById('player' + (p2 + 1) + '-category').innerHTML = isOut(p2, categories) ? 'Out' : playerCategoryNames[categories[p2]];
+                //document.getElementById('player' + (p2 + 1) + '-canShoot').innerHTML = ballsToPlay[categories[p2]];
+
+                var playerCategory2 = categories[p2];
+                if (isCategoryDecided(playerCategory2, categories.length)) {
+                    var base = getCategoryBase(playerCategory2);
+                    for (var b = 0; b < ballCount / categories.length; b++) {
+                        if (ballStates[base + b] == 0) {
+                            var ball = new BilliardBall(base + b + 1, '40px');
+                            document.getElementById('player' + (p2 + 1) + '-owns').appendChild(ball.element);
+                            //    addPoolBall('player' + (p2+1) + '-owns', base+b+1, '40px');
+                        }
+                    }
+                }
+
+                if (!isOut(p2, categories)) {
+                    for (var b2 = 0; b2 < ballCount; b2++) {
+                        if (canPlayBall(p2, categories, ballStates, b2+1)) {
+                            var ball2 = new BilliardBall(b2 + 1, '40px');
+                            document.getElementById('player' + (p2 + 1) + '-canShoot').appendChild(ball2.element);
+                        //    addPoolBall('player' + (p2 + 1) + '-canShoot', b2 + 1, '40px');
+                        }
+                    }
+                }
+            }
+
+        }
+
+        function canPlayBall(playerIndex, categories, ballStates, number) {
+            if (ballStates[number-1] !=  0) {
+                return false;
+            }
+            var playerCategory = categories[playerIndex];
+            if (isCategoryDecided(playerCategory, categories.length)) {
+                return (playerCategory & getBallCategory(number)) != 0;
+            }
+
+            return true;
+        }
+
+        function getBallCategory(number) {
+            return (number > 10) ? 4 : ((number > 5) ? 2 : 1);
+        }
+
+        // Returns true if exactly one bit set
+        function isSingleBit(n) {
+             return (n != 0) && ((n & (n-1)) == 0);
+        }
+
+        // Returns true if all but one bit is set
+        function isAllButOneBitSet(n, width) {
+            return isSingleBit(((1 << width)-1) & ~n);
+        }
+
+        // Returns true if category undecided
+        function isCategoryUndecided(category) {
+            return isSingleBit(category) || (category == 0);
+        }
+
+        // Returns true if category decided
+        function isCategoryDecided(category, players) {
+            return isAllButOneBitSet(category, players);
+        }
+
+        // gets remaining categories from that given
+        function remainingCategories(category, width) {
+            return ~category & ((1 << width) - 1);
+        }
+
+        function getCategoryBase(category) {
+            var base = -1;
+            switch (category) {
+            case 3:
+                base = 10;
+                break;
+            case 5:
+                base = 5;
+                break;
+            case 6:
+                base = 0;
+                break;
+            default:
+            }
+
+            return base;
+        }
+
+        function isOut(playerIndex, categories) {
+            var category = categories[playerIndex];
+            var base = getCategoryBase(category);
+            if (base < 0) {
+                return false;
+            }
+            if (isCategoryDecided(category, categories.length)) {
+                for (var i = 0; i < ballCount / categories.length; i++) {
+                    if (ballStates[base+i] == 0) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        // Gets index of undecided player, if there is exactly one, otherwise returns -1
+        //function getSingleUndecidedPlayer(categories) {
+        //    var taken = getOutstandingCategory(categories);
+
+        //    var undecidedPlayer = -1;
+
+        //    if (isAllButOneBitSet(taken, categories.length)) {
+        //        for (var j = 0; j < categories.length; j++) {
+        //            if (isCategoryUndecided(categories[j])) {
+        //                if (undecidedPlayer == -1) {
+        //                    undecidedPlayer = j;
+        //                } else {
+        //                    // Multiple undecided players
+        //                    return -1;
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return undecidedPlayer;
+        //}
+
+        // Gets outstanding category
+        //function getOutstandingCategory(categories) {
+        //    var taken = 0;
+        //    for (var i = 0; i < categories.length; i++) {
+        //        taken |= remainingCategories(categories[i], categories.length);
+        //    }
+
+        //    return taken;
+        //}
+
+        function nextRack() {
+            if (window.confirm("Advance to the next rack?")) {
+
+                clearRack();
+                updateScore();
+            }
+        }
+
+        function setCurrentPlayer() {
+            var player1Cue = document.getElementById("player1-cue");
+            var player2Cue = document.getElementById("player2-cue");
+            var player3Cue = document.getElementById("player3-cue");
+            switch (currentPlayerIndex) {
+                case 0:
+                    player1Cue.style.visibility = "visible";
+                    player2Cue.style.visibility = "hidden";
+                    player3Cue.style.visibility = "hidden";
+                    break;
+                case 1:
+                    player1Cue.style.visibility = "hidden";
+                    player2Cue.style.visibility = "visible";
+                    player3Cue.style.visibility = "hidden";
+                    break;
+                case 2:
+                    player1Cue.style.visibility = "hidden";
+                    player2Cue.style.visibility = "hidden";
+                    player3Cue.style.visibility = "visible";
+                    break;
+            }
+        }
+
+        function updateBallStates(group) {
+            for (var i = 1; i <= ballCount; i++) {
+                updateBallState(group, i);
+            }
+        }
+
+        function updateBallState(group, number) {
+            var ballId = getBallGraphicId(group, number);
+            var checkId = getCheckId(group, number);
+            var foulId = getFoulId(group, number);
+
+            var ballElem = document.getElementById(ballId);
+            var checkElem = document.getElementById(checkId);
+            var foulElem = document.getElementById(foulId);
+
+            var currentBallState = ballStates[number - 1];
+
+            dimElement(ballElem, currentBallState != 0);
+            hideElement(checkElem, currentBallState != (currentPlayerIndex+1));
+            hideElement(foulElem, currentBallState  >= 0);
+        }
+
+        function ballClick(number) {
+
+            var currentBallState = ballStates[number - 1];
+
+            switch (currentBallState) {
+                case 0:
+                    // ball in-play (0) so give to current player
+                    currentBallState = currentPlayerIndex + 1;
+
+                    ballOrder = ballOrder.filter(e => !(e === number));
+                    ballOrder.push(number);
+
+                     break;
+                case -1:
+                    // currently foul so give to next player
+                    currentBallState = ((currentPlayerIndex + 1) % 3) + 1;
+                    break;
+                default:
+                    if (currentBallState == currentPlayerIndex + 1) {
+                        // currently won by current player, mark as foul
+                        currentBallState = -1;
+                    } else {
+                        // give to next player
+                        currentBallState = ((currentBallState) % 3) + 1;
+                        if (currentBallState == currentPlayerIndex + 1) {
+                            // back to current so mark in-play
+                            currentBallState = 0;
+                        }
+                    }
+            }
+
+            ballStates[number - 1] = currentBallState;
+
+            updateBallState('main', number);
+            updateScore();
+        }
+
+        function dimElement(elem,dim) {
+            if (dim) {
+                elem.style.filter = "brightness(30%)";
+            } else {
+                elem.style.filter = "drop-shadow(10px 10px 5px)";
+            }
+        }
+
+        function hideElement(elem, hide) {
+            if (hide) {
+                elem.style.visibility = "hidden";
+            } else {
+                elem.style.visibility = "visible";
+            }
+        }
+
+        function getBallId(group, number) { return "ball-" + group + "-" + number; }
+        function getBallGraphicId(group, number) { return "ball-graphic-" + group + "-" + number;}
+        function getCheckId(group, number) { return "ball-check-" + group + "-" + number; }
+        function getFoulId(group, number) { return "ball-foul-mark-" + group + "-" + number; }
+
+        function addBall(parentId, number, color, isStripe, size, group) {
+
+            var ballElementId;
+            var ballId;
+            var checkId;
+            var foulId;
+
+            if (!(group === undefined)) {
+                ballElementId = getBallId(group, number);
+                ballId = getBallGraphicId(group, number);
+                checkId = getCheckId(group, number);
+                foulId = getFoulId(group, number);
+            }
+
+            var parentElement = document.getElementById(parentId);
+
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            if (!(ballElementId === undefined)) {
+                svg.setAttribute('id', ballElementId);
+            }
+            svg.setAttribute('viewBox', '0 0 120 120');
+            svg.setAttribute('width', size);
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            //svg.setAttribute('width', 120);
+            //svg.setAttribute('height', 120);
+            if (!(group === undefined)) {
+                svg.setAttribute('onclick', "ballClick(" + number + ");");
+            }
+            var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+            if (!(ballId === undefined)) {
+                g.setAttribute('id', ballId);
+            }
+            var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+
+            if (isStripe) {
+                circle.setAttribute('cx', 50);
+                circle.setAttribute('cy', 50);
+                circle.setAttribute('r', 48);
+                circle.setAttribute("style", "fill: white;");
+                g.appendChild(circle);
+
+                var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+                path.setAttribute('d', "M 16 16 L 84 16 A 50 50 0 0 1 84 84 L 16 84  A 50 50 0 0 1 16 16 ");
+                path.setAttribute("style", "fill: " + color + "; stroke-width: 1; stroke: grey;");
+                g.appendChild(path);
+
+                circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+                circle.setAttribute('cx', 50);
+                circle.setAttribute('cy', 50);
+                circle.setAttribute('r', 48);
+                circle.setAttribute("style", "fill: transparent; stroke-width: 1; stroke: grey;");
+                g.appendChild(circle);
+
+            } else {
+                circle.setAttribute('cx',50);
+                circle.setAttribute('cy', 50);
+                circle.setAttribute('r', 48);
+                circle.setAttribute("style", "fill: " + color + "; stroke-width: 1; stroke: grey;");
+                g.appendChild(circle);
+            }
+
+            circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+            circle.setAttribute('cx', 50);
+            circle.setAttribute('cy', 50);
+            circle.setAttribute('r', 27);
+            circle.setAttribute("style", "fill: white; stroke-width: 1; stroke: grey;");
+            g.appendChild(circle);
+            var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+            text.setAttribute("x", 50);
+            text.setAttribute("y", 53);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "middle");
+            text.setAttribute("font-weight", "bold");
+            text.setAttribute("font-size", number > 9 ? "32px" : "40px");
+            text.innerHTML = number;
+            g.appendChild(text);
+            svg.appendChild(g);
+
+            if (!(group === undefined)) {
+                text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                text.setAttribute("style", "visibility: hidden; filter: drop-shadow(10px 10px 5px)");
+                text.setAttribute("x", 50);
+                text.setAttribute("y", 50);
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("dominant-baseline", "middle");
+                text.setAttribute("font-size", "30px");
+                text.setAttribute("fill", "red");
+                text.setAttribute("stroke-width", "1");
+                text.setAttribute("stroke", "white");
+                text.innerHTML = "Foul";
+                text.setAttribute("id", foulId);
+                svg.appendChild(text);
+                text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                text.setAttribute("style", "visibility: hidden; filter: drop-shadow(10px 10px 5px)");
+                text.setAttribute("x", 40);
+                text.setAttribute("y", 90);
+                text.setAttribute("font-size", "80px");
+                text.setAttribute("fill", "green");
+                text.setAttribute("stroke-width", "1");
+                text.setAttribute("stroke", "white");
+                text.innerHTML = "&#x2714;";
+                text.setAttribute("id", checkId);
+                svg.appendChild(text);
+            }
+            parentElement.appendChild(svg);
+            if (!(group === undefined)) {
+                updateBallState(group, number);
+            }
+        }
+
+        function addMiss(parentId, size) {
+            var parentElement = document.getElementById(parentId);
+
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute('viewBox', '0 0 120 120');
+            svg.setAttribute('width', size);
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            //svg.setAttribute('width', 120);
+            //svg.setAttribute('height', 120);
+            svg.setAttribute('onclick', "missedShot();");
+            svg.setAttribute("style", "filter: drop-shadow(10px 10px 5px)");
+            var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+            var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+
+            circle.setAttribute('cx', 50);
+            circle.setAttribute('cy', 50);
+            circle.setAttribute('r', 48);
+            circle.setAttribute("style", "fill: white; stroke-width: 1; stroke: grey ;");
+            g.appendChild(circle);
+
+            svg.appendChild(g);
+            var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+            text.setAttribute("style", "filter: drop-shadow(10px 10px 5px)");
+            text.setAttribute("x", 50);
+            text.setAttribute("y", 50);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "middle");
+            text.setAttribute("font-size", "20px");
+            text.setAttribute("font-weight", "bold");
+            text.setAttribute("fill", "red");
+            text.setAttribute("stroke", "darkred");
+            text.setAttribute("stroke-width", "1");
+            text.innerHTML = "End Turn";
+            svg.appendChild(text);
+            parentElement.appendChild(svg);
+        }
+
+
+        function addRack(parentId, size) {
+            var parentElement = document.getElementById(parentId);
+
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute('viewBox', '0 0 120 120');
+            svg.setAttribute('width', size);
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            //svg.setAttribute('width', 120);
+            //svg.setAttribute('height', 120);
+            svg.setAttribute('onclick', "nextRack();");
+            svg.setAttribute("style", "filter: drop-shadow(10px 10px 5px)");
+            var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+
+            var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+            path.setAttribute('d', "M 10 80 L 50 8 L 90 80 Z");
+            path.setAttribute("style", "fill: transparent; stroke-width: 8; stroke: brown;");
+            g.appendChild(path);
+
+            svg.appendChild(g);
+            var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+            text.setAttribute("style", "filter: drop-shadow(10px 10px 5px)");
+            text.setAttribute("x", 50);
+            text.setAttribute("y", 50);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "middle");
+            text.setAttribute("font-size", "18px");
+            text.setAttribute("font-weight", "bold");
+            text.setAttribute("fill", "yellow");
+            text.setAttribute("stroke", "white");
+            text.setAttribute("stroke-width", "1");
+            text.innerHTML = "New Rack";
+            svg.appendChild(text);
+            parentElement.appendChild(svg);
+        }
+
+        function addPoolBall(elementId, number, size, group) {
+            var colors = ["yellow", "blue", "red", "purple", "orange", "green", "brown", "black"];
+            var color = colors[(number - 1) % 8];
+            var isStripe = (((number - 1) / 8) >= 1);
+            addBall(elementId, number, color, isStripe, size, group);
+        }
+
+        function addBalls(elementId, group) {
+            for (var i = 1; i <= ballCount; i++) {
+                addPoolBall(elementId, i, '20%', group);
+            }
+
+            addMiss(elementId, '20%');
+            addRack(elementId, '20%');
+        }
+
+        function onLoad() {
+            addBalls("balls", "main");
+            for (var i = 0; i < 3; i++) {
+                var playerPrefix = "player" + (i+1);
+                document.getElementById(playerPrefix + "-input").value = playerNames[i];
+            }
+
+            clearRack();
+        }
+
+        function onPlayerChange(index) {
+            var playerPrefix = "player" + (index+1);
+            playerNames[index] = document.getElementById(playerPrefix + "-input").value;
+            document.getElementById(playerPrefix + "-name").innerHTML = playerNames[index];
+        }
+
+    </script>
+</head>
+<body onload='onLoad()'>
+    <div style="background-color: lightblue; padding: 20px;">
+        <!--<button onclick="clearRackIfConfirmed()">Clear Rack</button>-->
+        <table>
+            <tr>
+                <td>Player/Current Shooter</td>
+                <td>Category</td>
+                <td>Balls</td>
+                <td>Play</td>
+                <td>Pocketed</td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="display: flex; white-space: nowrap">
+                        <button style="vertical-align: middle" onclick="player1Shooting()">
+                            <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                        </button>
+                        &nbsp;
+                        <input type="text" id="player1-input" size="15" oninput="onPlayerChange(0)" />
+                    </div>
+                </td>
+                <td style="text-align: center"><span id="player1-category"></span></td>
+                <td><div style="padding-top: 3px; padding-left: 3px" id="player1-owns"></div></td>
+                <td><div style="padding-top: 3px; padding-left: 3px" id="player1-canShoot"></div></td>
+                <td><div style="padding-top: 3px; padding-left: 3px" id="player1-balls"></div></td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="display: flex; white-space: nowrap">
+                        <button style="vertical-align: middle" onclick="player2Shooting()">
+                            <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                        </button>
+                        &nbsp;
+                        <input type="text" id="player2-input" size="15" oninput="onPlayerChange(1)" />
+                    </div>
+                </td>
+                <td style="text-align: center"><span id="player2-category"></span></td>
+                <td><div style="padding-top: 3px; padding-left: 3px" id="player2-owns"></div></td>
+                <td><div style="padding-top: 3px; padding-left: 3px" id="player2-canShoot"></div></td>
+                <td><div style="padding-top: 3px;padding-left: 3px" id="player2-balls"></div></td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="display: flex; white-space: nowrap">
+                        <button style="vertical-align: middle" onclick="player3Shooting()">
+                            <svg id="player3-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                        </button>
+                        &nbsp;
+                        <input type="text" id="player3-input" size="15" oninput="onPlayerChange(2)" />
+                    </div>
+                </td>
+                <td style="text-align: center"><span id="player3-category"></span></td>
+                <td><div style="padding-top: 3px; padding-left: 3px" id="player3-owns"></div></td>
+                <td><div style="padding-top: 3px; padding-left: 3px" id="player3-canShoot"></div></td>
+                <td><div style="padding-top: 3px;padding-left: 3px" id="player3-balls"></div></td>
+            </tr>
+        </table>
+        <div id="balls" style="background-color: lightblue; padding: 10px; height: 90vmin; aspect-ratio: 1 / 1; ">
+        </div>
+    </div>
+</body>
+</html>
