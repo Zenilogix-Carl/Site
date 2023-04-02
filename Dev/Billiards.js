@@ -218,3 +218,67 @@ class Player {
         }
     }
 }
+
+class PlayerWithScore extends Player {
+    constructor(name, setupFn) {
+        super(name, setupFn);
+
+        this.score = 0;
+        this.neededToWin = 0;
+    }
+
+    bindScore(htmlElement) {
+        this.scoreElement = htmlElement;
+    }
+
+    getScore() {
+        return this.score;
+    }
+
+    setScore(score) {
+        this.score = score;
+        this.updateScore();
+    }
+
+    updateScore() {
+        //this.scoreElement.innerHTML = this.score;
+        var remaining = this.neededToWin - this.score;
+        this.remainingElement.innerHTML = remaining > 0 ? remaining : 0;
+    }
+
+    bindNeededToWin(inputElement, htmlElement) {
+        var obj = this;
+        inputElement.addEventListener("input", function () {
+            obj.neededToWin = inputElement.value;
+            obj.updateScore();
+        });
+        this.remainingElement = htmlElement;
+    }
+}
+
+function bindInput(object, property, element) {
+    element.addEventListener("input", function () {
+        object[property] = element.value;
+    });
+    Object.defineProperty(object, property,
+        {
+            get() {
+                return element.value;
+            },
+            set(newValue) {
+                element.value = newValue;
+            }
+        });
+}
+
+function bindOutput(object, property, element) {
+    Object.defineProperty(object, property,
+        {
+            get() {
+                return element.innerHTML;
+            },
+            set(newValue) {
+                element.innerHTML = newValue;
+            }
+        });
+}
