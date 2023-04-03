@@ -253,8 +253,8 @@
                 }
             }
 
-            players[player1].setScore(player1Score + player1RackScore);
-            players[player2].setScore(player2Score + player2RackScore);
+            players[player1].score = player1Score + player1RackScore;
+            players[player2].score = player2Score + player2RackScore;
         }
 
         function setplayer1Defensives() {
@@ -353,19 +353,27 @@
 
         function onLoad() {
             addBalls("balls");
-            document.getElementById("player1-input").value = player1Name;
-            document.getElementById("player2-input").value = player2Name;
 
-            bindOutput(players[player1], "score", document.getElementById("player1-score"));
-            bindOutput(players[player2], "score", document.getElementById("player2-score"));
+            bindInput(players[player1], "name", document.getElementById("player1-input"));
+            bindInput(players[player2], "name", document.getElementById("player2-input"));
 
-            players[player1].bindNeededToWin(
-                document.getElementById("player1-goal"),
-                document.getElementById("player1-needs"));
-            players[player2].bindNeededToWin(
-                document.getElementById("player2-goal"),
-                document.getElementById("player2-needs"));
+            bindInput(players[player1], "neededToWin", document.getElementById("player1-goal"), function() {
+                players[player1].updateScore();
+            });
 
+            bindInput(players[player2], "neededToWin", document.getElementById("player2-goal"), function () {
+                players[player2].updateScore();
+            });
+
+            bindOutput(players[player1], "score", document.getElementById("player1-score"), function() {
+                players[player1].updateScore();
+            });
+            bindOutput(players[player2], "score", document.getElementById("player2-score"), function() {
+                players[player2].updateScore();
+            });
+
+            bindOutput(players[player1], "remaining", document.getElementById("player1-needs"));
+            bindOutput(players[player2], "remaining", document.getElementById("player2-needs"));
         }
 
     </script>

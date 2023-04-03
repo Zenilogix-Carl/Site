@@ -164,7 +164,6 @@ class CueBall {
 
         this.element = svg;
     }
-
 }
 
 class Rack
@@ -225,53 +224,42 @@ class PlayerWithScore extends Player {
 
         this.score = 0;
         this.neededToWin = 0;
-    }
-
-    bindScore(htmlElement) {
-        this.scoreElement = htmlElement;
-    }
-
-    getScore() {
-        return this.score;
-    }
-
-    setScore(score) {
-        this.score = score;
-        this.updateScore();
+        this.rackScore = 0;
+        this.matchScore = 0;
+        this.rackDefensives = 0;
+        this.matchDefensives = 0;
     }
 
     updateScore() {
-        //this.scoreElement.innerHTML = this.score;
         var remaining = this.neededToWin - this.score;
-        this.remainingElement.innerHTML = remaining > 0 ? remaining : 0;
-    }
-
-    bindNeededToWin(inputElement, htmlElement) {
-        var obj = this;
-        inputElement.addEventListener("input", function () {
-            obj.neededToWin = inputElement.value;
-            obj.updateScore();
-        });
-        this.remainingElement = htmlElement;
+        this.remaining = remaining > 0 ? remaining : 0;
     }
 }
 
-function bindInput(object, property, element) {
+function bindInput(object, property, element, setAction) {
+    object[property + 'SetAction'] = setAction;
     element.addEventListener("input", function () {
         object[property] = element.value;
     });
+    var value = object[property];
     Object.defineProperty(object, property,
         {
             get() {
-                return element.value;
+                return object['_' + property];
             },
             set(newValue) {
-                element.value = newValue;
+                object['_' + property] = newValue;
+                var setAction = this[property + 'SetAction'];
+                if (!(setAction === undefined)) {
+                    setAction();
+                }
             }
         });
+    element.value = value;
 }
 
-function bindOutput(object, property, element) {
+function bindOutput(object, property, element, setAction) {
+    object[property + 'SetAction'] = setAction;
     Object.defineProperty(object, property,
         {
             get() {
@@ -279,6 +267,10 @@ function bindOutput(object, property, element) {
             },
             set(newValue) {
                 element.innerHTML = newValue;
+                var setAction = this[property + 'SetAction'];
+                if (!(setAction === undefined)) {
+                    setAction();
+                }
             }
         });
 }
