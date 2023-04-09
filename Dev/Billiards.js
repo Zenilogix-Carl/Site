@@ -252,6 +252,9 @@ function bindInput(object, property, element, setAction) {
                 var setAction = this[property + 'SetAction'];
                 if (!(setAction === undefined)) {
                     setAction();
+                    if (object[property] != element.value) {
+                        element.value = object[property];
+                    }
                 }
             }
         });

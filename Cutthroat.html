@@ -297,21 +297,33 @@
             var player1Cue = document.getElementById("player1-cue");
             var player2Cue = document.getElementById("player2-cue");
             var player3Cue = document.getElementById("player3-cue");
+            var player1Input = document.getElementById("player1-input");
+            var player2Input = document.getElementById("player2-input");
+            var player3Input = document.getElementById("player3-input");
             switch (currentPlayerIndex) {
                 case 0:
                     player1Cue.style.visibility = "visible";
                     player2Cue.style.visibility = "hidden";
                     player3Cue.style.visibility = "hidden";
+                    player1Input.style.fontWeight = "bold";
+                    player2Input.style.fontWeight = "normal";
+                    player3Input.style.fontWeight = "normal";
                     break;
                 case 1:
                     player1Cue.style.visibility = "hidden";
                     player2Cue.style.visibility = "visible";
                     player3Cue.style.visibility = "hidden";
+                    player1Input.style.fontWeight = "normal";
+                    player2Input.style.fontWeight = "bold";
+                    player3Input.style.fontWeight = "normal";
                     break;
                 case 2:
                     player1Cue.style.visibility = "hidden";
                     player2Cue.style.visibility = "hidden";
                     player3Cue.style.visibility = "visible";
+                    player1Input.style.fontWeight = "normal";
+                    player2Input.style.fontWeight = "normal";
+                    player3Input.style.fontWeight = "bold";
                     break;
             }
         }
@@ -410,6 +422,7 @@
             }
 
             clearRack();
+            setCurrentPlayer();
         }
 
         function onPlayerChange(index) {
@@ -438,7 +451,7 @@
                             <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player1-input" size="15" oninput="onPlayerChange(0)" />
+                        <input type="text" id="player1-input" size="12" oninput="onPlayerChange(0)" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player1-category"></span></td>
@@ -453,7 +466,7 @@
                             <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player2-input" size="15" oninput="onPlayerChange(1)" />
+                        <input type="text" id="player2-input" size="12" oninput="onPlayerChange(1)"  style="background: transparent; border: transparent;"/>
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player2-category"></span></td>
@@ -468,7 +481,7 @@
                             <svg id="player3-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player3-input" size="15" oninput="onPlayerChange(2)" />
+                        <input type="text" id="player3-input" size="12" oninput="onPlayerChange(2)"  style="background: transparent; border: transparent;"/>
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player3-category"></span></td>

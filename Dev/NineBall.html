@@ -291,12 +291,18 @@
         function setCurrentPlayer() {
             var player1Cue = document.getElementById("player1-cue");
             var player2Cue = document.getElementById("player2-cue");
+            var player1Input = document.getElementById("player1-input");
+            var player2Input = document.getElementById("player2-input");
             if (currentPlayer == player1) {
                 player1Cue.style.visibility = "visible";
                 player2Cue.style.visibility = "hidden";
+                player1Input.style.fontWeight = "bold";
+                player2Input.style.fontWeight = "normal";
             } else {
                 player1Cue.style.visibility = "hidden";
                 player2Cue.style.visibility = "visible";
+                player1Input.style.fontWeight = "normal";
+                player2Input.style.fontWeight = "bold";
             }
         }
 
@@ -352,12 +358,31 @@
             addRack(elementId, '20%');
         }
 
+        function initialCaps(str) {
+            return str[0].toUpperCase() + str.substring(1);
+        }
+
         function onLoad() {
             document.title = isApa ? 'Scoreboard for APA-Style 9-Ball' : 'Scoreboard for Classic 9-Ball';
             addBalls("balls");
 
-            bindInput(players[player1], "name", document.getElementById("player1-input"));
-            bindInput(players[player2], "name", document.getElementById("player2-input"));
+            bindInput(players[player1],
+                "name",
+                document.getElementById("player1-input"),
+                function() {
+                    var name = players[player1].name;
+                    var uc = initialCaps(name);
+                    if (uc != name) {
+                        players[player1].name = uc;
+                    };
+                });
+            bindInput(players[player2], "name", document.getElementById("player2-input"), function () {
+                var name = players[player2].name;
+                var uc = initialCaps(name);
+                if (uc != name) {
+                    players[player2].name = uc;
+                };
+            });
 
             bindInput(players[player1], "neededToWin", document.getElementById("player1-goal"), function() {
                 players[player1].updateScore();
@@ -376,6 +401,8 @@
 
             bindOutput(players[player1], "remaining", document.getElementById("player1-needs"));
             bindOutput(players[player2], "remaining", document.getElementById("player2-needs"));
+
+            setCurrentPlayer();
         }
 
     </script>
@@ -421,14 +448,14 @@
                         <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                     </button>
                     &nbsp;
-                    <input type="text" id="player1-input" size="15" />
+                    <input type="text" id="player1-input" size="12"  style="background: transparent; border: transparent;"/>
                 </div>
             </td>
             <td style="text-align: right">
                 <span id="player1-needs"></span>/
             </td>
             <td>
-                <input type="text" id="player1-goal" size="2" />
+                <input type="text" id="player1-goal" size="2" style="background: transparent; border: transparent;"/>
             </td>
             <td style="text-align: center"><span id="player1-score">0</span></td>
             <td><div id="player1-balls" style="padding-top: 3px; padding-left: 3px; padding-bottom: 0px"></div></td>
@@ -445,14 +472,14 @@
                         <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                     </button>
                     &nbsp;
-                    <input type="text" id="player2-input" size="15"  />
+                    <input type="text" id="player2-input" size="12" style="background: transparent; border: transparent;" />
                 </div>
             </td>
             <td style="text-align: right">
                 <span id="player2-needs"></span>/
             </td>
             <td>
-                <input type="text" id="player2-goal" size="2" />
+                <input type="text" id="player2-goal" size="2" style="background: transparent; border: transparent;"/>
             </td>
             <td style="text-align: center"><span id="player2-score">0</span></td>
             <td><div id="player2-balls" style="padding-top: 3px; padding-left: 3px; padding-bottom: 0px"></div></td>
