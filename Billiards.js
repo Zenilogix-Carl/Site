@@ -251,7 +251,7 @@ function bindInput(object, property, element, setAction) {
                 object['_' + property] = newValue;
                 var setAction = this[property + 'SetAction'];
                 if (!(setAction === undefined)) {
-                    setAction();
+                    setAction(object);
                     if (object[property] != element.value) {
                         element.value = object[property];
                     }

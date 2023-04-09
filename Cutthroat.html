@@ -42,6 +42,12 @@
         // 1..3 = won by player
         // -1 out-of-play
         // Player "number" is 1..3 but where arrays are involved, player 1 occupies element 0, etc.
+        class CutthroatPlayer extends Player {
+            constructor(name, setupFn) {
+                super(name, setupFn);
+            }
+        }
+
         const ballCount = 15;
         const playerCount = 3;
 
@@ -58,8 +64,11 @@
         var ballStates = Array(ballCount).fill(0);
         var playerStates = Array(3).fill(0);
 
-        var defaultPlayerNames = ["Player 1", "Player 2", "Player 3"];
-        var playerNames = defaultPlayerNames;
+        var players = [
+            new CutthroatPlayer("Player 1"),
+            new CutthroatPlayer("Player 2"),
+            new CutthroatPlayer("Player 3")
+        ];
 
         var currentPlayerIndex = 0;
         var startingPlayerIndex = currentPlayerIndex;
@@ -167,7 +176,7 @@
                 }
             }
 
-            for (var p2 = 0; p2 < playerNames.length; p2++) {
+            for (var p2 = 0; p2 < players.length; p2++) {
                 document.getElementById('player' + (p2 + 1) + '-category').innerHTML = isOut(p2, categories) ? 'Out' : playerCategoryNames[categories[p2]];
 
                 var playerCategory2 = categories[p2];
@@ -414,21 +423,30 @@
             addRack(elementId, '20%');
         }
 
+        function initialCaps(str) {
+            return str[0].toUpperCase() + str.substring(1);
+        }
+
         function onLoad() {
             addBalls("balls");
             for (var i = 0; i < 3; i++) {
-                var playerPrefix = "player" + (i+1);
-                document.getElementById(playerPrefix + "-input").value = playerNames[i];
+                var playerPrefix = "player" + (i + 1);
+                var player = players[i];
+
+                bindInput(player,
+                    "name",
+                    document.getElementById(playerPrefix + "-input"),
+                    function (player) {
+                        var name = player.name;
+                        var uc = initialCaps(name);
+                        if (uc != name) {
+                            player.name = uc;
+                        };
+                    });
             }
 
             clearRack();
             setCurrentPlayer();
-        }
-
-        function onPlayerChange(index) {
-            var playerPrefix = "player" + (index+1);
-            playerNames[index] = document.getElementById(playerPrefix + "-input").value;
-            document.getElementById(playerPrefix + "-name").innerHTML = playerNames[index];
         }
 
     </script>
@@ -451,7 +469,7 @@
                             <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player1-input" size="12" oninput="onPlayerChange(0)" style="background: transparent; border: transparent;" />
+                        <input type="text" id="player1-input" size="12" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player1-category"></span></td>
@@ -466,7 +484,7 @@
                             <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player2-input" size="12" oninput="onPlayerChange(1)"  style="background: transparent; border: transparent;"/>
+                        <input type="text" id="player2-input" size="12" style="background: transparent; border: transparent;"/>
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player2-category"></span></td>
@@ -481,7 +499,7 @@
                             <svg id="player3-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player3-input" size="12" oninput="onPlayerChange(2)"  style="background: transparent; border: transparent;"/>
+                        <input type="text" id="player3-input" size="12" style="background: transparent; border: transparent;"/>
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player3-category"></span></td>
