@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title></title>
+    <title>Scoreboard for Cutthroat</title>
     <style>
         .buttons {
             padding-left: 10px;
@@ -43,6 +43,7 @@
         // -1 out-of-play
         // Player "number" is 1..3 but where arrays are involved, player 1 occupies element 0, etc.
         const ballCount = 15;
+        const playerCount = 3;
 
         const playerCategoryNames = [
             "Open", "Not Low", "Not Middle", "High", "Not High", "Middle", "Low", "Foul"];
@@ -55,6 +56,7 @@
         var balls = {};
 
         var ballStates = Array(ballCount).fill(0);
+        var playerStates = Array(3).fill(0);
 
         var defaultPlayerNames = ["Player 1", "Player 2", "Player 3"];
         var playerNames = defaultPlayerNames;
@@ -91,7 +93,10 @@
         }
 
         function nextPlayer() {
-            currentPlayerIndex = (currentPlayerIndex + 1) % 3;
+            var i = playerCount;
+            do {
+                currentPlayerIndex = (currentPlayerIndex + 1) % 3;
+            } while (--i > 0 && isOut(currentPlayerIndex, playerStates));
         }
 
         function missedShot() {
@@ -158,14 +163,7 @@
                         categories[playerIndex] = playerCategory;
                     }
 
-                    if (isCategoryDecided(playerCategory, categories.length)) {
-                        var outStandingCategory = remainingCategories(playerCategory, categories.length);
-                        for (var j = 0; j < categories.length; j++) {
-                            if (j != playerIndex && isCategoryUndecided(categories[j])) {
-                                categories[j] |= outStandingCategory;
-                            }
-                        }
-                    }
+                    updateOpponentCategory(playerIndex, categories);
                 }
             }
 
@@ -193,6 +191,22 @@
                 }
             }
 
+            playerStates = categories;
+        }
+
+        function updateOpponentCategory(playerIndex, categories) {
+            var playerCategory = categories[playerIndex];
+            if (isCategoryDecided(playerCategory, categories.length)) {
+                var outStandingCategory = remainingCategories(playerCategory, categories.length);
+                for (var j = 0; j < categories.length; j++) {
+                    if (j != playerIndex && isCategoryUndecided(categories[j])) {
+                        categories[j] |= outStandingCategory;
+                        if (isCategoryDecided(categories[j], categories.length)) {
+                            updateOpponentCategory(j, categories);
+                        }
+                    }
+                }
+            }
         }
 
         function canPlayBall(playerIndex, categories, ballStates, number) {
@@ -420,7 +434,7 @@
             <tr>
                 <td>
                     <div style="display: flex; white-space: nowrap">
-                        <button style="vertical-align: middle" onclick="player1Shooting()">
+                        <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player1Shooting()">
                             <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
@@ -435,7 +449,7 @@
             <tr>
                 <td>
                     <div style="display: flex; white-space: nowrap">
-                        <button style="vertical-align: middle" onclick="player2Shooting()">
+                        <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player2Shooting()">
                             <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
@@ -450,7 +464,7 @@
             <tr>
                 <td>
                     <div style="display: flex; white-space: nowrap">
-                        <button style="vertical-align: middle" onclick="player3Shooting()">
+                        <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player3Shooting()">
                             <svg id="player3-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
@@ -463,7 +477,7 @@
                 <td><div style="padding-top: 3px;padding-left: 3px" id="player3-balls"></div></td>
             </tr>
         </table>
-        <div id="balls" style="background-color: lightblue; padding: 10px; height: 90vmin; aspect-ratio: 1 / 1; ">
+        <div id="balls" style="padding: 10px; height: 90vmin; aspect-ratio: 1 / 1; ">
         </div>
     </div>
 </body>
