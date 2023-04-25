@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scoreboard for Cutthroat</title>
     <style>
         .buttons {
@@ -178,6 +179,7 @@
 
             for (var p2 = 0; p2 < players.length; p2++) {
                 document.getElementById('player' + (p2 + 1) + '-category').innerHTML = isOut(p2, categories) ? 'Out' : playerCategoryNames[categories[p2]];
+                document.getElementById('player' + (p2 + 1) + '-input').style.textDecoration = isOut(p2, categories) ? 'line-through' : 'none';
 
                 var playerCategory2 = categories[p2];
                 if (isCategoryDecided(playerCategory2, categories.length)) {
@@ -214,6 +216,32 @@
                             updateOpponentCategory(j, categories);
                         }
                     }
+                }
+            } else if (playerCategory != 0) {
+                var openCategory = playerCategory;
+                var likeCount = 0;
+                var openCount = 0;
+                var lastOpenPlayer = -1;
+                for (var i = 0; i < categories.length; i++) {
+                    if (i != playerIndex) {
+                        var opponentCategory = categories[i];
+                        if (opponentCategory == 0) {
+                            openCount++;
+                            lastOpenPlayer = i;
+                        } else {
+                            openCategory &= opponentCategory;
+                            if (openCategory != 0) {
+                                likeCount++;
+                            } else {
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                if (openCount == 1 && likeCount == categories.length-2) {
+                    // Force the one open
+                    categories[lastOpenPlayer] = remainingCategories(openCategory, categories.length);
                 }
             }
         }
