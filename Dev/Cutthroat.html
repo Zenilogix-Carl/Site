@@ -19,7 +19,7 @@
             }
         }
 
-        var ballSizeLarge = '20%';
+        var ballSizeLarge = '9%';
         var ballSizeSmall = '32px';
 
         const ballCount = 15;
@@ -418,6 +418,10 @@
 
                 balls[i] = new BilliardBallWithState(i, ballSizeLarge, ballClick, 'Foul');
                 parentElement.appendChild(balls[i].element);
+
+                if (i % 5 == 0) {
+                    parentElement.appendChild(document.createElement("br"));
+                }
             }
 
             addMiss(elementId, ballSizeLarge);
@@ -448,9 +452,28 @@
 
             clearRack();
             setCurrentPlayer();
+            updateScore();
         }
 
         function onResize() {
+            var width = document.documentElement.clientWidth;
+            if (width > 1000) {
+                ballSizeLarge = '10%';
+                ballSizeSmall = '32px';
+            } else if (width > 800) {
+                ballSizeLarge = '10%';
+                ballSizeSmall = '30px';
+            } else {
+                ballSizeLarge = '10%';
+                ballSizeSmall = '25px';
+            }
+
+            var parentElement = document.getElementById("balls");
+            parentElement.querySelectorAll('svg').forEach(function (svg) {
+                svg.setAttribute('width', ballSizeLarge);
+            });
+
+            updateScore();
         }
     </script>
 </head>
@@ -459,7 +482,7 @@
         <!--<button onclick="clearRackIfConfirmed()">Clear Rack</button>-->
         <table>
             <tr>
-                <td>Player/Current Shooter</td>
+                <td>Player</td>
                 <td>Category</td>
                 <td>Protect</td>
                 <td>Play</td>
@@ -487,7 +510,7 @@
                             <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player2-input" size="12" style="background: transparent; border: transparent;"/>
+                        <input type="text" id="player2-input" size="8" style="background: transparent; border: transparent;"/>
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player2-category"></span></td>
@@ -502,7 +525,7 @@
                             <svg id="player3-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player3-input" size="12" style="background: transparent; border: transparent;"/>
+                        <input type="text" id="player3-input" size="8" style="background: transparent; border: transparent;"/>
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player3-category"></span></td>

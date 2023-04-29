@@ -378,16 +378,23 @@
 
         function onResize() {
             var width = document.documentElement.clientWidth;
-            if (width > 800) {
+            if (width > 1000) {
                 ballSizeLarge = '9%';
+                ballSizeSmall = '32px';
+            } else if (width > 800) {
+                ballSizeLarge = '9%';
+                ballSizeSmall = '30px';
             } else {
                 ballSizeLarge = '20%';
+                ballSizeSmall = '25px';
             }
 
             var parentElement = document.getElementById("balls");
             parentElement.querySelectorAll('svg').forEach(function (svg) {
                 svg.setAttribute('width', ballSizeLarge);
             });
+
+            updateScore();
         }
     </script>
 </head>
@@ -419,11 +426,11 @@
     </table>
     <table>
         <tr>
-            <td>Player/Current Shooter</td>
-            <td colspan="2">Needed to Win</td>
+            <td>Player<br/>Current Shooter</td>
+            <td colspan="2">Needs<br/>to Win</td>
             <td>Score</td>
-            <td>Current Rack</td>
-            <td>Defensives</td>
+            <td>Current<br/>Rack</td>
+            <td><small>Defensives</small></td>
         </tr>
         <tr>
             <td>
@@ -432,7 +439,7 @@
                         <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                     </button>
                     &nbsp;
-                    <input type="text" id="player1-input" size="12"  style="background: transparent; border: transparent;"/>
+                    <input type="text" id="player1-input" size="8"  style="background: transparent; border: transparent;"/>
                 </div>
             </td>
             <td style="text-align: right">
@@ -456,7 +463,7 @@
                         <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                     </button>
                     &nbsp;
-                    <input type="text" id="player2-input" size="12" style="background: transparent; border: transparent;" />
+                    <input type="text" id="player2-input" size="8" style="background: transparent; border: transparent;" />
                 </div>
             </td>
             <td style="text-align: right">
