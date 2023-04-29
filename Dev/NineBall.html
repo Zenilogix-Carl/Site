@@ -4,50 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
-    <style>
-        .buttons {
-            padding-left: 10px;
-            padding-right: 10px;
-            padding-top: 3px;
-            padding-bottom: 3px;
-        }
-
-        input {
-            font-size: 20pt;
-        }
-
-        button {
-            font-size: 18pt;
-        }
-
-        table, th, td {
-            border: 1px solid grey;
-            border-collapse: collapse;
-        }
-
-        td {
-            padding-left: 5px;
-            padding-right: 5px;
-            padding-top: 1px;
-            padding-bottom: 1px;
-        }
-
-        body {
-            font-family: Verdana, sans-serif;
-            font-size: 20pt;
-            padding: 0px;
-            margin: 0px;
-            overflow-x: hidden;
-            overflow-y: hidden;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
     <script src="Billiards.js"></script>
     <script>
+        window.addEventListener("resize", onResize);
+
         class NineBallPlayer extends PlayerWithScore {
             constructor(name, setupFn) {
                 super(name, setupFn);
             }
         }
+
+        var ballSizeLarge = '20%';
+        var ballSizeSmall = '32px';
 
         const ballCount = 9;
         const apa = [1, 1, 1, 1, 1, 1, 1, 1, 2];
@@ -247,11 +216,11 @@
                 var ballState = ballStates[i];
                 if ((currentPlayer == player1 && ballState == "won") || (currentPlayer == player2 && ballState == "lost")) {
                     player1RackScore += values[i];
-                    parent1.appendChild(new BilliardBall(i+1, '30px').element);
+                    parent1.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
                 if ((currentPlayer == player1 && ballState == "lost") || (currentPlayer == player2 && ballState == "won")) {
                     player2RackScore += values[i];
-                    parent2.appendChild(new BilliardBall(i + 1, '30px').element);
+                    parent2.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
             }
 
@@ -351,12 +320,12 @@
             var parentElement = document.getElementById(elementId);
             for (var i = 1; i <= ballCount; i++) {
 
-                balls[i] = new BilliardBallWithState(i, '20%', ballClick, 'DEAD');
+                balls[i] = new BilliardBallWithState(i, ballSizeLarge, ballClick, 'DEAD');
                 parentElement.appendChild(balls[i].element);
             }
 
-            addMiss(elementId, '20%');
-            addRack(elementId, '20%');
+            addMiss(elementId, ballSizeLarge);
+            addRack(elementId, ballSizeLarge);
         }
 
         function initialCaps(str) {
@@ -365,12 +334,13 @@
 
         function onLoad() {
             document.title = isApa ? 'Scoreboard for APA-Style 9-Ball' : 'Scoreboard for Classic 9-Ball';
+            onResize();
             addBalls("balls");
 
             bindInput(players[player1],
                 "name",
                 document.getElementById("player1-input"),
-                function() {
+                function () {
                     var name = players[player1].name;
                     var uc = initialCaps(name);
                     if (uc != name) {
@@ -385,7 +355,7 @@
                 };
             });
 
-            bindInput(players[player1], "neededToWin", document.getElementById("player1-goal"), function() {
+            bindInput(players[player1], "neededToWin", document.getElementById("player1-goal"), function () {
                 players[player1].updateScore();
             });
 
@@ -393,10 +363,10 @@
                 players[player2].updateScore();
             });
 
-            bindOutput(players[player1], "score", document.getElementById("player1-score"), function() {
+            bindOutput(players[player1], "score", document.getElementById("player1-score"), function () {
                 players[player1].updateScore();
             });
-            bindOutput(players[player2], "score", document.getElementById("player2-score"), function() {
+            bindOutput(players[player2], "score", document.getElementById("player2-score"), function () {
                 players[player2].updateScore();
             });
 
@@ -406,6 +376,19 @@
             setCurrentPlayer();
         }
 
+        function onResize() {
+            var width = document.documentElement.clientWidth;
+            if (width > 800) {
+                ballSizeLarge = '9%';
+            } else {
+                ballSizeLarge = '20%';
+            }
+
+            var parentElement = document.getElementById("balls");
+            parentElement.querySelectorAll('svg').forEach(function (svg) {
+                svg.setAttribute('width', ballSizeLarge);
+            });
+        }
     </script>
 </head>
 <body onload='onLoad()'>
@@ -459,7 +442,7 @@
                 <input type="text" id="player1-goal" size="2" style="background: transparent; border: transparent;"/>
             </td>
             <td style="text-align: center"><span id="player1-score">0</span></td>
-            <td><div id="player1-balls" style="padding-top: 3px; padding-left: 3px; padding-bottom: 0px"></div></td>
+            <td><div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
             <td style="text-align: center">
                 <span id="player1-defensives">0</span>
                 <button class="buttons" onclick="addplayer1Defensive()"><b>+</b></button>
@@ -483,7 +466,7 @@
                 <input type="text" id="player2-goal" size="2" style="background: transparent; border: transparent;"/>
             </td>
             <td style="text-align: center"><span id="player2-score">0</span></td>
-            <td><div id="player2-balls" style="padding-top: 3px; padding-left: 3px; padding-bottom: 0px"></div></td>
+            <td><div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
             <td style="text-align: center">
                 <span id="player2-defensives">0</span>
                 <button class="buttons" onclick="addplayer2Defensive()"><b>+</b></button>
@@ -491,7 +474,7 @@
             </td>
         </tr>
     </table>
-    <div id="balls" style="padding: 10px; max-width: 800px; max-height: 95%; aspect-ratio: 4 / 3; " >
+    <div id="balls" style="padding: 10px;  " >
     </div>
 </div>
 </body>

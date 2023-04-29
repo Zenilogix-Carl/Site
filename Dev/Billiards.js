@@ -1,6 +1,6 @@
 
 class BilliardBall {
-    constructor(number, size) {
+    constructor(number, size, allowForShadow) {
         var colors = ["yellow", "blue", "red", "purple", "orange", "green", "brown", "black"];
         var color = colors[(number - 1) % 8];
         var isStripe = (((number - 1) / 8) >= 1);
@@ -8,7 +8,7 @@ class BilliardBall {
         this.number = number;
 
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute('viewBox', '0 0 120 120');
+        svg.setAttribute('viewBox', allowForShadow ? '0 0 120 120' : '0 0 105 100');
         svg.setAttribute('width', size);
         svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
         var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
@@ -66,7 +66,7 @@ class BilliardBall {
 class BilliardBallWithState extends BilliardBall {
 
     constructor(number, size, clickFn, foulText) {
-        super(number, size);
+        super(number, size, true);
 
         var svg = this.element;
         svg.onclick = function () { clickFn(number)};
