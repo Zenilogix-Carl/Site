@@ -1,0 +1,118 @@
+.buttons {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+input {
+    font-size: 20pt;
+}
+
+button {
+    font-size: 18pt;
+}
+
+table, th, td {
+    border: 1px solid grey;
+    border-collapse: collapse;
+}
+
+td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+body {
+    background-color: lightblue;
+    font-family: Verdana, sans-serif;
+    font-size: 20pt;
+    padding: 0px;
+    margin: 0px;
+    overflow-y: hidden;
+    width: 100vw;
+    height: 100vmin;
+}
+
+button {
+    font-size: 18pt;
+}
+
+.points-needed {
+    margin-left: 50px;
+    display: inline;
+    white-space: nowrap;
+}
+
+.defensives {
+    display: inline;
+    white-space: nowrap;
+}
+
+.player-cell {
+    vertical-align: top;
+}
+
+@media only screen and (max-width: 1000px) {
+    body {
+        font-size: 18pt;
+    }
+
+    button {
+        font-size: 16pt;
+    }
+
+    input {
+        font-size: 15pt;
+    }
+
+    td {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+
+    .player {
+        font-size: 15pt;
+    }
+
+    .player-button {
+        font-size: 15pt;
+    }
+
+    .points-needed {
+        margin-left: 47px;
+        display: inline;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    body {
+        font-size: 16pt;
+    }
+
+    button {
+        font-size: 15pt;
+    }
+
+    input {
+        font-size: 12pt;
+    }
+
+    td {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    .player {
+        font-size: 12pt;
+    }
+
+    .player-button {
+        font-size: 12pt;
+    }
+
+    .points-needed {
+        margin-left: 45px;
+        display: inline;
+    }
+}

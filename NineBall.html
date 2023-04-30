@@ -4,50 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
-    <style>
-        .buttons {
-            padding-left: 10px;
-            padding-right: 10px;
-            padding-top: 3px;
-            padding-bottom: 3px;
-        }
-
-        input {
-            font-size: 20pt;
-        }
-
-        button {
-            font-size: 18pt;
-        }
-
-        table, th, td {
-            border: 1px solid grey;
-            border-collapse: collapse;
-        }
-
-        td {
-            padding-left: 5px;
-            padding-right: 5px;
-            padding-top: 1px;
-            padding-bottom: 1px;
-        }
-
-        body {
-            font-family: Verdana, sans-serif;
-            font-size: 20pt;
-            padding: 0px;
-            margin: 0px;
-            overflow-x: hidden;
-            overflow-y: hidden;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
     <script src="Billiards.js"></script>
     <script>
+        window.addEventListener("resize", onResize);
+
         class NineBallPlayer extends PlayerWithScore {
             constructor(name, setupFn) {
                 super(name, setupFn);
             }
         }
+
+        var ballSizeLarge = '20%';
+        var ballSizeSmall = '32px';
 
         const ballCount = 9;
         const apa = [1, 1, 1, 1, 1, 1, 1, 1, 2];
@@ -247,11 +216,11 @@
                 var ballState = ballStates[i];
                 if ((currentPlayer == player1 && ballState == "won") || (currentPlayer == player2 && ballState == "lost")) {
                     player1RackScore += values[i];
-                    parent1.appendChild(new BilliardBall(i+1, '30px').element);
+                    parent1.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
                 if ((currentPlayer == player1 && ballState == "lost") || (currentPlayer == player2 && ballState == "won")) {
                     player2RackScore += values[i];
-                    parent2.appendChild(new BilliardBall(i + 1, '30px').element);
+                    parent2.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
             }
 
@@ -351,12 +320,12 @@
             var parentElement = document.getElementById(elementId);
             for (var i = 1; i <= ballCount; i++) {
 
-                balls[i] = new BilliardBallWithState(i, '20%', ballClick, 'DEAD');
+                balls[i] = new BilliardBallWithState(i, ballSizeLarge, ballClick, 'DEAD');
                 parentElement.appendChild(balls[i].element);
             }
 
-            addMiss(elementId, '20%');
-            addRack(elementId, '20%');
+            addMiss(elementId, ballSizeLarge);
+            addRack(elementId, ballSizeLarge);
         }
 
         function initialCaps(str) {
@@ -365,12 +334,13 @@
 
         function onLoad() {
             document.title = isApa ? 'Scoreboard for APA-Style 9-Ball' : 'Scoreboard for Classic 9-Ball';
+            onResize();
             addBalls("balls");
 
             bindInput(players[player1],
                 "name",
                 document.getElementById("player1-input"),
-                function() {
+                function () {
                     var name = players[player1].name;
                     var uc = initialCaps(name);
                     if (uc != name) {
@@ -385,7 +355,7 @@
                 };
             });
 
-            bindInput(players[player1], "neededToWin", document.getElementById("player1-goal"), function() {
+            bindInput(players[player1], "neededToWin", document.getElementById("player1-goal"), function () {
                 players[player1].updateScore();
             });
 
@@ -393,10 +363,10 @@
                 players[player2].updateScore();
             });
 
-            bindOutput(players[player1], "score", document.getElementById("player1-score"), function() {
+            bindOutput(players[player1], "score", document.getElementById("player1-score"), function () {
                 players[player1].updateScore();
             });
-            bindOutput(players[player2], "score", document.getElementById("player2-score"), function() {
+            bindOutput(players[player2], "score", document.getElementById("player2-score"), function () {
                 players[player2].updateScore();
             });
 
@@ -406,11 +376,31 @@
             setCurrentPlayer();
         }
 
+        function onResize() {
+            var width = document.documentElement.clientWidth;
+            if (width > 1000) {
+                ballSizeLarge = '9%';
+                ballSizeSmall = '32px';
+            } else if (width > 800) {
+                ballSizeLarge = '9%';
+                ballSizeSmall = '30px';
+            } else {
+                ballSizeLarge = '20%';
+                ballSizeSmall = '25px';
+            }
+
+            var parentElement = document.getElementById("balls");
+            parentElement.querySelectorAll('svg').forEach(function (svg) {
+                svg.setAttribute('width', ballSizeLarge);
+            });
+
+            updateScore();
+        }
     </script>
 </head>
 <body onload='onLoad()'>
 <div style="background-color: lightblue; padding: 20px; min-height: 100vh;  ">
-    <table >
+    <table>
         <tr>
             <td>
                 <button onclick="startMatchIfConfirmed()">Start Match</button>
@@ -428,70 +418,70 @@
             </td>
             <td style="text-align: center">
                 <span id="rack-innings">0</span>
-                <button class="buttons" onclick="addInning()"><b>+</b></button>
-                <button class="buttons" onclick="removeInning()"><b>-</b></button>
+                <button onclick="addInning()"><b>+</b></button>
+                <button onclick="removeInning()"><b>-</b></button>
             </td>
 
         </tr>
     </table>
-    <table>
+    <table class="player">
         <tr>
-            <td>Player/Current Shooter</td>
-            <td colspan="2">Needed to Win</td>
+            <td>Player &amp;<br/>Current Shooter</td>
+            <!--<td colspan="2">Needs<br/>to Win</td>-->
             <td>Score</td>
-            <td>Current Rack</td>
-            <td>Defensives</td>
+            <td>Current<br/>Rack</td>
+            <td><small>Defensives</small></td>
         </tr>
         <tr>
-            <td>
+            <td class="player-cell">
                 <div style="display: flex; white-space: nowrap">
                     <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player1Shooting()">
                         <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                     </button>
                     &nbsp;
-                    <input type="text" id="player1-input" size="12"  style="background: transparent; border: transparent;"/>
+                    <input type="text" id="player1-input" size="8" style="background: transparent; border: transparent;" />
+                </div>
+                <div class="points-needed">
+                    <small>Needs&nbsp;</small>
+                    <span id="player1-needs">0</span>/
+                    <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
                 </div>
             </td>
-            <td style="text-align: right">
-                <span id="player1-needs"></span>/
-            </td>
-            <td>
-                <input type="text" id="player1-goal" size="2" style="background: transparent; border: transparent;"/>
-            </td>
-            <td style="text-align: center"><span id="player1-score">0</span></td>
-            <td><div id="player1-balls" style="padding-top: 3px; padding-left: 3px; padding-bottom: 0px"></div></td>
-            <td style="text-align: center">
+            <td class="player-cell" style="text-align: center; padding-top: 5px; "><span id="player1-score">0</span></td>
+            <td class="player-cell"><div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
+            <td class="player-cell" style="text-align: center; padding-top: 3px; ">
                 <span id="player1-defensives">0</span>
-                <button class="buttons" onclick="addplayer1Defensive()"><b>+</b></button>
-                <button class="buttons" onclick="removeplayer1Defensive()"><b>-</b></button>
+                <button class="player-button" onclick="addplayer1Defensive()"><b>+</b></button>
+                <button class="player-button" onclick="removeplayer1Defensive()"><b>-</b></button>
             </td>
         </tr>
         <tr>
-            <td>
+            <td class="player-cell">
                 <div style="display: flex; white-space: nowrap">
                     <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player2Shooting()">
                         <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                     </button>
                     &nbsp;
-                    <input type="text" id="player2-input" size="12" style="background: transparent; border: transparent;" />
+                    <input type="text" id="player2-input" size="8" style="background: transparent; border: transparent;" />
+                </div>
+                <div class="points-needed">
+                        <small>Needs&nbsp;</small>
+                        <span id="player2-needs">0</span>/
+                        <input type="number" min="0" max="99" id="player2-goal"  style="background: transparent; border: transparent;" />
                 </div>
             </td>
-            <td style="text-align: right">
-                <span id="player2-needs"></span>/
-            </td>
-            <td>
-                <input type="text" id="player2-goal" size="2" style="background: transparent; border: transparent;"/>
-            </td>
-            <td style="text-align: center"><span id="player2-score">0</span></td>
-            <td><div id="player2-balls" style="padding-top: 3px; padding-left: 3px; padding-bottom: 0px"></div></td>
-            <td style="text-align: center">
-                <span id="player2-defensives">0</span>
-                <button class="buttons" onclick="addplayer2Defensive()"><b>+</b></button>
-                <button class="buttons" onclick="removeplayer2Defensive()"><b>-</b></button>
+            <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player2-score">0</span></td>
+            <td class="player-cell"><div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
+            <td class="player-cell" style="text-align: center; padding-top: 3px ">
+                <div class="defensives">
+                    <span id="player2-defensives">0</span>
+                    <button class="player-button" onclick="addplayer2Defensive()"><b>+</b></button>
+                    <button class="player-button" onclick="removeplayer2Defensive()"><b>-</b></button>
+                </div>
             </td>
         </tr>
     </table>
-    <div id="balls" style="padding: 10px; max-width: 800px; max-height: 95%; aspect-ratio: 4 / 3; " >
+    <div id="balls" style="padding: 10px;  " >
     </div>
 </div>
 </body>
