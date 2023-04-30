@@ -49,6 +49,10 @@ button {
     white-space: nowrap;
 }
 
+.player-cell {
+    vertical-align: top;
+}
+
 @media only screen and (max-width: 1000px) {
     body {
         font-size: 18pt;

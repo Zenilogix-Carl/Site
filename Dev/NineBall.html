@@ -433,7 +433,7 @@
             <td><small>Defensives</small></td>
         </tr>
         <tr>
-            <td>
+            <td class="player-cell">
                 <div style="display: flex; white-space: nowrap">
                     <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player1Shooting()">
                         <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
@@ -447,16 +447,16 @@
                     <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
                 </div>
             </td>
-            <td style="text-align: center"><span id="player1-score">0</span></td>
-            <td><div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
-            <td style="text-align: center">
+            <td class="player-cell" style="text-align: center"><span id="player1-score">0</span></td>
+            <td class="player-cell"><div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
+            <td class="player-cell" style="text-align: center; ">
                 <span id="player1-defensives">0</span>
                 <button class="player-button" onclick="addplayer1Defensive()"><b>+</b></button>
                 <button class="player-button" onclick="removeplayer1Defensive()"><b>-</b></button>
             </td>
         </tr>
         <tr>
-            <td>
+            <td class="player-cell">
                 <div style="display: flex; white-space: nowrap">
                     <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player2Shooting()">
                         <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
@@ -470,9 +470,9 @@
                         <input type="number" min="0" max="99" id="player2-goal"  style="background: transparent; border: transparent;" />
                 </div>
             </td>
-            <td style="text-align: center"><span id="player2-score">0</span></td>
-            <td><div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
-            <td style="text-align: center">
+            <td class="player-cell" style="text-align: center"><span id="player2-score">0</span></td>
+            <td class="player-cell"><div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
+            <td class="player-cell" style="text-align: center">
                 <div class="defensives">
                     <span id="player2-defensives">0</span>
                     <button class="player-button" onclick="addplayer2Defensive()"><b>+</b></button>
