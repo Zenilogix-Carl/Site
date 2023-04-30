@@ -384,9 +384,12 @@
             } else if (width > 800) {
                 ballSizeLarge = '9%';
                 ballSizeSmall = '30px';
-            } else {
+            } else if (width > 600) {
                 ballSizeLarge = '20%';
                 ballSizeSmall = '25px';
+            } else {
+                ballSizeLarge = '20%';
+                ballSizeSmall = '20px';
             }
 
             var parentElement = document.getElementById("balls");
@@ -465,9 +468,9 @@
                     <input type="text" id="player2-input" size="8" style="background: transparent; border: transparent;" />
                 </div>
                 <div class="points-needed">
-                        <small>Needs&nbsp;</small>
+                    <small>Needs&nbsp;</small>
                         <span id="player2-needs">0</span>/
-                        <input type="number" min="0" max="99" id="player2-goal"  style="background: transparent; border: transparent;" />
+                    <input type="number" min="0" max="99" id="player2-goal" style="background: transparent; border: transparent;" />
                 </div>
             </td>
             <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player2-score">0</span></td>

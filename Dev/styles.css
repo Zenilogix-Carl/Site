@@ -39,7 +39,7 @@ button {
 }
 
 .points-needed {
-    margin-left: 50px;
+    padding-left: 50px;
     display: inline;
     white-space: nowrap;
 }
@@ -80,7 +80,7 @@ button {
     }
 
     .points-needed {
-        margin-left: 47px;
+        padding-left: 47px;
         display: inline;
     }
 }
@@ -112,7 +112,7 @@ button {
     }
 
     .points-needed {
-        margin-left: 45px;
+        padding-left: 45px;
         display: inline;
     }
 }
@@ -144,7 +144,7 @@ button {
     }
 
     .points-needed {
-        margin-left: 43px;
+        padding-left: 43px;
         display: inline;
     }
 }
