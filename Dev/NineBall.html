@@ -426,7 +426,7 @@
     </table>
     <table class="player">
         <tr>
-            <td>Player<br/>Current Shooter</td>
+            <td>Player &amp;<br/>Current Shooter</td>
             <!--<td colspan="2">Needs<br/>to Win</td>-->
             <td>Score</td>
             <td>Current<br/>Rack</td>
@@ -444,7 +444,7 @@
                 <div class="points-needed">
                     <small>Needs&nbsp;</small>
                     <span id="player1-needs">0</span>/
-                    <input type="text" id="player1-goal" size="2" style="background: transparent; border: transparent;" />
+                    <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
                 </div>
             </td>
             <td style="text-align: center"><span id="player1-score">0</span></td>
@@ -467,7 +467,7 @@
                 <div class="points-needed">
                         <small>Needs&nbsp;</small>
                         <span id="player2-needs">0</span>/
-                        <input type="text" id="player2-goal" size="2" style="background: transparent; border: transparent;" />
+                        <input type="number" min="0" max="99" id="player2-goal"  style="background: transparent; border: transparent;" />
                 </div>
             </td>
             <td style="text-align: center"><span id="player2-score">0</span></td>
