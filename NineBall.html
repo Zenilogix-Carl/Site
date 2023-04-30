@@ -15,6 +15,8 @@
             }
         }
 
+        var started = false;
+
         var ballSizeLarge = '20%';
         var ballSizeSmall = '32px';
 
@@ -69,6 +71,9 @@
         var player1RackScore = 0;
         var player2RackScore = 0;
 
+        var matchTime = new Date();
+        var shotTime = matchTime;
+
         var players = {
             player1: new NineBallPlayer("Self"),
             player2: new NineBallPlayer("Opponent")
@@ -94,6 +99,8 @@
             setInnings();
             setplayer1Defensives();
             setplayer2Defensives();
+
+            shotTime = new Date();
         }
 
         function startMatchIfConfirmed() {
@@ -119,6 +126,9 @@
             setInnings();
             setplayer1Defensives();
             setplayer2Defensives();
+            matchTime = new Date();
+            shotTime = new Date();
+            started = true;
         }
 
         function switchPlayerBalls() {
@@ -140,6 +150,8 @@
             if (currentPlayer == startingPlayer) {
                 addInning();
             }
+
+            shotTime = new Date();
         }
 
         function player1Shooting() {
@@ -334,8 +346,8 @@
 
         function onLoad() {
             document.title = isApa ? 'Scoreboard for APA-Style 9-Ball' : 'Scoreboard for Classic 9-Ball';
-            onResize();
             addBalls("balls");
+            onResize();
 
             bindInput(players[player1],
                 "name",
@@ -374,6 +386,7 @@
             bindOutput(players[player2], "remaining", document.getElementById("player2-needs"));
 
             setCurrentPlayer();
+            setInterval(updateClock, 1000);
         }
 
         function onResize() {
@@ -398,6 +411,25 @@
             });
 
             updateScore();
+        }
+
+        function updateClock() {
+            var todClock = document.getElementById("todClock");
+            var now = new Date();
+
+            todClock.innerText = now.getHours().toString().padStart(2, '0') + ":" +
+                now.getMinutes().toString().padStart(2, '0');
+
+            if (started) {
+                var shotElapsed = (now - shotTime)/1000;
+                var matchElapsed = (now - matchTime)/60000;
+                var shotClock = document.getElementById("shotClock");
+                var matchClock = document.getElementById("matchClock");
+                shotClock.innerText = Math.round((shotElapsed / 60)).toString() + ":" +
+                    Math.round((shotElapsed % 60)).toString().padStart(2, '0');
+                matchClock.innerText = Math.round((matchElapsed / 60)).toString() + ":" +
+                    Math.round((matchElapsed % 60)).toString().padStart(2, '0');
+            }
         }
     </script>
 </head>
@@ -485,6 +517,18 @@
         </tr>
     </table>
     <div id="balls" style="padding: 10px;  " >
+    </div>
+    <div id="clocks">
+        <table>
+            <tr>
+                <td>Shot</td><td>Match</td>
+            </tr>
+            <tr>
+                <td><span id="shotClock">0:00</span></td>
+                <td><span id="matchClock">0:00</span></td>
+                <td><span id="todClock">0:00</span></td>
+            </tr>
+        </table>
     </div>
 </div>
 </body>

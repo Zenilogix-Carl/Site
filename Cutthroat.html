@@ -453,6 +453,15 @@
             clearRack();
             setCurrentPlayer();
             updateScore();
+            setInterval(updateClock, 1000);
+        }
+
+        function updateClock() {
+            var todClock = document.getElementById("todClock");
+            var now = new Date();
+
+            todClock.innerText = now.getHours().toString().padStart(2, '0') + ":" +
+                now.getMinutes().toString().padStart(2, '0');
         }
 
         function onResize() {
@@ -510,7 +519,7 @@
                             <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player2-input" size="8" style="background: transparent; border: transparent;"/>
+                        <input type="text" id="player2-input" size="8" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player2-category"></span></td>
@@ -525,7 +534,7 @@
                             <svg id="player3-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                         </button>
                         &nbsp;
-                        <input type="text" id="player3-input" size="8" style="background: transparent; border: transparent;"/>
+                        <input type="text" id="player3-input" size="8" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
                 <td style="text-align: center"><span id="player3-category"></span></td>
@@ -535,6 +544,9 @@
             </tr>
         </table>
         <div id="balls" style="padding: 10px;  ">
+        </div>
+        <div id="clocks">
+            <span id="todClock">0:00</span>
         </div>
     </div>
 </body>
