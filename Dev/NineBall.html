@@ -98,6 +98,9 @@
             setplayer1Defensives();
             setplayer2Defensives();
 
+            players[player1].timeouts = 0;
+            players[player2].timeouts = 0;
+
             shotTime = new Date();
         }
 
@@ -147,11 +150,12 @@
                 addInning();
             }
 
-            shotTime = new Date();
+            resetShotClock();
         }
 
         function timeout() {
-            shotTime = new Date();
+            resetShotClock();
+            players[currentPlayer].timeouts = (players[currentPlayer].timeouts + 1) % 3;
         }
 
         function player1Shooting() {
@@ -307,6 +311,10 @@
             }
         }
 
+        function showMatch() {
+            document.getElementById('matchInfo').style.visibility = 'visible';
+        }
+
         function ballClick(number) {
             var currentBallState = ballStates[number - 1];
 
@@ -315,7 +323,7 @@
 
             updateBallState(number);
             updateScore();
-            shotTime = new Date();
+            resetShotClock();
         }
 
         function addMiss(parentId, size) {
@@ -392,6 +400,9 @@
             bindOutput(players[player1], "remaining", document.getElementById("player1-needs"));
             bindOutput(players[player2], "remaining", document.getElementById("player2-needs"));
 
+            bindOutput(players[player1], "timeouts", document.getElementById("player1-timeouts"));
+            bindOutput(players[player2], "timeouts", document.getElementById("player2-timeouts"));
+
             setCurrentPlayer();
             setInterval(updateClock, 1000);
         }
@@ -420,6 +431,10 @@
             updateScore();
         }
 
+        function resetShotClock() {
+            shotTime = new Date();
+        }
+
         function updateClock() {
             var todClock = document.getElementById("todClock");
             var now = new Date();
@@ -441,8 +456,8 @@
 
         var popupAction;
 
-        function onPopupOkClick() {
-            document.getElementById('popup').style.visibility = 'hidden';
+        function onPopupOkClick(id) {
+            document.getElementById(id).style.visibility = 'hidden';
             popupAction();
         }
 
@@ -483,9 +498,9 @@
             <tr>
                 <td>Player &amp;<br />Current Shooter</td>
                 <!--<td colspan="2">Needs<br/>to Win</td>-->
-                <td>Score</td>
+                <td><br/>Score</td>
                 <td>Current<br />Rack</td>
-                <td><small>Defensives</small></td>
+                <td><small>Defensives<br />&amp;timeouts</small></td>
             </tr>
             <tr>
                 <td class="player-cell">
@@ -508,6 +523,7 @@
                     <span id="player1-defensives">0</span>
                     <button class="player-button" onclick="addplayer1Defensive()"><b>+</b></button>
                     <button class="player-button" onclick="removeplayer1Defensive()"><b>-</b></button>
+                    <br /><small>t/o:&nbsp;<span id="player1-timeouts">0</span></small>
                 </td>
             </tr>
             <tr>
@@ -532,6 +548,7 @@
                         <span id="player2-defensives">0</span>
                         <button class="player-button" onclick="addplayer2Defensive()"><b>+</b></button>
                         <button class="player-button" onclick="removeplayer2Defensive()"><b>-</b></button>
+                        <br /><small>t/o:&nbsp;<span id="player2-timeouts">0</span></small>
                     </div>
                 </td>
             </tr>
@@ -541,8 +558,9 @@
         <div id="clocks">
             <table>
                 <tr>
-                    <td>Shot</td>
-                    <td>Match</td>
+                    <td><button onclick="resetShotClock()">Shot</button></td>
+                    <td><button onclick="showMatch()">Match</button></td>
+                    <!--<td>Match</td>-->
                 </tr>
                 <tr>
                     <td><span id="shotClock">0:00</span></td>
@@ -555,7 +573,33 @@
             <div class="popup">
                 <p id="popupMessage" style="text-align: center"></p>
                 <div class="popupButtons">
-                    <button onclick="onPopupOkClick()">OK</button>&nbsp;<button onclick="(()=>{document.getElementById('popup').style.visibility = 'hidden'})()">Cancel</button>
+                    <button onclick="onPopupOkClick('popup')">OK</button>&nbsp;<button onclick="(()=>{document.getElementById('popup').style.visibility = 'hidden'})()">Cancel</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="matchInfo" class="popupBackground" style="visibility: hidden">
+            <div class="popup-large">
+                <table class="running-score">
+                    <tr>
+                        <td>Player 1</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td><small>Innings</small></td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td><small>Dead</small></td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td>Player 2</td>
+                        <td>2</td>
+                    </tr>
+                </table>
+                <div class="popupButtons">
+                    <button onclick="onPopupOkClick('matchInfo')">OK</button>
                 </div>
             </div>
         </div>

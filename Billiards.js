@@ -228,6 +228,7 @@ class PlayerWithScore extends Player {
         this.matchScore = 0;
         this.rackDefensives = 0;
         this.matchDefensives = 0;
+        this.timeouts = 0;
     }
 
     updateScore() {
