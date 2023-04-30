@@ -81,9 +81,7 @@
 
 
         function clearRackIfConfirmed() {
-            if (window.confirm("Reset the current rack?")) {
-                clearRack();
-            }
+            messageBox("Reset the current rack?", clearRack);
         }
 
         function clearRack() {
@@ -104,9 +102,7 @@
         }
 
         function startMatchIfConfirmed() {
-            if (window.confirm("Start a new match (clear current status)?")) {
-                startMatch();
-            }
+            messageBox("Start a new match (clear current status)?", startMatch);
         }
 
         function startMatch() {
@@ -251,7 +247,7 @@
         }
 
         function nextRack() {
-            if (window.confirm("Advance to the next rack?")) {
+            messageBox("Advance to the next rack?", () => {
                 for (var i = 0; i < 9; i++) {
                     var ballState = ballStates[i];
                     if ((currentPlayer == player1 && ballState == "won") || (currentPlayer == player2 && ballState == "lost")) {
@@ -267,7 +263,7 @@
                 matchplayer2Defensives += currentplayer2Defensives;
                 clearRack();
                 updateScore();
-            }
+            });
         }
 
         function setCurrentPlayer() {
@@ -431,10 +427,23 @@
                     Math.round((matchElapsed % 60)).toString().padStart(2, '0');
             }
         }
+
+        var popupAction;
+
+        function onPopupOkClick() {
+            document.getElementById('popup').style.visibility = 'hidden';
+            popupAction();
+        }
+
+        function messageBox(message, action) {
+            document.getElementById('popupMessage').innerText = message;
+            popupAction = action;
+            document.getElementById('popup').style.visibility = 'visible';
+        }
     </script>
 </head>
 <body onload='onLoad()'>
-<div class="main" style="background-color: lightblue; min-height: 100vh;  ">
+    <div class="main" style="background-color: lightblue; min-height: 100vh;  ">
     <table>
         <tr>
             <td>
@@ -461,10 +470,10 @@
     </table>
     <table class="player">
         <tr>
-            <td>Player &amp;<br/>Current Shooter</td>
+                <td>Player &amp;<br />Current Shooter</td>
             <!--<td colspan="2">Needs<br/>to Win</td>-->
             <td>Score</td>
-            <td>Current<br/>Rack</td>
+                <td>Current<br />Rack</td>
             <td><small>Defensives</small></td>
         </tr>
         <tr>
@@ -516,12 +525,13 @@
             </td>
         </tr>
     </table>
-    <div id="balls" style="padding: 10px;  " >
+        <div id="balls" style="padding: 10px;  ">
     </div>
     <div id="clocks">
         <table>
             <tr>
-                <td>Shot</td><td>Match</td>
+                    <td>Shot</td>
+                    <td>Match</td>
             </tr>
             <tr>
                 <td><span id="shotClock">0:00</span></td>
@@ -530,6 +540,14 @@
             </tr>
         </table>
     </div>
-</div>
+        <div id="popup" class="popupBackground" style="visibility: hidden">
+            <div class="popup">
+                <p id="popupMessage" style="text-align: center"></p>
+                <div class="popupButtons">
+                    <button onclick="onPopupOkClick()">OK</button>&nbsp;<button onclick="(()=>{document.getElementById('popup').style.visibility = 'hidden'})()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

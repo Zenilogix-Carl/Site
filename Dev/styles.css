@@ -50,6 +50,39 @@ button {
     vertical-align: top;
 }
 
+.popupBackground {
+    position: absolute;
+    margin: auto;
+    padding: 5px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 9999999;
+}
+
+.popup {
+    position: absolute;
+    margin: auto;
+    padding: 5px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 60%;
+    height: 40%;
+    z-index: 99999999;
+    background: white;
+    border: 2px solid black;
+}
+
+.popupButtons {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    padding: 5px;
+}
+
 #clocks {
     position: absolute;
     right: 0px;

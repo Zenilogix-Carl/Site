@@ -47,12 +47,6 @@
         var currentPlayerIndex = 0;
         var startingPlayerIndex = currentPlayerIndex;
 
-        function clearRackIfConfirmed() {
-            if (window.confirm("Reset the current rack?")) {
-                clearRack();
-            }
-        }
-
         function clearRack() {
             ballStates = Array(ballCount).fill(0);
             ballOrder = [];
@@ -61,12 +55,6 @@
             }
 
             updateScore();
-        }
-
-        function startMatchIfConfirmed() {
-            if (window.confirm("Start a new match (clear current status)?")) {
-                startMatch();
-            }
         }
 
         function startMatch() {
@@ -296,11 +284,10 @@
         }
 
         function nextRack() {
-            if (window.confirm("Advance to the next rack?")) {
-
+            messageBox("Advance to the next rack?", () => {
                 clearRack();
                 updateScore();
-            }
+            });
         }
 
         function setCurrentPlayer() {
@@ -484,11 +471,23 @@
 
             updateScore();
         }
+
+        var popupAction;
+
+        function onPopupOkClick() {
+            document.getElementById('popup').style.visibility = 'hidden';
+            popupAction();
+        }
+
+        function messageBox(message, action) {
+            document.getElementById('popupMessage').innerText = message;
+            popupAction = action;
+            document.getElementById('popup').style.visibility = 'visible';
+        }
     </script>
 </head>
 <body onload='onLoad()'>
     <div style="padding: 20px;">
-        <!--<button onclick="clearRackIfConfirmed()">Clear Rack</button>-->
         <table>
             <tr>
                 <td>Player</td>
@@ -547,6 +546,14 @@
         </div>
         <div id="clocks">
             <span id="todClock">0:00</span>
+        </div>
+        <div id="popup" class="popupBackground" style="visibility: hidden">
+            <div class="popup">
+                <p id="popupMessage" style="text-align: center"></p>
+                <div class="popupButtons">
+                    <button onclick="onPopupOkClick()">OK</button>&nbsp;<button onclick="(()=>{document.getElementById('popup').style.visibility = 'hidden'})()">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
 </body>
