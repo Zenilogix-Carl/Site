@@ -116,3 +116,35 @@ button {
         display: inline;
     }
 }
+
+@media only screen and (max-width: 600px) {
+    body {
+        font-size: 14pt;
+    }
+
+    button {
+        font-size: 13pt;
+    }
+
+    input {
+        font-size: 10pt;
+    }
+
+    td {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    .player {
+        font-size: 10pt;
+    }
+
+    .player-button {
+        font-size: 10pt;
+    }
+
+    .points-needed {
+        margin-left: 43px;
+        display: inline;
+    }
+}
