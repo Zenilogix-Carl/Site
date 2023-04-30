@@ -130,7 +130,7 @@ class BilliardBallWithState extends BilliardBall {
 }
 
 class CueBall {
-    constructor (size, label, clickFn) {
+    constructor (size, label, clickFn, textColor) {
 
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttribute('viewBox', '0 0 120 120');
@@ -156,7 +156,7 @@ class CueBall {
         text.setAttribute("dominant-baseline", "middle");
         text.setAttribute("font-size", "20px");
         text.setAttribute("font-weight", "bold");
-        text.setAttribute("fill", "red");
+        text.setAttribute("fill", textColor === undefined ? "red" : textColor);
         text.setAttribute("stroke", "darkred");
         text.setAttribute("stroke-width", "1");
         text.innerHTML = label;

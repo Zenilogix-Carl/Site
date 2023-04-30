@@ -150,6 +150,10 @@
             shotTime = new Date();
         }
 
+        function timeout() {
+            shotTime = new Date();
+        }
+
         function player1Shooting() {
             if (currentPlayer != player1) {
                 switchPlayerBalls();
@@ -318,6 +322,11 @@
             parentElement.appendChild(new CueBall(size, "End Turn", missedShot).element);
         }
 
+        function addTimeout(parentId, size) {
+            var parentElement = document.getElementById(parentId);
+            parentElement.appendChild(new CueBall(size, "Time-out", timeout, "yellow").element);
+        }
+
         function addRack(parentId, size) {
             var parentElement = document.getElementById(parentId);
             parentElement.appendChild(new Rack(size, "Next Rack", nextRack).element);
@@ -333,6 +342,7 @@
             }
 
             addMiss(elementId, ballSizeLarge);
+            addTimeout(elementId, ballSizeLarge);
             addRack(elementId, ballSizeLarge);
         }
 
