@@ -400,7 +400,7 @@
 </head>
 <body onload='onLoad()'>
 <div style="background-color: lightblue; padding: 20px; min-height: 100vh;  ">
-    <table >
+    <table>
         <tr>
             <td>
                 <button onclick="startMatchIfConfirmed()">Start Match</button>
@@ -418,16 +418,16 @@
             </td>
             <td style="text-align: center">
                 <span id="rack-innings">0</span>
-                <button class="buttons" onclick="addInning()"><b>+</b></button>
-                <button class="buttons" onclick="removeInning()"><b>-</b></button>
+                <button onclick="addInning()"><b>+</b></button>
+                <button onclick="removeInning()"><b>-</b></button>
             </td>
 
         </tr>
     </table>
-    <table>
+    <table class="player">
         <tr>
             <td>Player<br/>Current Shooter</td>
-            <td colspan="2">Needs<br/>to Win</td>
+            <!--<td colspan="2">Needs<br/>to Win</td>-->
             <td>Score</td>
             <td>Current<br/>Rack</td>
             <td><small>Defensives</small></td>
@@ -439,21 +439,20 @@
                         <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
                     </button>
                     &nbsp;
-                    <input type="text" id="player1-input" size="8"  style="background: transparent; border: transparent;"/>
+                    <input type="text" id="player1-input" size="8" style="background: transparent; border: transparent;" />
                 </div>
-            </td>
-            <td style="text-align: right">
-                <span id="player1-needs"></span>/
-            </td>
-            <td>
-                <input type="text" id="player1-goal" size="2" style="background: transparent; border: transparent;"/>
+                <div class="points-needed">
+                    <small>Needs&nbsp;</small>
+                    <span id="player1-needs">0</span>/
+                    <input type="text" id="player1-goal" size="2" style="background: transparent; border: transparent;" />
+                </div>
             </td>
             <td style="text-align: center"><span id="player1-score">0</span></td>
             <td><div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
             <td style="text-align: center">
                 <span id="player1-defensives">0</span>
-                <button class="buttons" onclick="addplayer1Defensive()"><b>+</b></button>
-                <button class="buttons" onclick="removeplayer1Defensive()"><b>-</b></button>
+                <button class="player-button" onclick="addplayer1Defensive()"><b>+</b></button>
+                <button class="player-button" onclick="removeplayer1Defensive()"><b>-</b></button>
             </td>
         </tr>
         <tr>
@@ -465,19 +464,20 @@
                     &nbsp;
                     <input type="text" id="player2-input" size="8" style="background: transparent; border: transparent;" />
                 </div>
-            </td>
-            <td style="text-align: right">
-                <span id="player2-needs"></span>/
-            </td>
-            <td>
-                <input type="text" id="player2-goal" size="2" style="background: transparent; border: transparent;"/>
+                <div class="points-needed">
+                        <small>Needs&nbsp;</small>
+                        <span id="player2-needs">0</span>/
+                        <input type="text" id="player2-goal" size="2" style="background: transparent; border: transparent;" />
+                </div>
             </td>
             <td style="text-align: center"><span id="player2-score">0</span></td>
             <td><div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
             <td style="text-align: center">
-                <span id="player2-defensives">0</span>
-                <button class="buttons" onclick="addplayer2Defensive()"><b>+</b></button>
-                <button class="buttons" onclick="removeplayer2Defensive()"><b>-</b></button>
+                <div class="defensives">
+                    <span id="player2-defensives">0</span>
+                    <button class="player-button" onclick="addplayer2Defensive()"><b>+</b></button>
+                    <button class="player-button" onclick="removeplayer2Defensive()"><b>-</b></button>
+                </div>
             </td>
         </tr>
     </table>

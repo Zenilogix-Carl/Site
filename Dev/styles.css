@@ -34,40 +34,81 @@ body {
     height: 100vmin;
 }
 
+button {
+    font-size: 18pt;
+}
+
+.points-needed {
+    margin-left: 50px;
+    display: inline;
+    white-space: nowrap;
+}
+
+.defensives {
+    display: inline;
+    white-space: nowrap;
+}
+
 @media only screen and (max-width: 1000px) {
     body {
-        font-size: 15pt;
+        font-size: 18pt;
+    }
+
+    button {
+        font-size: 16pt;
     }
 
     input {
         font-size: 15pt;
-    }
-
-    button {
-        font-size: 14pt;
     }
 
     td {
         padding-left: 3px;
         padding-right: 3px;
     }
+
+    .player {
+        font-size: 15pt;
+    }
+
+    .player-button {
+        font-size: 15pt;
+    }
+
+    .points-needed {
+        margin-left: 47px;
+        display: inline;
+    }
 }
 
 @media only screen and (max-width: 800px) {
     body {
-        font-size: 12pt;
+        font-size: 16pt;
+    }
+
+    button {
+        font-size: 15pt;
     }
 
     input {
         font-size: 12pt;
     }
 
-    button {
-        font-size: 11pt;
-    }
-
     td {
         padding-left: 2px;
         padding-right: 2px;
+    }
+
+    .player {
+        font-size: 12pt;
+    }
+
+    .player-button {
+        font-size: 12pt;
+    }
+
+    .points-needed {
+        margin-left: 45px;
+        display: inline;
     }
 }
