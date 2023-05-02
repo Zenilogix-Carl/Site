@@ -129,6 +129,33 @@ class BilliardBallWithState extends BilliardBall {
     }
 }
 
+class BilliardBallWithClick extends BilliardBallWithState {
+    constructor(number, size, clickFn, text) {
+        super(number, size, clickFn, text);
+        var svg = this.element;
+        svg.onclick = clickFn;
+        this.dimElement(this.ballGraphic, false);
+        this.showElement(this.foulText, true);
+        this.showElement(this.checkMark, false);
+        this.foulText.setAttribute("y", 75);
+        var textColor;
+        switch (number) {
+        case 1:
+        case 9:
+            textColor = "blue";
+            break;
+        case 8:
+            textColor = "red";
+            break;
+        default:
+            textColor = "white";
+            break;
+        }
+        this.foulText.setAttribute("fill", textColor);
+        this.foulText.setAttribute("stroke", textColor);
+    }
+}
+
 class CueBall {
     constructor (size, label, clickFn, textColor) {
 
