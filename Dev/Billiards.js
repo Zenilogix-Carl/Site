@@ -255,7 +255,39 @@ class PlayerWithScore extends Player {
         this.matchScore = 0;
         this.rackDefensives = 0;
         this.matchDefensives = 0;
+        this.totalDefensives = 0;
         this.timeouts = 0;
+    }
+
+    clearMatch() {
+        this.score = 0;
+        this.matchScore = 0;
+        this.matchDefensives = 0;
+        this.clearRack();
+    }
+
+    clearRack() {
+        this.rackScore = 0;
+        this.rackDefensives = 0;
+        this.totalDefensives = this.rackDefensives + this.matchDefensives;
+        this.timeouts = 0;
+    }
+
+    addDefensive() {
+        this.rackDefensives++;
+        this.totalDefensives = this.rackDefensives + this.matchDefensives;
+    }
+
+    removeDefensive() {
+        if (this.rackDefensives > 0) {
+            this.rackDefensives--;
+            this.totalDefensives = this.rackDefensives + this.matchDefensives;
+        }
+    }
+
+    nextRack() {
+        this.matchDefensives += this.rackDefensives;
+        this.rackDefensives = 0;
     }
 
     updateScore() {
@@ -294,6 +326,9 @@ function bindOutput(object, property, element, setAction) {
     Object.defineProperty(object, property,
         {
             get() {
+                if (isFinite(element.innerHTML)) {
+                    return parseInt(element.innerHTML);
+                }
                 return element.innerHTML;
             },
             set(newValue) {

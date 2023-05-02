@@ -9,6 +9,36 @@
     <script>
         window.addEventListener("resize", onResize);
 
+        class NineBallMatch {
+            constructor() {
+                this.rackInnings = 0;
+                this.matchInnings = 0;
+                this.totalInnings = 0;
+            }
+
+            clear() {
+                this.matchInnings = 0;
+                this.clearRack();
+            }
+
+            clearRack() {
+                this.rackInnings = 0;
+                this.totalInnings = this.matchInnings;
+            }
+
+            addInning() {
+                this.rackInnings ++;
+                this.totalInnings = this.matchInnings + this.rackInnings;
+            }
+
+            removeInning() {
+                if (this.rackInnings > 0) {
+                    this.rackInnings --;
+                    this.totalInnings = this.matchInnings + this.rackInnings;
+                }
+            }
+        }
+
         class NineBallPlayer extends PlayerWithScore {
             constructor(name, setupFn) {
                 super(name, setupFn);
@@ -17,6 +47,20 @@
                 this.rackTimeouts = [];
                 this.nineSnaps = [];
                 this.nineRuns = [];
+                this.nineSnap = false;
+                this.nineRun = false;
+            }
+
+            clearMatch() {
+                this.scores = [];
+                this.rackTimeouts = [];
+                this.nineSnaps = [];
+                super.clearMatch();
+                this.clearRack();
+            }
+
+            clearRack() {
+                super.clearRack();
                 this.nineSnap = false;
                 this.nineRun = false;
             }
@@ -68,18 +112,12 @@
             "lost": "won"
         };
 
-        var matchInnings = 0;
-        var currentInnings = 0;
-        var matchplayer1Defensives = 0;
-        var matchplayer2Defensives = 0;
-        var currentplayer1Defensives = 0;
-        var currentplayer2Defensives = 0;
+        var match = new NineBallMatch();
+
         var currentPlayer = player1;
         var startingPlayer = currentPlayer;
         var player1Score = 0;
         var player2Score = 0;
-        var player1RackScore = 0;
-        var player2RackScore = 0;
 
         var matchTime = new Date();
         var shotTime = matchTime;
@@ -88,8 +126,7 @@
             player1: new NineBallPlayer("Self"),
             player2: new NineBallPlayer("Opponent")
         }
-
-
+        
         function clearRackIfConfirmed() {
             confirmBox("Reset the current rack?", clearRack);
         }
@@ -101,27 +138,11 @@
             }
 
             for (const [key, value] of Object.entries(players)) {
-                value.rackScore = 0;
-                value.rackDefensives = 0;
-                value.timeouts = 0;
-                value.nineSnap = false;
-                value.nineRun = false;
+                value.clearRack();
             }
 
-            currentInnings = 0;
-            currentplayer1Defensives = 0;
-            currentplayer2Defensives = 0;
+            match.clearRack();
             updateScore();
-            setInnings();
-            setplayer1Defensives();
-            setplayer2Defensives();
-
-            players[player1].timeouts = 0;
-            players[player1].nineSnap = false;
-            players[player1].nineRun = false;
-            players[player2].timeouts = 0;
-            players[player2].nineSnap = false;
-            players[player2].nineRun = false;
 
             shotTime = new Date();
         }
@@ -133,28 +154,11 @@
         function startMatch() {
             ballStates = Array(ballCount).fill("normal");
             for (const [key, value] of Object.entries(players)) {
-                value.score = 0;
-                value.matchDefensives = 0;
-                value.scores = [];
-                value.timeouts = [];
-                value.nineSnaps = [];
-                value.nineRuns = [];
+                value.clearMatch();
             }
             player1Score = 0;
             player2Score = 0;
-            player1RackScore = 0;
-            player2RackScore = 0;
-            clearRack();
-            matchInnings = 0;
-            currentInnings = 0;
-            currentplayer1Defensives = 0;
-            currentplayer2Defensives = 0;
-            matchplayer1Defensives = 0;
-            matchplayer2Defensives = 0;
             startingPlayer = currentPlayer;
-            setInnings();
-            setplayer1Defensives();
-            setplayer2Defensives();
             matchTime = new Date();
             shotTime = new Date();
             started = true;
@@ -179,7 +183,7 @@
             setCurrentPlayer();
 
             if (currentPlayer == startingPlayer) {
-                addInning();
+                match.addInning();
             }
 
             resetShotClock();
@@ -226,52 +230,9 @@
             }
         }
 
-        function addplayer1Defensive() {
-            players[player1].rackDefensives++;
-            setplayer1Defensives();
-        }
-
-        function removeplayer1Defensive() {
-            if (players[player1].rackDefensives > 0) {
-                players[player1].rackDefensives--;
-            }
-            setplayer1Defensives();
-        }
-
-        function addplayer2Defensive() {
-            players[player2].rackDefensives++;
-            setplayer2Defensives();
-        }
-
-        function removeplayer2Defensive() {
-            if (players[player2].rackDefensives > 0) {
-                players[player2].rackDefensives--;
-            }
-            setplayer2Defensives();
-        }
-
-        function addInning() {
-            currentInnings = currentInnings + 1;
-            setInnings();
-        }
-
-        function removeInning() {
-            if (currentInnings > 0) {
-                currentInnings = currentInnings - 1;
-            }
-            setInnings();
-        }
-
-        function setInnings() {
-            var matchInningsElement = document.getElementById("match-innings");
-            matchInningsElement.innerHTML = currentInnings + matchInnings;
-            var inningsElement = document.getElementById("rack-innings");
-            inningsElement.innerHTML = currentInnings;
-        }
-
         function updateScore() {
-            player1RackScore = 0;
-            player2RackScore = 0;
+            var player1RackScore = 0;
+            var player2RackScore = 0;
             var parent1 = document.getElementById("player1-balls");
             while (parent1.firstChild) {
                 parent1.firstChild.remove();
@@ -292,18 +253,12 @@
                 }
             }
 
-            players[player1].score = player1Score + player1RackScore;
-            players[player2].score = player2Score + player2RackScore;
-        }
+            players[player1].rackScore = player1RackScore;
+            players[player2].rackScore = player2RackScore;
 
-        function setplayer1Defensives() {
-            var sdElement = document.getElementById("player1-defensives");
-            sdElement.innerHTML = players[player1].rackDefensives + players[player1].matchDefensives;
-        }
-
-        function setplayer2Defensives() {
-            var odElement = document.getElementById("player2-defensives");
-            odElement.innerHTML = players[player2].rackDefensives + players[player2].matchDefensives;
+            for (const [key, value] of Object.entries(players)) {
+                value.score = value.matchScore + value.rackScore;
+            }
         }
 
         function advanceToNextRack() {
@@ -318,17 +273,17 @@
             }
 
             for (const [key, value] of Object.entries(players)) {
-                value.rackScore = 0;
+                value.matchScore += value.rackScore;
+                value.scores.push(value.rackScore);
                 value.rackTimeouts.push(value.timeouts);
                 value.nineSnaps.push(value.nineSnap);
                 value.nineRuns.push(value.nineRun);
                 value.matchDefensives += value.rackDefensives;
+                value.rackScore = 0;
             }
-            innings.push(currentInnings);
-            players[player1].scores.push(player1RackScore);
-            players[player2].scores.push(player2RackScore);
+            innings.push(match.rackInnings);
 
-            matchInnings += currentInnings;
+            match.matchInnings += match.rackInnings;
             clearRack();
             updateScore();
         }
@@ -530,11 +485,17 @@
                 players[player2].updateScore();
             });
 
+            bindOutput(players[player1], "totalDefensives", document.getElementById("player1-defensives"));
+            bindOutput(players[player2], "totalDefensives", document.getElementById("player2-defensives"));
+
             bindOutput(players[player1], "remaining", document.getElementById("player1-needs"));
             bindOutput(players[player2], "remaining", document.getElementById("player2-needs"));
 
             bindOutput(players[player1], "timeouts", document.getElementById("player1-timeouts"));
             bindOutput(players[player2], "timeouts", document.getElementById("player2-timeouts"));
+
+            bindOutput(match, "rackInnings", document.getElementById("rack-innings"));
+            bindOutput(match, "totalInnings", document.getElementById("match-innings"));
 
             setCurrentPlayer();
             setInterval(updateClock, 1000);
@@ -621,8 +582,8 @@
                 </td>
                 <td style="text-align: center">
                     <span id="rack-innings">0</span>
-                    <button onclick="addInning()"><b>+</b></button>
-                    <button onclick="removeInning()"><b>-</b></button>
+                    <button onclick="match.addInning()"><b>+</b></button>
+                    <button onclick="match.removeInning()"><b>-</b></button>
                 </td>
 
             </tr>
@@ -653,8 +614,8 @@
                 <td class="player-cell"><div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
                 <td class="player-cell" style="text-align: center; padding-top: 3px; ">
                     <span id="player1-defensives">0</span>
-                    <button class="player-button" onclick="addplayer1Defensive()"><b>+</b></button>
-                    <button class="player-button" onclick="removeplayer1Defensive()"><b>-</b></button>
+                    <button class="player-button" onclick="(() => { players[player1].addDefensive() })()"><b>+</b></button>
+                    <button class="player-button" onclick="(() => { players[player1].removeDefensive() })()"><b>-</b></button>
                     <br /><small>t/o:&nbsp;<span id="player1-timeouts">0</span></small>
                 </td>
             </tr>
@@ -678,8 +639,8 @@
                 <td class="player-cell" style="text-align: center; padding-top: 3px ">
                     <div class="defensives">
                         <span id="player2-defensives">0</span>
-                        <button class="player-button" onclick="addplayer2Defensive()"><b>+</b></button>
-                        <button class="player-button" onclick="removeplayer2Defensive()"><b>-</b></button>
+                        <button class="player-button" onclick="(() => { players[player2].addDefensive() })()"><b>+</b></button>
+                        <button class="player-button" onclick="(() => { players[player2].removeDefensive() })()"><b>-</b></button>
                         <br /><small>t/o:&nbsp;<span id="player2-timeouts">0</span></small>
                     </div>
                 </td>
