@@ -243,6 +243,11 @@ class Player {
             obj.name = inputElement.value;
         }
     }
+
+    copy(src) {
+        this.name = src.name;
+        return this;
+    }
 }
 
 class PlayerWithScore extends Player {
@@ -257,6 +262,20 @@ class PlayerWithScore extends Player {
         this.matchDefensives = 0;
         this.totalDefensives = 0;
         this.timeouts = 0;
+    }
+
+    copy(src) {
+        super.copy(src);
+        this.score = src.score;
+        this.neededToWin = src.neededToWin;
+        this.rackScore = src.rackScore;
+        this.matchScore = src.matchScore;
+        this.rackDefensives = src.rackDefensives;
+        this.matchDefensives = src.matchDefensives;
+        this.totalDefensives = src.totalDefensives;
+        this.timeouts = src.timeouts;
+
+        return this;
     }
 
     clearMatch() {
@@ -318,6 +337,7 @@ function bindInput(object, property, element, setAction) {
                 }
             }
         });
+    object[property] = value;
     element.value = value;
 }
 
