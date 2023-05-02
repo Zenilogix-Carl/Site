@@ -127,7 +127,7 @@
         }
 
         function startMatchIfConfirmed() {
-            confirmBox("Start a new match (clear current status)?", startMatch);
+            confirmBox("Start a new match\n(clear current status)?", startMatch);
         }
 
         function startMatch() {
@@ -191,7 +191,7 @@
         }
 
         function nineSnap() {
-            confirmBox("9-Snap ends this rack. Cancel if you need to mark any additional balls, otherwise proceed to the next rack.", () => {
+            confirmBox("9-Snap ends this rack.\nCancel if you need to mark any additional balls, otherwise proceed to the next rack.", () => {
                 ballStates[ballStates.length - 1] = "won";
                 players[currentPlayer].nineSnap = true;
                 updateScore();
@@ -200,7 +200,7 @@
         }
 
         function nineRun() {
-            confirmBox("9-Run ends this rack. Player will earn all rack points.", () => {
+            confirmBox("9-Run ends this rack.\nPlayer will earn all rack points.", () => {
                 for (var i = 0; i < 9; i++) {
                     ballStates[i] = "won";
                 }
@@ -610,7 +610,7 @@
                 </td>
                 <td style="text-align: center">Total Innings</td>
                 <td style="text-align: center">Rack Innings</td>
-                <td rowspan="2"><button onclick="showMatch()"><small>Summary</small></button></td>
+                <td rowspan="2" style="vertical-align: top"><button onclick="showMatch()"><small>Summary</small></button></td>
             </tr>
             <tr>
                 <td>
@@ -630,7 +630,7 @@
         <table class="player">
             <tr>
                 <td>Player &amp;<br />Current Shooter</td>
-                <td><br/>Score</td>
+                <td style="vertical-align: bottom">Score</td>
                 <td>Current<br />Rack</td>
                 <td><small>Defensives<br />&amp;timeouts</small></td>
             </tr>
@@ -711,9 +711,11 @@
         
         <div id="matchInfo" class="popupBackground" style="visibility: hidden">
             <div class="popup-large">
-                <p align="center">Summary of completed racks.<br/><small>Does not include the rack in progress. Best viewed in landscape orientation.</small></p>
-                <table id="running-score" class="running-score">
-                </table>
+                <p align="center">Summary of Completed Racks<br/><small>Does not include the rack in progress<br/> <small>(Best viewed in landscape orientation)</small></small></p>
+                <div class="div-running-score">
+                    <table id="running-score" class="running-score">
+                    </table>
+                </div>
                 <div class="popupButtons">
                     <button onclick="(() => { document.getElementById('matchInfo').style.visibility = 'hidden' })()">OK</button>
                 </div>
