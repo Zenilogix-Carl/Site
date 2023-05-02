@@ -100,6 +100,14 @@
                 updateBallState(i);
             }
 
+            for (const [key, value] of Object.entries(players)) {
+                value.rackScore = 0;
+                value.rackDefensives = 0;
+                value.timeouts = 0;
+                value.nineSnap = false;
+                value.nineRun = false;
+            }
+
             currentInnings = 0;
             currentplayer1Defensives = 0;
             currentplayer2Defensives = 0;
@@ -124,6 +132,14 @@
 
         function startMatch() {
             ballStates = Array(ballCount).fill("normal");
+            for (const [key, value] of Object.entries(players)) {
+                value.score = 0;
+                value.matchDefensives = 0;
+                value.scores = [];
+                value.timeouts = [];
+                value.nineSnaps = [];
+                value.nineRuns = [];
+            }
             player1Score = 0;
             player2Score = 0;
             player1RackScore = 0;
@@ -143,14 +159,6 @@
             shotTime = new Date();
             started = true;
 
-            players[player1].scores = [];
-            players[player1].timeouts = [];
-            players[player1].nineSnaps = [];
-            players[player1].nineRuns = [];
-            players[player2].scores = [];
-            players[player2].timeouts = [];
-            players[player2].nineSnaps = [];
-            players[player2].nineRuns = [];
             innings = [];
         }
 
@@ -219,25 +227,25 @@
         }
 
         function addplayer1Defensive() {
-            currentplayer1Defensives++;
+            players[player1].rackDefensives++;
             setplayer1Defensives();
         }
 
         function removeplayer1Defensive() {
-            if (currentplayer1Defensives > 0) {
-                currentplayer1Defensives--;
+            if (players[player1].rackDefensives > 0) {
+                players[player1].rackDefensives--;
             }
             setplayer1Defensives();
         }
 
         function addplayer2Defensive() {
-            currentplayer2Defensives++;
+            players[player2].rackDefensives++;
             setplayer2Defensives();
         }
 
         function removeplayer2Defensive() {
-            if (currentplayer2Defensives > 0) {
-                currentplayer2Defensives--;
+            if (players[player2].rackDefensives > 0) {
+                players[player2].rackDefensives--;
             }
             setplayer2Defensives();
         }
@@ -290,12 +298,12 @@
 
         function setplayer1Defensives() {
             var sdElement = document.getElementById("player1-defensives");
-            sdElement.innerHTML = currentplayer1Defensives + matchplayer1Defensives;
+            sdElement.innerHTML = players[player1].rackDefensives + players[player1].matchDefensives;
         }
 
         function setplayer2Defensives() {
             var odElement = document.getElementById("player2-defensives");
-            odElement.innerHTML = currentplayer2Defensives + matchplayer2Defensives;
+            odElement.innerHTML = players[player2].rackDefensives + players[player2].matchDefensives;
         }
 
         function advanceToNextRack() {
@@ -309,19 +317,18 @@
                 }
             }
 
-            players[player1].scores.push(player1RackScore);
-            players[player1].rackTimeouts.push(players[player1].timeouts);
-            players[player1].nineSnaps.push(players[player1].nineSnap);
-            players[player1].nineRuns.push(players[player1].nineRun);
-            players[player2].scores.push(player2RackScore);
-            players[player2].rackTimeouts.push(players[player2].timeouts);
-            players[player2].nineSnaps.push(players[player2].nineSnap);
-            players[player2].nineRuns.push(players[player2].nineRun);
+            for (const [key, value] of Object.entries(players)) {
+                value.rackScore = 0;
+                value.rackTimeouts.push(value.timeouts);
+                value.nineSnaps.push(value.nineSnap);
+                value.nineRuns.push(value.nineRun);
+                value.matchDefensives += value.rackDefensives;
+            }
             innings.push(currentInnings);
+            players[player1].scores.push(player1RackScore);
+            players[player2].scores.push(player2RackScore);
 
             matchInnings += currentInnings;
-            matchplayer1Defensives += currentplayer1Defensives;
-            matchplayer2Defensives += currentplayer2Defensives;
             clearRack();
             updateScore();
         }
