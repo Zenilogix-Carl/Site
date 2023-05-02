@@ -116,8 +116,6 @@
 
         var currentPlayer = player1;
         var startingPlayer = currentPlayer;
-        var player1Score = 0;
-        var player2Score = 0;
 
         var matchTime = new Date();
         var shotTime = matchTime;
@@ -156,8 +154,7 @@
             for (const [key, value] of Object.entries(players)) {
                 value.clearMatch();
             }
-            player1Score = 0;
-            player2Score = 0;
+            match.clear();
             startingPlayer = currentPlayer;
             matchTime = new Date();
             shotTime = new Date();
@@ -262,16 +259,6 @@
         }
 
         function advanceToNextRack() {
-            for (var i = 0; i < 9; i++) {
-                var ballState = ballStates[i];
-                if ((currentPlayer == player1 && ballState == "won") || (currentPlayer == player2 && ballState == "lost")) {
-                    player1Score += values[i];
-                }
-                if ((currentPlayer == player1 && ballState == "lost") || (currentPlayer == player2 && ballState == "won")) {
-                    player2Score += values[i];
-                }
-            }
-
             for (const [key, value] of Object.entries(players)) {
                 value.matchScore += value.rackScore;
                 value.scores.push(value.rackScore);
