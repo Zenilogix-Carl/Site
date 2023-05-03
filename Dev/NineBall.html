@@ -163,11 +163,8 @@
 
         function clearRack() {
             match.ballStates = Array(ballCount).fill("normal");
-            for (var i = 1; i <= ballCount; i++) {
-                updateBallState(i);
-            }
-
             match.clearRack();
+            updateBallStates();
             updateScore();
 
             match.shotTime = new Date();
@@ -190,6 +187,8 @@
             match.started = true;
 
             match.innings = [];
+
+            clearRack();
         }
 
         function endMatch() {
@@ -332,6 +331,12 @@
                 player2Cue.style.visibility = "visible";
                 player1Input.style.fontWeight = "normal";
                 player2Input.style.fontWeight = "bold";
+            }
+        }
+
+        function updateBallStates() {
+            for (var i = 0; i < match.ballStates.length; i++) {
+                updateBallState(i + 1);
             }
         }
 
@@ -506,13 +511,12 @@
             load(cookie);
             document.title = isApa ? 'Scoreboard for APA-Style 9-Ball' : 'Scoreboard for Classic 9-Ball';
             addBalls("balls");
-            for (var i = 0; i < match.ballStates.length; i++) {
-                updateBallState(i + 1);
-            }
+            updateBallStates();
             onResize();
+            setInterval(updateClock, 1000);
         }
 
-        function load(cookie) {
+        function load(cookie, finalizeFn) {
             if (!(cookie === undefined) && cookie.length > 0) {
                 match = new NineBallMatch().copy(JSON.parse(cookie));
             }
@@ -567,8 +571,11 @@
             bindOutput(match, "totalInnings", document.getElementById("match-innings"));
 
             setCurrentPlayer();
-            setInterval(updateClock, 1000);
             updateScore();
+
+            if (!(finalizeFn === undefined)) {
+                finalizeFn();
+            }
         }
 
         function onUnload() {
@@ -583,7 +590,7 @@
         function reload() {
             var json = JSON.stringify(match);
             match = void 0;
-            load(json);
+            load(json, updateBallStates);
         }
 
         function onResize() {
@@ -778,10 +785,8 @@
 
         <div id="matchInfo" class="popupBackground" style="visibility: hidden">
             <div class="popup-large">
-                <p align="center">Summary of Completed Racks<br /><small>Does not include the rack in progress<br /> <small>(Best viewed in landscape orientation)</small></small></p>
+                <p align="center">Summary of Completed Racks<br /><small> <small><span id="summaryInfo"></span><br />(Best viewed in landscape orientation)</small></small></p>
  
-                <p align="center" id="summaryInfo" style="font-size: 15px">
-                </p>
                 <div class="div-running-score">
                     <table id="running-score" class="running-score">
                     </table>
