@@ -1,64 +1,16 @@
 <html>
 <head>
     <title>Billiard Game Scoreboards</title>
-    <script>
-        //Responsive Scaling
-        let outer = document.getElementById('outer'),
-            wrapper = document.getElementById('wrap'),
-            maxWidth  = outer.clientWidth,
-            maxHeight = outer.clientHeight;
-
-        window.addEventListener("resize", resize);
-        resize();
-
-        function resize(){
-            let scale,
-                width = window.innerWidth,
-                height = window.innerHeight,
-                isMax = width >= maxWidth && height >= maxHeight;
-
-            scale = Math.min(width/maxWidth, height/maxHeight);
-            outer.style.transform = isMax?'':'scale(' + scale + ')';
-            wrapper.style.width = isMax?'':maxWidth * scale;
-            wrapper.style.height = isMax?'':maxHeight * scale;
-        }
-    </script>
-    <style>
-/* Responsive Scaling */
-        #wrap {
-            position: relative;
-            width: 1024px;
-            height: 590px;
-            margin: 0 auto;
-        }
-        #outer {
-            position: relative;
-            width: 1024px;
-            height: 590px;
-            transform-origin: 0% 0%;
-            overflow: hidden;
-        }
-
-        body {
-            font-family: Verdana, sans-serif;
-        }
-    </style>
+    <link rel="stylesheet" href="index-style.css">
 </head>
-<body >
-<div id="wrap" >
-    <div id="outer" style="padding: 20px; font-size: 3cqw">
-        
-        <h1>Billiard Game Scoreboards</h1><br/>
-        <p  >
-            <ul>
-                <li><a href="NineBall.html?style=apa">9-Ball (APA-style)</a></li>
-                <li><a href="NineBall.html">9-Ball (traditional)</a></li>
-                <li><a href="Cutthroat.html">Cutthroat</a></li>
-            </ul>
-        </p>
-
-    </div>
-</div>
-
+<body>
+<h1>Billiard Game Scoreboards</h1><br />
+<p>
+    <ul>
+        <li><a href="NineBall.html?style=apa">9-Ball (APA-style)</a></li>
+        <li><a href="NineBall.html">9-Ball (traditional)</a></li>
+        <li><a href="Cutthroat.html">Cutthroat</a></li>
+    </ul>
+</p>
 </body>
 </html>

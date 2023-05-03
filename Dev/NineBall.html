@@ -158,7 +158,7 @@
         var match = new NineBallMatch();
 
         function clearRackIfConfirmed() {
-            confirmBox("Reset the current rack?", clearRack);
+            confirmBox("Reset the current rack?\nThis will clear all scoring for the current rack as if it was never played.", clearRack);
         }
 
         function clearRack() {
@@ -313,7 +313,7 @@
         }
 
         function nextRack() {
-            confirmBox("Advance to the next rack?", advanceToNextRack);
+            confirmBox("Advance to the next rack?\nMake sure scoring for this rack is correct before you proceed; you won't be able to edit it later.", advanceToNextRack);
         }
 
         function setCurrentPlayer() {
@@ -521,7 +521,7 @@
                 match = new NineBallMatch().copy(JSON.parse(cookie));
             }
 
-            document.getElementById("debug").style.visibility = isDebug ? 'visible' : 'hidden';
+            document.getElementById("helpOrDebug").innerText = isDebug ? 'Debug' : 'Help';
 
             var player1Obj = match.players[player1];
             bindInput(player1Obj,
@@ -581,7 +581,7 @@
         function onUnload() {
             var json = JSON.stringify(match);
             var result = new Date();
-            result.setDate(result.getDate() + 90);
+            result.setDate(result.getDate() + 30);
             var expiry = result.toString();
             var cookie = (isApa ? 'apa-match' : 'classic-match') + "=" + json + "; expires=" + expiry + ";";
             document.cookie = cookie; 
@@ -625,8 +625,6 @@
             var todClock = document.getElementById("todClock");
             var now = new Date();
 
-            //todClock.innerText = now.getHours().toString().padStart(2, '0') + ":" +
-            //    now.getMinutes().toString().padStart(2, '0');
             todClock.innerText = now.toLocaleTimeString("en-US", {
                 hour: "numeric",
                 minute: "2-digit",
@@ -657,9 +655,14 @@
             document.getElementById('popup').style.visibility = 'visible';
         }
 
-        function debugMenu() {
-            // for now, just reload cookie... nothing else needed
-            reload();
+        function helpOrDebug() {
+            if (isDebug) {
+                // for now, just reload cookie... nothing else needed
+                reload();
+            } else {
+                // Help
+                window.open("NineBallHelp.html");
+            }
         }
     </script>
 </head>
@@ -764,7 +767,7 @@
                     <td><button onclick="resetShotClock()">Shot</button></td>
                     <td>Match</td>
                     <td>
-                        <button id="debug" onclick="debugMenu()">Debug</button>
+                        <button id="helpOrDebug" onclick="helpOrDebug()">Help</button>
                     </td>
                 </tr>
                 <tr>
