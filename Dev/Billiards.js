@@ -342,6 +342,7 @@ function bindInput(object, property, element, setAction) {
 }
 
 function bindOutput(object, property, element, setAction) {
+    var value = object[property];
     object[property + 'SetAction'] = setAction;
     Object.defineProperty(object, property,
         {
@@ -359,4 +360,5 @@ function bindOutput(object, property, element, setAction) {
                 }
             }
         });
+    object[property] = value;
 }

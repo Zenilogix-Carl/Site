@@ -112,8 +112,8 @@
                 this.currentPlayer = src.currentPlayer;
                 this.ballStates = src.ballStates;
                 this.started = src.started;
-                this.matchTime = src.matchTime;
-                this.shotTime = src.shotTime;
+                this.matchTime = new Date(src.matchTime);
+                this.shotTime = new Date(src.shotTime);
 
                 return this;
             }
@@ -136,6 +136,7 @@
             }
         });
         var isApa = (!(qqs['style'] === undefined) && qqs['style'].toLowerCase() == 'apa');
+        var isDebug = (!(qqs['debug'] === undefined) && qqs['debug'].toLowerCase() == 'true');
         var values = isApa ? apa : traditional;
 
         var balls = {};
@@ -176,6 +177,10 @@
             confirmBox("Start a new match\n(clear current status)?", startMatch);
         }
 
+        function endMatchIfConfirmed() {
+            confirmBox("End the current match?", endMatch);
+        }
+
         function startMatch() {
             match.ballStates = Array(ballCount).fill("normal");
             match.clear();
@@ -185,6 +190,12 @@
             match.started = true;
 
             match.innings = [];
+        }
+
+        function endMatch() {
+            advanceToNextRack();
+            match.started = false;
+            showMatch();
         }
 
         function switchPlayerBalls() {
@@ -278,6 +289,9 @@
             match.players[player2].rackScore = player2RackScore;
 
             for (const [key, value] of Object.entries(match.players)) {
+                if (value.neededToWin > 0 && (value.matchScore + value.rackScore) > value.neededToWin) {
+                    value.rackScore = value.neededToWin - value.matchScore;
+                }
                 value.score = value.matchScore + value.rackScore;
             }
         }
@@ -370,6 +384,20 @@
         }
 
         function showMatch() {
+            var info = document.getElementById('summaryInfo');
+
+            const options = {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                hour12 : true
+            };
+
+            info.innerText = 'Started ' + match.matchTime.toLocaleString("en-US", options);
+
             var table = document.getElementById('running-score');
             while (table.firstChild) {
                 table.firstChild.remove();
@@ -380,9 +408,9 @@
             var hdr = document.createElement('td');
             hdr.innerText = 'Innings';
             row.appendChild(hdr);
-            for (var i = 0; i < innings.length; i++) {
+            for (var i = 0; i < match.innings.length; i++) {
                 var cell = document.createElement('td');
-                cell.innerText = innings[i].toString();
+                cell.innerText = match.innings[i].toString();
                 row.appendChild(cell);
             }
             table.appendChild(row);
@@ -488,6 +516,9 @@
             if (!(cookie === undefined) && cookie.length > 0) {
                 match = new NineBallMatch().copy(JSON.parse(cookie));
             }
+
+            document.getElementById("debug").style.visibility = isDebug ? 'visible' : 'hidden';
+
             var player1Obj = match.players[player1];
             bindInput(player1Obj,
                 "name",
@@ -587,8 +618,12 @@
             var todClock = document.getElementById("todClock");
             var now = new Date();
 
-            todClock.innerText = now.getHours().toString().padStart(2, '0') + ":" +
-                now.getMinutes().toString().padStart(2, '0');
+            //todClock.innerText = now.getHours().toString().padStart(2, '0') + ":" +
+            //    now.getMinutes().toString().padStart(2, '0');
+            todClock.innerText = now.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true});
 
             if (match.started) {
                 var shotElapsed = (now - match.shotTime)/1000;
@@ -614,22 +649,32 @@
             popupAction = action;
             document.getElementById('popup').style.visibility = 'visible';
         }
+
+        function debugMenu() {
+            // for now, just reload cookie... nothing else needed
+            reload();
+        }
     </script>
 </head>
 <body onload='onLoad()'>
-    <div class="main" style="background-color: lightblue; min-height: 100vh;  ">
+    <div class="main" style="background-color: lightblue; min-height: 100vh;">
         <table>
             <tr>
                 <td>
                     <button onclick="startMatchIfConfirmed()">Start Match</button>
                 </td>
+                <td>
+                    <button onclick="endMatchIfConfirmed()"><small>End Match</small></button>
+                </td>
                 <td style="text-align: center">Total Innings</td>
                 <td style="text-align: center">Rack Innings</td>
-                <td rowspan="2" style="vertical-align: top"><button onclick="showMatch()"><small>Summary</small></button><br/><button onclick="reload()">Reload</button></td>
             </tr>
             <tr>
                 <td>
                     <button onclick="clearRackIfConfirmed()">Clear Rack</button>
+                </td>
+                <td>
+                    <button onclick="showMatch()"><small>Summary</small></button>
                 </td>
                 <td style="text-align: center">
                     <span id="match-innings">0</span>
@@ -664,9 +709,11 @@
                         <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
-                <td class="player-cell" style="text-align: center; padding-top: 5px; "><span id="player1-score">0</span></td>
-                <td class="player-cell"><div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
-                <td class="player-cell" style="text-align: center; padding-top: 3px; ">
+                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-score">0</span></td>
+                <td class="player-cell">
+                    <div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div>
+                </td>
+                <td class="player-cell" style="text-align: center; padding-top: 3px;">
                     <span id="player1-defensives">0</span>
                     <button class="player-button" onclick="(() => { match.players[player1].addDefensive() })()"><b>+</b></button>
                     <button class="player-button" onclick="(() => { match.players[player1].removeDefensive() })()"><b>-</b></button>
@@ -689,8 +736,10 @@
                     </div>
                 </td>
                 <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player2-score">0</span></td>
-                <td class="player-cell"><div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
-                <td class="player-cell" style="text-align: center; padding-top: 3px ">
+                <td class="player-cell">
+                    <div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div>
+                </td>
+                <td class="player-cell" style="text-align: center; padding-top: 3px">
                     <div class="defensives">
                         <span id="player2-defensives">0</span>
                         <button class="player-button" onclick="(() => { match.players[player2].addDefensive() })()"><b>+</b></button>
@@ -700,13 +749,16 @@
                 </td>
             </tr>
         </table>
-        <div id="balls" style="padding: 10px;  ">
+        <div id="balls" style="padding: 10px;">
         </div>
         <div id="clocks">
             <table>
                 <tr>
                     <td><button onclick="resetShotClock()">Shot</button></td>
                     <td>Match</td>
+                    <td>
+                        <button id="debug" onclick="debugMenu()">Debug</button>
+                    </td>
                 </tr>
                 <tr>
                     <td><span id="shotClock">0:00</span></td>
@@ -719,14 +771,17 @@
             <div class="popup">
                 <p id="popupMessage" style="text-align: center"></p>
                 <div class="popupButtons">
-                    <button onclick="onPopupOkClick('popup')">OK</button>&nbsp;<button onclick="(()=>{document.getElementById('popup').style.visibility = 'hidden'})()">Cancel</button>
+                    <button onclick="onPopupOkClick('popup')">OK</button>&nbsp;<button onclick="(() => { document.getElementById('popup').style.visibility = 'hidden' })()">Cancel</button>
                 </div>
             </div>
         </div>
-        
+
         <div id="matchInfo" class="popupBackground" style="visibility: hidden">
             <div class="popup-large">
-                <p align="center">Summary of Completed Racks<br/><small>Does not include the rack in progress<br/> <small>(Best viewed in landscape orientation)</small></small></p>
+                <p align="center">Summary of Completed Racks<br /><small>Does not include the rack in progress<br /> <small>(Best viewed in landscape orientation)</small></small></p>
+ 
+                <p align="center" id="summaryInfo" style="font-size: 15px">
+                </p>
                 <div class="div-running-score">
                     <table id="running-score" class="running-score">
                     </table>
