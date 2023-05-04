@@ -6,6 +6,7 @@
     <title></title>
     <link rel="stylesheet" href="styles.css">
     <script src="Billiards.js"></script>
+    <script src="qrcode.js"></script>
     <script>
         window.addEventListener("resize", onResize);
         window.addEventListener("beforeunload", onUnload);
@@ -38,6 +39,7 @@
                 this.scores = [];
                 this.rackTimeouts = [];
                 this.nineSnaps = [];
+                this.nineRuns = [];
                 super.clearMatch();
                 this.clearRack();
             }
@@ -88,13 +90,13 @@
             }
 
             addInning() {
-                this.rackInnings ++;
+                this.rackInnings++;
                 this.totalInnings = this.matchInnings + this.rackInnings;
             }
 
             removeInning() {
                 if (this.rackInnings > 0) {
-                    this.rackInnings --;
+                    this.rackInnings--;
                     this.totalInnings = this.matchInnings + this.rackInnings;
                 }
             }
@@ -222,7 +224,7 @@
 
         function timeout() {
             resetShotClock();
-            match.players[match.currentPlayer].timeouts = (match.players[match.currentPlayer].timeouts + 1) % (maxTimeouts+1);
+            match.players[match.currentPlayer].timeouts = (match.players[match.currentPlayer].timeouts + 1) % (maxTimeouts + 1);
         }
 
         function nineSnap() {
@@ -390,6 +392,15 @@
 
         function showMatch() {
             var info = document.getElementById('summaryInfo');
+            //var qr = document.getElementById('qr');
+
+            //while (qr.firstChild) {
+            //    qr.firstChild.remove();
+            //}
+
+            //var str = JSON.stringify(match);
+            //var str2 = utf8_to_b64(str);
+            //new QRCode(qr, str2);
 
             const options = {
                 weekday: "long",
@@ -398,7 +409,7 @@
                 year: "numeric",
                 hour: "numeric",
                 minute: "2-digit",
-                hour12 : true
+                hour12: true
             };
 
             info.innerText = 'Started ' + match.matchTime.toLocaleString("en-US", options);
@@ -494,7 +505,7 @@
             let name = cname + "=";
             let decodedCookie = decodeURIComponent(document.cookie);
             let ca = decodedCookie.split(';');
-            for(let i = 0; i <ca.length; i++) {
+            for (let i = 0; i < ca.length; i++) {
                 let c = ca[i];
                 while (c.charAt(0) == ' ') {
                     c = c.substring(1);
@@ -507,7 +518,7 @@
         }
 
         function onLoad() {
-            var cookie = getCookie(isApa? 'apa-match' : 'classic-match');
+            var cookie = getCookie(isApa ? 'apa-match' : 'classic-match');
             load(cookie);
             document.title = isApa ? 'Scoreboard for APA-Style 9-Ball' : 'Scoreboard for Classic 9-Ball';
             addBalls("balls");
@@ -584,13 +595,21 @@
             result.setDate(result.getDate() + 30);
             var expiry = result.toString();
             var cookie = (isApa ? 'apa-match' : 'classic-match') + "=" + json + "; expires=" + expiry + ";";
-            document.cookie = cookie; 
+            document.cookie = cookie;
         }
 
         function reload() {
             var json = JSON.stringify(match);
             match = void 0;
             load(json, updateBallStates);
+        }
+
+        function utf8_to_b64(str) {
+            return window.btoa(unescape(encodeURIComponent(str)));
+        }
+
+        function b64_to_utf8(str) {
+            return decodeURIComponent(escape(window.atob(str)));
         }
 
         function onResize() {
@@ -628,11 +647,12 @@
             todClock.innerText = now.toLocaleTimeString("en-US", {
                 hour: "numeric",
                 minute: "2-digit",
-                hour12: true});
+                hour12: true
+            });
 
             if (match.started) {
-                var shotElapsed = (now - match.shotTime)/1000;
-                var matchElapsed = (now - match.matchTime)/60000;
+                var shotElapsed = (now - match.shotTime) / 1000;
+                var matchElapsed = (now - match.matchTime) / 60000;
                 var shotClock = document.getElementById("shotClock");
                 var matchClock = document.getElementById("matchClock");
                 shotClock.innerText = Math.round((shotElapsed / 60)).toString() + ":" +
@@ -794,6 +814,7 @@
                     <table id="running-score" class="running-score">
                     </table>
                 </div>
+                <!--<div id="qr"></div>-->
                 <div class="popupButtons">
                     <button onclick="(() => { document.getElementById('matchInfo').style.visibility = 'hidden' })()">OK</button>
                 </div>
