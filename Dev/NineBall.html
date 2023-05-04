@@ -124,6 +124,7 @@
         const ballCount = 9;
         const maxTimeouts = 2;
         const apa = [1, 1, 1, 1, 1, 1, 1, 1, 2];
+        const apaSuddenDeath = [2, 2, 2, 2, 2, 2, 2, 2, 4];
         const traditional = [0, 0, 0, 0, 0, 0, 0, 0, 1];
 
         var ballSizeLarge = '20%';
@@ -138,8 +139,9 @@
             }
         });
         var isApa = (!(qqs['style'] === undefined) && qqs['style'].toLowerCase() == 'apa');
+        var isSuddenDeath = (!(qqs['sd'] === undefined) && qqs['sd'].toLowerCase() == 'true');
         var isDebug = (!(qqs['debug'] === undefined) && qqs['debug'].toLowerCase() == 'true');
-        var values = isApa ? apa : traditional;
+        var values = isApa ? (isSuddenDeath ? apaSuddenDeath : apa) : traditional;
 
         var balls = {};
 
@@ -298,7 +300,7 @@
         }
 
         function advanceToNextRack() {
-            if (match.rackInnings > 0 || match.ballStates.some(b => b != "normal") || match.players.some(p => p.rackScore > 0 || p.timeouts > 0 || p.rackDefensives > 0 || p.nineSnap || p.nineRun)) {
+            if (match.rackInnings > 0 || match.ballStates.some(b => b != "normal") || Object.values(match.players).some(p => p.rackScore > 0 || p.timeouts > 0 || p.rackDefensives > 0 || p.nineSnap || p.nineRun)) {
                for (const [key, value] of Object.entries(match.players)) {
                     value.matchScore += value.rackScore;
                     value.scores.push(value.rackScore);
@@ -438,12 +440,13 @@
             hdr = document.createElement('td');
             hdr.innerText = 'Dead';
             row.appendChild(hdr);
+            var rackPoints = values.reduce((sum, i) => sum + i);
             for (var j = 0; j < match.players[player1].scores.length; j++) {
                 var cell2 = document.createElement('td');
-                cell2.innerText = (10 - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
+                cell2.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
                 row.appendChild(cell2);
             }
-            table.appendChild(row);
+             table.appendChild(row);
             table.appendChild(createScoresRow(match.players[player2]));
 
             document.getElementById('matchInfo').style.visibility = 'visible';
