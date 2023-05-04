@@ -298,24 +298,28 @@
         }
 
         function advanceToNextRack() {
-            for (const [key, value] of Object.entries(match.players)) {
-                value.matchScore += value.rackScore;
-                value.scores.push(value.rackScore);
-                value.rackTimeouts.push(value.timeouts);
-                value.nineSnaps.push(value.nineSnap);
-                value.nineRuns.push(value.nineRun);
-                value.matchDefensives += value.rackDefensives;
-                value.rackScore = 0;
+            if (match.rackInnings > 0 || match.ballStates.some(b => b != "normal") || match.players.some(p => p.rackScore > 0 || p.timeouts > 0 || p.rackDefensives > 0 || p.nineSnap || p.nineRun)) {
+               for (const [key, value] of Object.entries(match.players)) {
+                    value.matchScore += value.rackScore;
+                    value.scores.push(value.rackScore);
+                    value.rackTimeouts.push(value.timeouts);
+                    value.nineSnaps.push(value.nineSnap);
+                    value.nineRuns.push(value.nineRun);
+                    value.matchDefensives += value.rackDefensives;
+                    value.rackScore = 0;
+                }
+                match.innings.push(match.rackInnings);
+                match.matchInnings += match.rackInnings;
             }
-            match.innings.push(match.rackInnings);
-
-            match.matchInnings += match.rackInnings;
             clearRack();
             updateScore();
         }
 
         function nextRack() {
-            confirmBox("Advance to the next rack?\nMake sure scoring for this rack is correct before you proceed; you won't be able to edit it later.", advanceToNextRack);
+            var hasWinner = Object.values(match.players).every(v => v.neededToWin > 0) && Object.values(match.players).some(v => v.remaining == 0);
+            var missingBalls = match.ballStates.some(b => b == "normal") && !Object.values(match.players).some(v => v.remaining == 0);
+            var warning = missingBalls ? 'WARNING\nYou have not marked all balls.' : "Make sure scoring for this rack is correct before you proceed; you won't be able to edit it later.";
+            confirmBox((hasWinner ? "Record final rack?\n" : "Advance to the next rack?\n") + warning, advanceToNextRack);
         }
 
         function setCurrentPlayer() {
