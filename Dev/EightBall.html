@@ -409,7 +409,7 @@
         }
 
         function onLoad() {
-            var cookie = getCookie('match');
+            var cookie = getCookie('eightball-match');
             load(cookie);
             document.title = 'Scoreboard for 8-Ball';
             addBalls("balls");
@@ -484,7 +484,7 @@
             var result = new Date();
             result.setDate(result.getDate() + 30);
             var expiry = result.toString();
-            var cookie = ('match') + "=" + json + "; expires=" + expiry + ";";
+            var cookie = ('eightball-match') + "=" + json + "; expires=" + expiry + ";";
             document.cookie = cookie;
         }
 
