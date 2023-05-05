@@ -436,6 +436,7 @@
                 row.appendChild(cell);
             }
             table.appendChild(row);
+            if (isApa) {
             row = document.createElement('tr');
             hdr = document.createElement('td');
             hdr.innerText = 'Dead';
@@ -447,6 +448,7 @@
                 row.appendChild(cell2);
             }
              table.appendChild(row);
+            }
             table.appendChild(createScoresRow(match.players[player2]));
 
             document.getElementById('matchInfo').style.visibility = 'visible';
@@ -662,9 +664,9 @@
                 var matchElapsed = (now - match.matchTime) / 60000;
                 var shotClock = document.getElementById("shotClock");
                 var matchClock = document.getElementById("matchClock");
-                shotClock.innerText = Math.round((shotElapsed / 60)).toString() + ":" +
+                shotClock.innerText = shotElapsed > 1800 ? '--:--' : Math.round((shotElapsed / 60)).toString() + ":" +
                     Math.round((shotElapsed % 60)).toString().padStart(2, '0');
-                matchClock.innerText = Math.round((matchElapsed / 60)).toString() + ":" +
+                matchClock.innerText = matchElapsed > (24*60) ? '--:--' : Math.round((matchElapsed / 60)).toString() + ":" +
                     Math.round((matchElapsed % 60)).toString().padStart(2, '0');
             }
         }
