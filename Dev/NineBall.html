@@ -436,17 +436,19 @@
                 row.appendChild(cell);
             }
             table.appendChild(row);
-            row = document.createElement('tr');
-            hdr = document.createElement('td');
-            hdr.innerText = 'Dead';
-            row.appendChild(hdr);
-            var rackPoints = values.reduce((sum, i) => sum + i);
-            for (var j = 0; j < match.players[player1].scores.length; j++) {
-                var cell2 = document.createElement('td');
-                cell2.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
-                row.appendChild(cell2);
+            if (isApa) {
+                row = document.createElement('tr');
+                hdr = document.createElement('td');
+                hdr.innerText = 'Dead';
+                row.appendChild(hdr);
+                var rackPoints = values.reduce((sum, i) => sum + i);
+                for (var j = 0; j < match.players[player1].scores.length; j++) {
+                    var cell2 = document.createElement('td');
+                    cell2.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
+                    row.appendChild(cell2);
+                }
+                table.appendChild(row);
             }
-             table.appendChild(row);
             table.appendChild(createScoresRow(match.players[player2]));
 
             document.getElementById('matchInfo').style.visibility = 'visible';
@@ -662,9 +664,9 @@
                 var matchElapsed = (now - match.matchTime) / 60000;
                 var shotClock = document.getElementById("shotClock");
                 var matchClock = document.getElementById("matchClock");
-                shotClock.innerText = Math.round((shotElapsed / 60)).toString() + ":" +
+                shotClock.innerText = shotElapsed > 1800 ? '--:--' : Math.round((shotElapsed / 60)).toString() + ":" +
                     Math.round((shotElapsed % 60)).toString().padStart(2, '0');
-                matchClock.innerText = Math.round((matchElapsed / 60)).toString() + ":" +
+                matchClock.innerText = matchElapsed > (24*60) ? '--:--' : Math.round((matchElapsed / 60)).toString() + ":" +
                     Math.round((matchElapsed % 60)).toString().padStart(2, '0');
             }
         }
