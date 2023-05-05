@@ -129,6 +129,33 @@ class BilliardBallWithState extends BilliardBall {
     }
 }
 
+class BilliardBallWithClick extends BilliardBallWithState {
+    constructor(number, size, clickFn, text) {
+        super(number, size, clickFn, text);
+        var svg = this.element;
+        svg.onclick = clickFn;
+        this.dimElement(this.ballGraphic, false);
+        this.showElement(this.foulText, true);
+        this.showElement(this.checkMark, false);
+        this.foulText.setAttribute("y", 75);
+        var textColor;
+        switch (number) {
+        case 1:
+        case 9:
+            textColor = "blue";
+            break;
+        case 8:
+            textColor = "red";
+            break;
+        default:
+            textColor = "white";
+            break;
+        }
+        this.foulText.setAttribute("fill", textColor);
+        this.foulText.setAttribute("stroke", textColor);
+    }
+}
+
 class CueBall {
     constructor (size, label, clickFn, textColor) {
 
@@ -216,6 +243,11 @@ class Player {
             obj.name = inputElement.value;
         }
     }
+
+    copy(src) {
+        this.name = src.name;
+        return this;
+    }
 }
 
 class PlayerWithScore extends Player {
@@ -228,7 +260,53 @@ class PlayerWithScore extends Player {
         this.matchScore = 0;
         this.rackDefensives = 0;
         this.matchDefensives = 0;
+        this.totalDefensives = 0;
         this.timeouts = 0;
+    }
+
+    copy(src) {
+        super.copy(src);
+        this.score = src.score;
+        this.neededToWin = src.neededToWin;
+        this.rackScore = src.rackScore;
+        this.matchScore = src.matchScore;
+        this.rackDefensives = src.rackDefensives;
+        this.matchDefensives = src.matchDefensives;
+        this.totalDefensives = src.totalDefensives;
+        this.timeouts = src.timeouts;
+
+        return this;
+    }
+
+    clearMatch() {
+        this.score = 0;
+        this.matchScore = 0;
+        this.matchDefensives = 0;
+        this.clearRack();
+    }
+
+    clearRack() {
+        this.rackScore = 0;
+        this.rackDefensives = 0;
+        this.totalDefensives = this.rackDefensives + this.matchDefensives;
+        this.timeouts = 0;
+    }
+
+    addDefensive() {
+        this.rackDefensives++;
+        this.totalDefensives = this.rackDefensives + this.matchDefensives;
+    }
+
+    removeDefensive() {
+        if (this.rackDefensives > 0) {
+            this.rackDefensives--;
+            this.totalDefensives = this.rackDefensives + this.matchDefensives;
+        }
+    }
+
+    nextRack() {
+        this.matchDefensives += this.rackDefensives;
+        this.rackDefensives = 0;
     }
 
     updateScore() {
@@ -259,14 +337,19 @@ function bindInput(object, property, element, setAction) {
                 }
             }
         });
+    object[property] = value;
     element.value = value;
 }
 
 function bindOutput(object, property, element, setAction) {
+    var value = object[property];
     object[property + 'SetAction'] = setAction;
     Object.defineProperty(object, property,
         {
             get() {
+                if (isFinite(element.innerHTML)) {
+                    return parseInt(element.innerHTML);
+                }
                 return element.innerHTML;
             },
             set(newValue) {
@@ -277,4 +360,5 @@ function bindOutput(object, property, element, setAction) {
                 }
             }
         });
+    object[property] = value;
 }

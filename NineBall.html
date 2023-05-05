@@ -6,26 +6,129 @@
     <title></title>
     <link rel="stylesheet" href="styles.css">
     <script src="Billiards.js"></script>
+    <script src="qrcode.js"></script>
     <script>
         window.addEventListener("resize", onResize);
+        window.addEventListener("beforeunload", onUnload);
 
         class NineBallPlayer extends PlayerWithScore {
             constructor(name, setupFn) {
                 super(name, setupFn);
+                this.displayName = name;
+                this.scores = [];
+                this.rackTimeouts = [];
+                this.nineSnaps = [];
+                this.nineRuns = [];
+                this.nineSnap = false;
+                this.nineRun = false;
+            }
+
+            copy(src) {
+                super.copy(src);
+                this.displayName = src.displayName;
+                this.scores = src.scores;
+                this.rackTimeouts = src.rackTimeouts;
+                this.nineSnaps = src.nineSnaps;
+                this.nineRuns = src.nineRuns;
+                this.nineSnap = src.nineSnap;
+                this.nineRun = src.nineRun;
+                return this;
+            }
+
+            clearMatch() {
+                this.scores = [];
+                this.rackTimeouts = [];
+                this.nineSnaps = [];
+                this.nineRuns = [];
+                super.clearMatch();
+                this.clearRack();
+            }
+
+            clearRack() {
+                super.clearRack();
+                this.nineSnap = false;
+                this.nineRun = false;
             }
         }
 
-        var started = false;
+        const player1 = "player1";
+        const player2 = "player2";
+
+        class NineBallMatch {
+            constructor() {
+                this.innings = [];
+                this.rackInnings = 0;
+                this.matchInnings = 0;
+                this.totalInnings = 0;
+                this.players = {
+                    player1: new NineBallPlayer("Self"),
+                    player2: new NineBallPlayer("Opponent")
+                }
+                this.startingPlayer = player1;
+                this.currentPlayer = player1;
+                this.ballStates = Array(ballCount).fill("normal");
+                this.started = false;
+                this.matchTime = new Date();
+                this.shotTime = this.matchTime;
+
+            }
+
+            clear() {
+                for (const [key, value] of Object.entries(this.players)) {
+                    value.clearMatch();
+                }
+                this.matchInnings = 0;
+                this.clearRack();
+            }
+
+            clearRack() {
+                for (const [key, value] of Object.entries(this.players)) {
+                    value.clearRack();
+                }
+                this.rackInnings = 0;
+                this.totalInnings = this.matchInnings;
+            }
+
+            addInning() {
+                this.rackInnings++;
+                this.totalInnings = this.matchInnings + this.rackInnings;
+            }
+
+            removeInning() {
+                if (this.rackInnings > 0) {
+                    this.rackInnings--;
+                    this.totalInnings = this.matchInnings + this.rackInnings;
+                }
+            }
+
+            copy(src) {
+                this.innings = src.innings;
+                this.rackInnings = src.rackInnings;
+                this.matchInnings = src.matchInnings;
+                this.totalInnings = src.totalInnings;
+                this.players = {
+                    player1: new NineBallPlayer().copy(src.players[player1]),
+                    player2: new NineBallPlayer().copy(src.players[player2])
+                }
+                this.startingPlayer = src.startingPlayer;
+                this.currentPlayer = src.currentPlayer;
+                this.ballStates = src.ballStates;
+                this.started = src.started;
+                this.matchTime = new Date(src.matchTime);
+                this.shotTime = new Date(src.shotTime);
+
+                return this;
+            }
+        }
+
+        const ballCount = 9;
+        const maxTimeouts = 2;
+        const apa = [1, 1, 1, 1, 1, 1, 1, 1, 2];
+        const apaSuddenDeath = [2, 2, 2, 2, 2, 2, 2, 2, 4];
+        const traditional = [0, 0, 0, 0, 0, 0, 0, 0, 1];
 
         var ballSizeLarge = '20%';
         var ballSizeSmall = '32px';
-
-        const ballCount = 9;
-        const apa = [1, 1, 1, 1, 1, 1, 1, 1, 2];
-        const traditional = [0, 0, 0, 0, 0, 0, 0, 0, 1];
-
-        const player1 = "player1";
-        const player2 = "player2";
 
         var qs = location.search.substring(1).split('&');
         var qqs = {};
@@ -36,13 +139,11 @@
             }
         });
         var isApa = (!(qqs['style'] === undefined) && qqs['style'].toLowerCase() == 'apa');
-        var values = isApa ? apa : traditional;
+        var isSuddenDeath = (!(qqs['sd'] === undefined) && qqs['sd'].toLowerCase() == 'true');
+        var isDebug = (!(qqs['debug'] === undefined) && qqs['debug'].toLowerCase() == 'true');
+        var values = isApa ? (isSuddenDeath ? apaSuddenDeath : apa) : traditional;
 
         var balls = {};
-        var ballStates = Array(ballCount).fill("normal");
-
-        var player1Name = "Self";
-        var player2Name = "Opponent";
 
         var cycle = {
             "normal": "won",
@@ -58,96 +159,66 @@
             "lost": "won"
         };
 
-        var matchInnings = 0;
-        var currentInnings = 0;
-        var matchplayer1Defensives = 0;
-        var matchplayer2Defensives = 0;
-        var currentplayer1Defensives = 0;
-        var currentplayer2Defensives = 0;
-        var currentPlayer = player1;
-        var startingPlayer = currentPlayer;
-        var player1Score = 0;
-        var player2Score = 0;
-        var player1RackScore = 0;
-        var player2RackScore = 0;
-
-        var matchTime = new Date();
-        var shotTime = matchTime;
-
-        var players = {
-            player1: new NineBallPlayer("Self"),
-            player2: new NineBallPlayer("Opponent")
-        }
-
+        var match = new NineBallMatch();
 
         function clearRackIfConfirmed() {
-            messageBox("Reset the current rack?", clearRack);
+            confirmBox("Reset the current rack?\nThis will clear all scoring for the current rack as if it was never played.", clearRack);
         }
 
         function clearRack() {
-            ballStates = Array(ballCount).fill("normal");
-            for (var i = 1; i <= ballCount; i++) {
-                updateBallState(i);
-            }
-
-            currentInnings = 0;
-            currentplayer1Defensives = 0;
-            currentplayer2Defensives = 0;
+            match.ballStates = Array(ballCount).fill("normal");
+            match.clearRack();
+            updateBallStates();
             updateScore();
-            setInnings();
-            setplayer1Defensives();
-            setplayer2Defensives();
 
-            players[player1].timeouts = 0;
-            players[player2].timeouts = 0;
-
-            shotTime = new Date();
+            match.shotTime = new Date();
         }
 
         function startMatchIfConfirmed() {
-            messageBox("Start a new match (clear current status)?", startMatch);
+            confirmBox("Start a new match\n(clear current status)?", startMatch);
+        }
+
+        function endMatchIfConfirmed() {
+            confirmBox("End the current match?", endMatch);
         }
 
         function startMatch() {
-            ballStates = Array(ballCount).fill("normal");
-            player1Score = 0;
-            player2Score = 0;
-            player1RackScore = 0;
-            player2RackScore = 0;
+            match.ballStates = Array(ballCount).fill("normal");
+            match.clear();
+            match.startingPlayer = match.currentPlayer;
+            match.matchTime = new Date();
+            match.shotTime = new Date();
+            match.started = true;
+
+            match.innings = [];
+
             clearRack();
-            matchInnings = 0;
-            currentInnings = 0;
-            currentplayer1Defensives = 0;
-            currentplayer2Defensives = 0;
-            matchplayer1Defensives = 0;
-            matchplayer2Defensives = 0;
-            startingPlayer = currentPlayer;
-            setInnings();
-            setplayer1Defensives();
-            setplayer2Defensives();
-            matchTime = new Date();
-            shotTime = new Date();
-            started = true;
+        }
+
+        function endMatch() {
+            advanceToNextRack();
+            match.started = false;
+            showMatch();
         }
 
         function switchPlayerBalls() {
-            for (var i = 0; i < ballCount; i++) {
-                ballStates[i] = invert[ballStates[i]];
+            for (var i = 0; i < match.ballStates.length; i++) {
+                match.ballStates[i] = invert[match.ballStates[i]];
                 updateBallState(i + 1);
             }
         }
 
         function missedShot() {
-            if (currentPlayer == player1) {
-                currentPlayer = player2;
+            if (match.currentPlayer == player1) {
+                match.currentPlayer = player2;
             } else {
-                currentPlayer = player1;
+                match.currentPlayer = player1;
             }
             switchPlayerBalls();
             setCurrentPlayer();
 
-            if (currentPlayer == startingPlayer) {
-                addInning();
+            if (match.currentPlayer == match.startingPlayer) {
+                match.addInning();
             }
 
             resetShotClock();
@@ -155,71 +226,48 @@
 
         function timeout() {
             resetShotClock();
-            players[currentPlayer].timeouts = (players[currentPlayer].timeouts + 1) % 3;
+            match.players[match.currentPlayer].timeouts = (match.players[match.currentPlayer].timeouts + 1) % (maxTimeouts + 1);
+        }
+
+        function nineSnap() {
+            confirmBox("9-Snap ends this rack.\nCancel if you need to mark any additional balls, otherwise proceed to the next rack.", () => {
+                match.ballStates[match.ballStates.length - 1] = "won";
+                match.players[match.currentPlayer].nineSnap = true;
+                updateScore();
+                advanceToNextRack();
+            });
+        }
+
+        function nineRun() {
+            confirmBox("9-Run ends this rack.\nPlayer will earn all rack points.", () => {
+                for (var i = 0; i < 9; i++) {
+                    match.ballStates[i] = "won";
+                }
+                match.players[match.currentPlayer].nineRun = true;
+                updateScore();
+                advanceToNextRack();
+            });
         }
 
         function player1Shooting() {
-            if (currentPlayer != player1) {
+            if (match.currentPlayer != player1) {
                 switchPlayerBalls();
-                currentPlayer = player1;
+                match.currentPlayer = player1;
                 setCurrentPlayer();
             }
         }
 
         function player2Shooting() {
-            if (currentPlayer != player2) {
+            if (match.currentPlayer != player2) {
                 switchPlayerBalls();
-                currentPlayer = player2;
+                match.currentPlayer = player2;
                 setCurrentPlayer();
             }
         }
 
-        function addplayer1Defensive() {
-            currentplayer1Defensives++;
-            setplayer1Defensives();
-        }
-
-        function removeplayer1Defensive() {
-            if (currentplayer1Defensives > 0) {
-                currentplayer1Defensives--;
-            }
-            setplayer1Defensives();
-        }
-
-        function addplayer2Defensive() {
-            currentplayer2Defensives++;
-            setplayer2Defensives();
-        }
-
-        function removeplayer2Defensive() {
-            if (currentplayer2Defensives > 0) {
-                currentplayer2Defensives--;
-            }
-            setplayer2Defensives();
-        }
-
-        function addInning() {
-            currentInnings = currentInnings + 1;
-            setInnings();
-        }
-
-        function removeInning() {
-            if (currentInnings > 0) {
-                currentInnings = currentInnings - 1;
-            }
-            setInnings();
-        }
-
-        function setInnings() {
-            var matchInningsElement = document.getElementById("match-innings");
-            matchInningsElement.innerHTML = currentInnings + matchInnings;
-            var inningsElement = document.getElementById("rack-innings");
-            inningsElement.innerHTML = currentInnings;
-        }
-
         function updateScore() {
-            player1RackScore = 0;
-            player2RackScore = 0;
+            var player1RackScore = 0;
+            var player2RackScore = 0;
             var parent1 = document.getElementById("player1-balls");
             while (parent1.firstChild) {
                 parent1.firstChild.remove();
@@ -228,50 +276,52 @@
             while (parent2.firstChild) {
                 parent2.firstChild.remove();
             }
-            for (var i = 0; i < 9; i++) {
-                var ballState = ballStates[i];
-                if ((currentPlayer == player1 && ballState == "won") || (currentPlayer == player2 && ballState == "lost")) {
+            for (var i = 0; i < match.ballStates.length; i++) {
+                var ballState = match.ballStates[i];
+                if ((match.currentPlayer == player1 && ballState == "won") || (match.currentPlayer == player2 && ballState == "lost")) {
                     player1RackScore += values[i];
                     parent1.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
-                if ((currentPlayer == player1 && ballState == "lost") || (currentPlayer == player2 && ballState == "won")) {
+                if ((match.currentPlayer == player1 && ballState == "lost") || (match.currentPlayer == player2 && ballState == "won")) {
                     player2RackScore += values[i];
                     parent2.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
             }
 
-            players[player1].score = player1Score + player1RackScore;
-            players[player2].score = player2Score + player2RackScore;
+            match.players[player1].rackScore = player1RackScore;
+            match.players[player2].rackScore = player2RackScore;
+
+            for (const [key, value] of Object.entries(match.players)) {
+                if (value.neededToWin > 0 && (value.matchScore + value.rackScore) > value.neededToWin) {
+                    value.rackScore = value.neededToWin - value.matchScore;
+                }
+                value.score = value.matchScore + value.rackScore;
+        }
         }
 
-        function setplayer1Defensives() {
-            var sdElement = document.getElementById("player1-defensives");
-            sdElement.innerHTML = currentplayer1Defensives + matchplayer1Defensives;
-        }
-
-        function setplayer2Defensives() {
-            var odElement = document.getElementById("player2-defensives");
-            odElement.innerHTML = currentplayer2Defensives + matchplayer2Defensives;
+        function advanceToNextRack() {
+            if (match.rackInnings > 0 || match.ballStates.some(b => b != "normal") || Object.values(match.players).some(p => p.rackScore > 0 || p.timeouts > 0 || p.rackDefensives > 0 || p.nineSnap || p.nineRun)) {
+               for (const [key, value] of Object.entries(match.players)) {
+                    value.matchScore += value.rackScore;
+                    value.scores.push(value.rackScore);
+                    value.rackTimeouts.push(value.timeouts);
+                    value.nineSnaps.push(value.nineSnap);
+                    value.nineRuns.push(value.nineRun);
+                    value.matchDefensives += value.rackDefensives;
+                    value.rackScore = 0;
+                    }
+                match.innings.push(match.rackInnings);
+                match.matchInnings += match.rackInnings;
+                    }
+                clearRack();
+                updateScore();
         }
 
         function nextRack() {
-            messageBox("Advance to the next rack?", () => {
-                for (var i = 0; i < 9; i++) {
-                    var ballState = ballStates[i];
-                    if ((currentPlayer == player1 && ballState == "won") || (currentPlayer == player2 && ballState == "lost")) {
-                        player1Score += values[i];
-                    }
-                    if ((currentPlayer == player1 && ballState == "lost") || (currentPlayer == player2 && ballState == "won")) {
-                        player2Score += values[i];
-                    }
-                }
-
-                matchInnings += currentInnings;
-                matchplayer1Defensives += currentplayer1Defensives;
-                matchplayer2Defensives += currentplayer2Defensives;
-                clearRack();
-                updateScore();
-            });
+            var hasWinner = Object.values(match.players).every(v => v.neededToWin > 0) && Object.values(match.players).some(v => v.remaining == 0);
+            var missingBalls = match.ballStates.some(b => b == "normal") && !Object.values(match.players).some(v => v.remaining == 0);
+            var warning = missingBalls ? 'WARNING\nYou have not marked all balls.' : "Make sure scoring for this rack is correct before you proceed; you won't be able to edit it later.";
+            confirmBox((hasWinner ? "Record final rack?\n" : "Advance to the next rack?\n") + warning, advanceToNextRack);
         }
 
         function setCurrentPlayer() {
@@ -279,7 +329,7 @@
             var player2Cue = document.getElementById("player2-cue");
             var player1Input = document.getElementById("player1-input");
             var player2Input = document.getElementById("player2-input");
-            if (currentPlayer == player1) {
+            if (match.currentPlayer == player1) {
                 player1Cue.style.visibility = "visible";
                 player2Cue.style.visibility = "hidden";
                 player1Input.style.fontWeight = "bold";
@@ -292,8 +342,14 @@
             }
         }
 
+        function updateBallStates() {
+            for (var i = 0; i < match.ballStates.length; i++) {
+                updateBallState(i + 1);
+            }
+        }
+
         function updateBallState(number) {
-            var currentBallState = ballStates[number - 1];
+            var currentBallState = match.ballStates[number - 1];
             var ball = balls[number];
 
             switch (currentBallState) {
@@ -311,11 +367,96 @@
             }
         }
 
+        function createScoresRow(player) {
+            var row = document.createElement('tr');
+            var hdr = document.createElement('td');
+            hdr.style.fontWeight = 'bold';
+            hdr.innerText = player.displayName;
+            row.appendChild(hdr);
+            for (var i = 0; i < player.scores.length; i++) {
+                var cell = document.createElement('td');
+                cell.innerText = player.scores[i].toString();
+                if (player.nineSnaps[i]) {
+                    var ns = document.createElement('small');
+                    ns.innerText = '(9-Snap)';
+                    cell.appendChild(ns);
+                }
+                if (player.nineRuns[i]) {
+                    var nr = document.createElement('small');
+                    nr.innerText = '(9-Run)';
+                    cell.appendChild(nr);
+                }
+                if (player.rackTimeouts[i] > 0) {
+                    var to = document.createElement('sup');
+                    to.innerText = 'T'.repeat(player.rackTimeouts[i]);
+                    cell.appendChild(to);
+                }
+                row.appendChild(cell);
+            }
+            return row;
+        }
+
+        function showMatch() {
+            var info = document.getElementById('summaryInfo');
+            //var qr = document.getElementById('qr');
+
+            //while (qr.firstChild) {
+            //    qr.firstChild.remove();
+            //}
+
+            //var str = JSON.stringify(match);
+            //var str2 = utf8_to_b64(str);
+            //new QRCode(qr, str2);
+
+            const options = {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true
+            };
+
+            info.innerText = 'Started ' + match.matchTime.toLocaleString("en-US", options);
+
+            var table = document.getElementById('running-score');
+            while (table.firstChild) {
+                table.firstChild.remove();
+            }
+
+            table.appendChild(createScoresRow(match.players[player1]));
+            var row = document.createElement('tr');
+            var hdr = document.createElement('td');
+            hdr.innerText = 'Innings';
+            row.appendChild(hdr);
+            for (var i = 0; i < match.innings.length; i++) {
+                var cell = document.createElement('td');
+                cell.innerText = match.innings[i].toString();
+                row.appendChild(cell);
+            }
+            table.appendChild(row);
+            row = document.createElement('tr');
+            hdr = document.createElement('td');
+            hdr.innerText = 'Dead';
+            row.appendChild(hdr);
+            var rackPoints = values.reduce((sum, i) => sum + i);
+            for (var j = 0; j < match.players[player1].scores.length; j++) {
+                var cell2 = document.createElement('td');
+                cell2.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
+                row.appendChild(cell2);
+            }
+             table.appendChild(row);
+            table.appendChild(createScoresRow(match.players[player2]));
+
+            document.getElementById('matchInfo').style.visibility = 'visible';
+        }
+
         function ballClick(number) {
-            var currentBallState = ballStates[number - 1];
+            var currentBallState = match.ballStates[number - 1];
 
             var nextBallState = cycle[currentBallState];
-            ballStates[number - 1] = nextBallState;
+            match.ballStates[number - 1] = nextBallState;
 
             updateBallState(number);
             updateScore();
@@ -330,6 +471,16 @@
         function addTimeout(parentId, size) {
             var parentElement = document.getElementById(parentId);
             parentElement.appendChild(new CueBall(size, "Time-out", timeout, "yellow").element);
+        }
+
+        function add9Snap(parentId, size) {
+            var parentElement = document.getElementById(parentId);
+            parentElement.appendChild(new BilliardBallWithClick(9, size, nineSnap, "Snap").element);
+        }
+
+        function add9Run(parentId, size) {
+            var parentElement = document.getElementById(parentId);
+            parentElement.appendChild(new BilliardBallWithClick(9, size, nineRun, "Run").element);
         }
 
         function addRack(parentId, size) {
@@ -348,6 +499,8 @@
 
             addMiss(elementId, ballSizeLarge);
             addTimeout(elementId, ballSizeLarge);
+            add9Snap(elementId, ballSizeLarge);
+            add9Run(elementId, ballSizeLarge);
             addRack(elementId, ballSizeLarge);
         }
 
@@ -355,52 +508,115 @@
             return str[0].toUpperCase() + str.substring(1);
         }
 
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
         function onLoad() {
+            var cookie = getCookie(isApa ? 'apa-nineball-match' : 'classic-nineball-match');
+            load(cookie);
             document.title = isApa ? 'Scoreboard for APA-Style 9-Ball' : 'Scoreboard for Classic 9-Ball';
             addBalls("balls");
+            updateBallStates();
             onResize();
+            setInterval(updateClock, 1000);
+        }
 
-            bindInput(players[player1],
+        function load(cookie, finalizeFn) {
+            if (!(cookie === undefined) && cookie.length > 0) {
+                match = new NineBallMatch().copy(JSON.parse(cookie));
+            }
+
+            document.getElementById("helpOrDebug").innerText = isDebug ? 'Debug' : 'Help';
+
+            var player1Obj = match.players[player1];
+            bindInput(player1Obj,
                 "name",
                 document.getElementById("player1-input"),
                 function () {
-                    var name = players[player1].name;
-                    var uc = initialCaps(name);
-                    if (uc != name) {
-                        players[player1].name = uc;
+                    var name = player1Obj.name;
+                    player1Obj.displayName = initialCaps(name);
+                    if (player1Obj.displayName != name) {
+                        player1Obj.name = player1Obj.displayName;
                     };
                 });
-            bindInput(players[player2], "name", document.getElementById("player2-input"), function () {
-                var name = players[player2].name;
-                var uc = initialCaps(name);
-                if (uc != name) {
-                    players[player2].name = uc;
+            var player2Obj = match.players[player2];
+            bindInput(player2Obj, "name", document.getElementById("player2-input"), function () {
+                var name = player2Obj.name;
+                player2Obj.displayName = initialCaps(name);
+                if (player2Obj.displayName != name) {
+                    player2Obj.name = player2Obj.displayName;
                 };
             });
 
-            bindInput(players[player1], "neededToWin", document.getElementById("player1-goal"), function () {
-                players[player1].updateScore();
+            bindInput(match.players[player1], "neededToWin", document.getElementById("player1-goal"), function () {
+                match.players[player1].updateScore();
             });
 
-            bindInput(players[player2], "neededToWin", document.getElementById("player2-goal"), function () {
-                players[player2].updateScore();
+            bindInput(match.players[player2], "neededToWin", document.getElementById("player2-goal"), function () {
+                match.players[player2].updateScore();
             });
 
-            bindOutput(players[player1], "score", document.getElementById("player1-score"), function () {
-                players[player1].updateScore();
+            bindOutput(match.players[player1], "score", document.getElementById("player1-score"), function () {
+                match.players[player1].updateScore();
             });
-            bindOutput(players[player2], "score", document.getElementById("player2-score"), function () {
-                players[player2].updateScore();
+            bindOutput(match.players[player2], "score", document.getElementById("player2-score"), function () {
+                match.players[player2].updateScore();
             });
 
-            bindOutput(players[player1], "remaining", document.getElementById("player1-needs"));
-            bindOutput(players[player2], "remaining", document.getElementById("player2-needs"));
+            bindOutput(match.players[player1], "totalDefensives", document.getElementById("player1-defensives"));
+            bindOutput(match.players[player2], "totalDefensives", document.getElementById("player2-defensives"));
 
-            bindOutput(players[player1], "timeouts", document.getElementById("player1-timeouts"));
-            bindOutput(players[player2], "timeouts", document.getElementById("player2-timeouts"));
+            bindOutput(match.players[player1], "remaining", document.getElementById("player1-needs"));
+            bindOutput(match.players[player2], "remaining", document.getElementById("player2-needs"));
+
+            bindOutput(match.players[player1], "timeouts", document.getElementById("player1-timeouts"));
+            bindOutput(match.players[player2], "timeouts", document.getElementById("player2-timeouts"));
+
+            bindOutput(match, "rackInnings", document.getElementById("rack-innings"));
+            bindOutput(match, "totalInnings", document.getElementById("match-innings"));
 
             setCurrentPlayer();
-            setInterval(updateClock, 1000);
+            updateScore();
+
+            if (!(finalizeFn === undefined)) {
+                finalizeFn();
+            }
+        }
+
+        function onUnload() {
+            var json = JSON.stringify(match);
+            var result = new Date();
+            result.setDate(result.getDate() + 30);
+            var expiry = result.toString();
+            var cookie = (isApa ? 'apa-nineball-match' : 'classic-nineball-match') + "=" + json + "; expires=" + expiry + ";";
+            document.cookie = cookie;
+        }
+
+        function reload() {
+            var json = JSON.stringify(match);
+            match = void 0;
+            load(json, updateBallStates);
+        }
+
+        function utf8_to_b64(str) {
+            return window.btoa(unescape(encodeURIComponent(str)));
+        }
+
+        function b64_to_utf8(str) {
+            return decodeURIComponent(escape(window.atob(str)));
         }
 
         function onResize() {
@@ -428,19 +644,22 @@
         }
 
         function resetShotClock() {
-            shotTime = new Date();
+            match.shotTime = new Date();
         }
 
         function updateClock() {
             var todClock = document.getElementById("todClock");
             var now = new Date();
 
-            todClock.innerText = now.getHours().toString().padStart(2, '0') + ":" +
-                now.getMinutes().toString().padStart(2, '0');
+            todClock.innerText = now.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true
+            });
 
-            if (started) {
-                var shotElapsed = (now - shotTime)/1000;
-                var matchElapsed = (now - matchTime)/60000;
+            if (match.started) {
+                var shotElapsed = (now - match.shotTime) / 1000;
+                var matchElapsed = (now - match.matchTime) / 60000;
                 var shotClock = document.getElementById("shotClock");
                 var matchClock = document.getElementById("matchClock");
                 shotClock.innerText = Math.round((shotElapsed / 60)).toString() + ":" +
@@ -452,40 +671,55 @@
 
         var popupAction;
 
-        function onPopupOkClick() {
-            document.getElementById('popup').style.visibility = 'hidden';
+        function onPopupOkClick(id) {
+            document.getElementById(id).style.visibility = 'hidden';
             popupAction();
         }
 
-        function messageBox(message, action) {
+        function confirmBox(message, action) {
             document.getElementById('popupMessage').innerText = message;
             popupAction = action;
             document.getElementById('popup').style.visibility = 'visible';
         }
+
+        function helpOrDebug() {
+            if (isDebug) {
+                // for now, just reload cookie... nothing else needed
+                reload();
+            } else {
+                // Help
+                window.open("NineBallHelp.html");
+            }
+        }
     </script>
 </head>
 <body onload='onLoad()'>
-    <div class="main" style="background-color: lightblue; min-height: 100vh;  ">
+    <div class="main" style="background-color: lightblue; min-height: 100vh;">
     <table>
         <tr>
             <td>
                 <button onclick="startMatchIfConfirmed()">Start Match</button>
             </td>
+                <td>
+                    <button onclick="endMatchIfConfirmed()"><small>End Match</small></button>
+                </td>
             <td style="text-align: center">Total Innings</td>
             <td style="text-align: center">Rack Innings</td>
-
         </tr>
         <tr>
             <td>
                 <button onclick="clearRackIfConfirmed()">Clear Rack</button>
             </td>
+                <td>
+                    <button onclick="showMatch()"><small>Summary</small></button>
+                </td>
             <td style="text-align: center">
                 <span id="match-innings">0</span>
             </td>
             <td style="text-align: center">
                 <span id="rack-innings">0</span>
-                <button onclick="addInning()"><b>+</b></button>
-                <button onclick="removeInning()"><b>-</b></button>
+                    <button onclick="match.addInning()"><b>+</b></button>
+                    <button onclick="match.removeInning()"><b>-</b></button>
             </td>
 
         </tr>
@@ -493,8 +727,7 @@
     <table class="player">
         <tr>
                 <td>Player &amp;<br />Current Shooter</td>
-            <!--<td colspan="2">Needs<br/>to Win</td>-->
-                <td><br/>Score</td>
+                <td style="vertical-align: bottom">Score</td>
                 <td>Current<br />Rack</td>
                 <td><small>Defensives<br />&amp;timeouts</small></td>
         </tr>
@@ -513,12 +746,14 @@
                     <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
                 </div>
             </td>
-            <td class="player-cell" style="text-align: center; padding-top: 5px; "><span id="player1-score">0</span></td>
-            <td class="player-cell"><div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
-            <td class="player-cell" style="text-align: center; padding-top: 3px; ">
+                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-score">0</span></td>
+                <td class="player-cell">
+                    <div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div>
+                </td>
+                <td class="player-cell" style="text-align: center; padding-top: 3px;">
                 <span id="player1-defensives">0</span>
-                <button class="player-button" onclick="addplayer1Defensive()"><b>+</b></button>
-                <button class="player-button" onclick="removeplayer1Defensive()"><b>-</b></button>
+                    <button class="player-button" onclick="(() => { match.players[player1].addDefensive() })()"><b>+</b></button>
+                    <button class="player-button" onclick="(() => { match.players[player1].removeDefensive() })()"><b>-</b></button>
                     <br /><small>t/o:&nbsp;<span id="player1-timeouts">0</span></small>
             </td>
         </tr>
@@ -538,25 +773,29 @@
                 </div>
             </td>
             <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player2-score">0</span></td>
-            <td class="player-cell"><div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div></td>
-            <td class="player-cell" style="text-align: center; padding-top: 3px ">
+                <td class="player-cell">
+                    <div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div>
+                </td>
+                <td class="player-cell" style="text-align: center; padding-top: 3px">
                 <div class="defensives">
                     <span id="player2-defensives">0</span>
-                    <button class="player-button" onclick="addplayer2Defensive()"><b>+</b></button>
-                    <button class="player-button" onclick="removeplayer2Defensive()"><b>-</b></button>
+                        <button class="player-button" onclick="(() => { match.players[player2].addDefensive() })()"><b>+</b></button>
+                        <button class="player-button" onclick="(() => { match.players[player2].removeDefensive() })()"><b>-</b></button>
                         <br /><small>t/o:&nbsp;<span id="player2-timeouts">0</span></small>
                 </div>
             </td>
         </tr>
     </table>
-        <div id="balls" style="padding: 10px;  ">
+        <div id="balls" style="padding: 10px;">
     </div>
     <div id="clocks">
         <table>
             <tr>
                     <td><button onclick="resetShotClock()">Shot</button></td>
-
                     <td>Match</td>
+                    <td>
+                        <button id="helpOrDebug" onclick="helpOrDebug()">Help</button>
+                    </td>
             </tr>
             <tr>
                 <td><span id="shotClock">0:00</span></td>
@@ -569,7 +808,22 @@
             <div class="popup">
                 <p id="popupMessage" style="text-align: center"></p>
                 <div class="popupButtons">
-                    <button onclick="onPopupOkClick()">OK</button>&nbsp;<button onclick="(()=>{document.getElementById('popup').style.visibility = 'hidden'})()">Cancel</button>
+                    <button onclick="onPopupOkClick('popup')">OK</button>&nbsp;<button onclick="(() => { document.getElementById('popup').style.visibility = 'hidden' })()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="matchInfo" class="popupBackground" style="visibility: hidden">
+            <div class="popup-large">
+                <p align="center">Summary of Completed Racks<br /><small> <small><span id="summaryInfo"></span><br />(Best viewed in landscape orientation)</small></small></p>
+ 
+                <div class="div-running-score">
+                    <table id="running-score" class="running-score">
+                    </table>
+                </div>
+                <!--<div id="qr"></div>-->
+                <div class="popupButtons">
+                    <button onclick="(() => { document.getElementById('matchInfo').style.visibility = 'hidden' })()">OK</button>
                 </div>
             </div>
         </div>

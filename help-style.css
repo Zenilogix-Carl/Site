@@ -1,0 +1,16 @@
+body {
+    font-family: Verdana, sans-serif;
+    font-size: 20pt;
+}
+
+@media only screen and (max-width: 600px) {
+    body {
+        font-size: 18pt;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    body {
+        font-size: 16pt;
+    }
+}
