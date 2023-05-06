@@ -54,8 +54,14 @@
         const player1 = "player1";
         const player2 = "player2";
 
+        const apa = [1, 1, 1, 1, 1, 1, 1, 1, 2];
+        const apaSuddenDeath = [2, 2, 2, 2, 2, 2, 2, 2, 4];
+        const traditional = [0, 0, 0, 0, 0, 0, 0, 0, 1];
+
         class NineBallMatch {
-            constructor() {
+            constructor(isApa, isSuddenDeath) {
+                this.isApa = isApa;
+                this.isSuddenDeath = isSuddenDeath;
                 this.innings = [];
                 this.rackInnings = 0;
                 this.matchInnings = 0;
@@ -67,6 +73,7 @@
                 this.startingPlayer = player1;
                 this.currentPlayer = player1;
                 this.ballStates = Array(ballCount).fill("normal");
+                this.ballValues = isApa ? (isSuddenDeath ? apaSuddenDeath : apa) : traditional;
                 this.started = false;
                 this.matchTime = new Date();
                 this.shotTime = this.matchTime;
@@ -102,6 +109,8 @@
             }
 
             copy(src) {
+                this.isApa = (src.isApa === undefined) ? false : src.isApa;
+                this.isSuddenDeath = (src.isSuddenDeath === undefined) ? false : src.isSuddenDeath;
                 this.innings = src.innings;
                 this.rackInnings = src.rackInnings;
                 this.matchInnings = src.matchInnings;
@@ -113,6 +122,9 @@
                 this.startingPlayer = src.startingPlayer;
                 this.currentPlayer = src.currentPlayer;
                 this.ballStates = src.ballStates;
+                if (!(src.ballValues === undefined)) {
+                    this.ballValues = src.ballValues;
+                }
                 this.started = src.started;
                 this.matchTime = new Date(src.matchTime);
                 this.shotTime = new Date(src.shotTime);
@@ -123,9 +135,6 @@
 
         const ballCount = 9;
         const maxTimeouts = 2;
-        const apa = [1, 1, 1, 1, 1, 1, 1, 1, 2];
-        const apaSuddenDeath = [2, 2, 2, 2, 2, 2, 2, 2, 4];
-        const traditional = [0, 0, 0, 0, 0, 0, 0, 0, 1];
 
         var ballSizeLarge = '20%';
         var ballSizeSmall = '32px';
@@ -141,7 +150,6 @@
         var isApa = (!(qqs['style'] === undefined) && qqs['style'].toLowerCase() == 'apa');
         var isSuddenDeath = (!(qqs['sd'] === undefined) && qqs['sd'].toLowerCase() == 'true');
         var isDebug = (!(qqs['debug'] === undefined) && qqs['debug'].toLowerCase() == 'true');
-        var values = isApa ? (isSuddenDeath ? apaSuddenDeath : apa) : traditional;
 
         var balls = {};
 
@@ -159,7 +167,7 @@
             "lost": "won"
         };
 
-        var match = new NineBallMatch();
+        var match = new NineBallMatch(isApa, isSuddenDeath);
 
         function clearRackIfConfirmed() {
             confirmBox("Reset the current rack?\nThis will clear all scoring for the current rack as if it was never played.", clearRack);
@@ -175,7 +183,7 @@
         }
 
         function startMatchIfConfirmed() {
-            confirmBox("Start a new match\n(clear current status)?", startMatch);
+            confirmBox("Start a new " + (isApa ? 'APA ' : '') + (isSuddenDeath ? 'sudden death ':'') + "match\n(clear current status)?", startMatch);
         }
 
         function endMatchIfConfirmed() {
@@ -183,7 +191,10 @@
         }
 
         function startMatch() {
+            match.isApa = isApa;
+            match.isSuddenDeath = isSuddenDeath;
             match.ballStates = Array(ballCount).fill("normal");
+            match.ballValues = isApa ? (isSuddenDeath ? apaSuddenDeath : apa) : traditional;
             match.clear();
             match.startingPlayer = match.currentPlayer;
             match.matchTime = new Date();
@@ -279,11 +290,11 @@
             for (var i = 0; i < match.ballStates.length; i++) {
                 var ballState = match.ballStates[i];
                 if ((match.currentPlayer == player1 && ballState == "won") || (match.currentPlayer == player2 && ballState == "lost")) {
-                    player1RackScore += values[i];
+                    player1RackScore += match.ballValues[i];
                     parent1.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
                 if ((match.currentPlayer == player1 && ballState == "lost") || (match.currentPlayer == player2 && ballState == "won")) {
-                    player2RackScore += values[i];
+                    player2RackScore += match.ballValues[i];
                     parent2.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
             }
@@ -418,7 +429,7 @@
                 hour12: true
             };
 
-            info.innerText = 'Started ' + match.matchTime.toLocaleString("en-US", options);
+            info.innerText = 'Started ' + match.matchTime.toLocaleString("en-US", options) + (match.isSuddenDeath ? ' (Sudden Death)' : '');
 
             var table = document.getElementById('running-score');
             while (table.firstChild) {
@@ -441,7 +452,7 @@
             hdr = document.createElement('td');
             hdr.innerText = 'Dead';
             row.appendChild(hdr);
-            var rackPoints = values.reduce((sum, i) => sum + i);
+                var rackPoints = match.ballValues.reduce((sum, i) => sum + i);
             for (var j = 0; j < match.players[player1].scores.length; j++) {
                 var cell2 = document.createElement('td');
                 cell2.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
@@ -529,7 +540,7 @@
         function onLoad() {
             var cookie = getCookie(isApa ? 'apa-nineball-match' : 'classic-nineball-match');
             load(cookie);
-            document.title = isApa ? 'Scoreboard for APA-Style 9-Ball' : 'Scoreboard for Classic 9-Ball';
+            document.title = isApa ? ('Scoreboard for APA-Style 9-Ball' + (match.isSuddenDeath ? ' (Sudden Death)' : '')): 'Scoreboard for Classic 9-Ball';
             addBalls("balls");
             updateBallStates();
             onResize();
