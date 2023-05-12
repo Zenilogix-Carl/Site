@@ -559,7 +559,7 @@
                 match = new NineBallMatch().copy(JSON.parse(cookie));
             }
 
-            document.getElementById("helpOrDebug").innerText = isDebug ? 'Debug' : 'Help';
+            document.getElementById("helpOrDebug").innerHTML = isDebug ? 'Debug' : "&#10067;";
 
             var player1Obj = match.players[player1];
             bindInput(player1Obj,
@@ -595,6 +595,9 @@
             bindOutput(match.players[player2], "score", document.getElementById("player2-score"), function () {
                 match.players[player2].updateScore();
             });
+
+            bindOutput(match.players[player1], "rackScore", document.getElementById("player1-rack-score"));
+            bindOutput(match.players[player2], "rackScore", document.getElementById("player2-rack-score"));
 
             bindOutput(match.players[player1], "totalDefensives", document.getElementById("player1-defensives"));
             bindOutput(match.players[player2], "totalDefensives", document.getElementById("player2-defensives"));
@@ -682,10 +685,10 @@
                 var matchElapsed = (now - match.matchTime) / 60000;
                 var shotClock = document.getElementById("shotClock");
                 var matchClock = document.getElementById("matchClock");
-                shotClock.innerText = shotElapsed > 1800 ? '--:--' : Math.round((shotElapsed / 60)).toString() + ":" +
-                    Math.round((shotElapsed % 60)).toString().padStart(2, '0');
-                matchClock.innerText = matchElapsed > (24*60) ? '--:--' : Math.round((matchElapsed / 60)).toString() + ":" +
-                    Math.round((matchElapsed % 60)).toString().padStart(2, '0');
+                shotClock.innerText = shotElapsed > 1800 ? '--:--' : Math.trunc((shotElapsed / 60)).toString() + ":" +
+                    Math.trunc((shotElapsed % 60)).toString().padStart(2, '0');
+                matchClock.innerText = matchElapsed > (24 * 60) ? '--:--' : Math.trunc((matchElapsed / 60)).toString() + ":" +
+                    Math.trunc((matchElapsed % 60)).toString().padStart(2, '0');
             }
         }
 
@@ -738,7 +741,7 @@
             </tr>
             <tr>
                 <td>
-                    <button onclick="clearRackIfConfirmed()">Clear Rack</button>
+                    <button onclick="clearRackIfConfirmed()"><small>Clear Rack</small></button>
                 </td>
                 <td>
                     <button onclick="showMatch()"><small>Summary</small></button>
@@ -776,15 +779,15 @@
                         <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
-                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-score">0</span></td>
+                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-rack-score">0</span><br/><span id="player1-score">0</span></td>
                 <td class="player-cell">
                     <div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div>
                 </td>
                 <td class="player-cell" style="text-align: center; padding-top: 3px;">
-                    <span id="player1-defensives">0</span>
+                    &#128737;<span id="player1-defensives">0</span>
                     <button class="player-button" onclick="(() => { match.players[player1].addDefensive() })()"><b>+</b></button>
                     <button class="player-button" onclick="(() => { match.players[player1].removeDefensive() })()"><b>-</b></button>
-                    <br /><small>t/o:&nbsp;<span id="player1-timeouts">0</span></small>
+                    <br /><small>&#x23F3;&nbsp;<span id="player1-timeouts">0</span></small>
                 </td>
             </tr>
             <tr>
@@ -802,16 +805,16 @@
                         <input type="number" min="0" max="99" id="player2-goal" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
-                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player2-score">0</span></td>
+                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player2-rack-score">0</span><br /><span id="player2-score">0</span></td>
                 <td class="player-cell">
                     <div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div>
                 </td>
                 <td class="player-cell" style="text-align: center; padding-top: 3px">
                     <div class="defensives">
-                        <span id="player2-defensives">0</span>
+                        &#128737;<span id="player2-defensives">0</span>
                         <button class="player-button" onclick="(() => { match.players[player2].addDefensive() })()"><b>+</b></button>
                         <button class="player-button" onclick="(() => { match.players[player2].removeDefensive() })()"><b>-</b></button>
-                        <br /><small>t/o:&nbsp;<span id="player2-timeouts">0</span></small>
+                        <br /><small>&#x23F3;&nbsp;<span id="player2-timeouts">0</span></small>
                     </div>
                 </td>
             </tr>
@@ -821,11 +824,8 @@
         <div id="clocks">
             <table>
                 <tr>
-                    <td><button onclick="resetShotClock()">Shot</button></td>
+                    <td style="text-align: center"><button onclick="resetShotClock()" style="border-style: hidden; background: transparent;">&#x23F3;</button></td>
                     <td>Match</td>
-                    <td>
-                        <button id="helpOrDebug" onclick="helpOrDebug()">Help</button>
-                    </td>
                 </tr>
                 <tr>
                     <td><span id="shotClock">0:00</span></td>
@@ -856,6 +856,9 @@
                     <button onclick="(() => { document.getElementById('matchInfo').style.visibility = 'hidden' })()">OK</button>
                 </div>
             </div>
+        </div>
+        <div style="position: absolute; top: 0;right:0">
+            <button style="border-style: hidden;background: transparent" id="helpOrDebug" onclick="helpOrDebug()">Help</button>
         </div>
     </div>
 </body>
