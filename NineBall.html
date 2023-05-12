@@ -8,6 +8,12 @@
     <script src="Billiards.js"></script>
     <script src="qrcode.js"></script>
     <script>
+        var currentVersion;
+
+        getLastModified("NineBall.html").then(result => {
+            currentVersion = result;
+        });
+
         window.addEventListener("resize", onResize);
         window.addEventListener("beforeunload", onUnload);
 
@@ -307,7 +313,7 @@
                     value.rackScore = value.neededToWin - value.matchScore;
                 }
                 value.score = value.matchScore + value.rackScore;
-        }
+            }
         }
 
         function advanceToNextRack() {
@@ -320,12 +326,12 @@
                     value.nineRuns.push(value.nineRun);
                     value.matchDefensives += value.rackDefensives;
                     value.rackScore = 0;
-                    }
+                }
                 match.innings.push(match.rackInnings);
                 match.matchInnings += match.rackInnings;
-                    }
-                clearRack();
-                updateScore();
+            }
+            clearRack();
+            updateScore();
         }
 
         function nextRack() {
@@ -448,17 +454,17 @@
             }
             table.appendChild(row);
             if (isApa) {
-            row = document.createElement('tr');
-            hdr = document.createElement('td');
-            hdr.innerText = 'Dead';
-            row.appendChild(hdr);
+                row = document.createElement('tr');
+                hdr = document.createElement('td');
+                hdr.innerText = 'Dead';
+                row.appendChild(hdr);
                 var rackPoints = match.ballValues.reduce((sum, i) => sum + i);
-            for (var j = 0; j < match.players[player1].scores.length; j++) {
-                var cell2 = document.createElement('td');
-                cell2.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
-                row.appendChild(cell2);
-            }
-             table.appendChild(row);
+                for (var j = 0; j < match.players[player1].scores.length; j++) {
+                    var cell2 = document.createElement('td');
+                    cell2.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
+                    row.appendChild(cell2);
+                }
+                table.appendChild(row);
             }
             table.appendChild(createScoresRow(match.players[player2]));
 
@@ -538,6 +544,7 @@
         }
 
         function onLoad() {
+            checkForUpdate(); // check on dom load (not necessarily on page load)
             var cookie = getCookie(isApa ? 'apa-nineball-match' : 'classic-nineball-match');
             load(cookie);
             document.title = isApa ? ('Scoreboard for APA-Style 9-Ball' + (match.isSuddenDeath ? ' (Sudden Death)' : '')): 'Scoreboard for Classic 9-Ball';
@@ -552,7 +559,7 @@
                 match = new NineBallMatch().copy(JSON.parse(cookie));
             }
 
-            document.getElementById("helpOrDebug").innerText = isDebug ? 'Debug' : 'Help';
+            document.getElementById("helpOrDebug").innerHTML = isDebug ? 'Debug' : "&#10067;";
 
             var player1Obj = match.players[player1];
             bindInput(player1Obj,
@@ -588,6 +595,9 @@
             bindOutput(match.players[player2], "score", document.getElementById("player2-score"), function () {
                 match.players[player2].updateScore();
             });
+
+            bindOutput(match.players[player1], "rackScore", document.getElementById("player1-rack-score"));
+            bindOutput(match.players[player2], "rackScore", document.getElementById("player2-rack-score"));
 
             bindOutput(match.players[player1], "totalDefensives", document.getElementById("player1-defensives"));
             bindOutput(match.players[player2], "totalDefensives", document.getElementById("player2-defensives"));
@@ -675,10 +685,10 @@
                 var matchElapsed = (now - match.matchTime) / 60000;
                 var shotClock = document.getElementById("shotClock");
                 var matchClock = document.getElementById("matchClock");
-                shotClock.innerText = shotElapsed > 1800 ? '--:--' : Math.round((shotElapsed / 60)).toString() + ":" +
-                    Math.round((shotElapsed % 60)).toString().padStart(2, '0');
-                matchClock.innerText = matchElapsed > (24*60) ? '--:--' : Math.round((matchElapsed / 60)).toString() + ":" +
-                    Math.round((matchElapsed % 60)).toString().padStart(2, '0');
+                shotClock.innerText = shotElapsed > 1800 ? '--:--' : Math.trunc((shotElapsed / 60)).toString() + ":" +
+                    Math.trunc((shotElapsed % 60)).toString().padStart(2, '0');
+                matchClock.innerText = matchElapsed > (24 * 60) ? '--:--' : Math.trunc((matchElapsed / 60)).toString() + ":" +
+                    Math.trunc((matchElapsed % 60)).toString().padStart(2, '0');
             }
         }
 
@@ -695,6 +705,16 @@
             document.getElementById('popup').style.visibility = 'visible';
         }
 
+        function checkForUpdate() {
+            getLastModified("NineBall.html").then(result => {
+                if (result > currentVersion) {
+                    confirmBox("This app has been updated.\nDo you want to get the update?", () => {
+                        location.reload();
+                    });
+                }
+            });
+        }
+
         function helpOrDebug() {
             if (isDebug) {
                 // for now, just reload cookie... nothing else needed
@@ -708,115 +728,112 @@
 </head>
 <body onload='onLoad()'>
     <div class="main" style="background-color: lightblue; min-height: 100vh;">
-    <table>
-        <tr>
-            <td>
-                <button onclick="startMatchIfConfirmed()">Start Match</button>
-            </td>
+        <table>
+            <tr>
+                <td>
+                    <button onclick="startMatchIfConfirmed()">Start Match</button>
+                </td>
                 <td>
                     <button onclick="endMatchIfConfirmed()"><small>End Match</small></button>
                 </td>
-            <td style="text-align: center">Total Innings</td>
-            <td style="text-align: center">Rack Innings</td>
-        </tr>
-        <tr>
-            <td>
-                <button onclick="clearRackIfConfirmed()">Clear Rack</button>
-            </td>
+                <td style="text-align: center">Total Innings</td>
+                <td style="text-align: center">Rack Innings</td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="clearRackIfConfirmed()"><small>Clear Rack</small></button>
+                </td>
                 <td>
                     <button onclick="showMatch()"><small>Summary</small></button>
                 </td>
-            <td style="text-align: center">
-                <span id="match-innings">0</span>
-            </td>
-            <td style="text-align: center">
-                <span id="rack-innings">0</span>
+                <td style="text-align: center">
+                    <span id="match-innings">0</span>
+                </td>
+                <td style="text-align: center">
+                    <span id="rack-innings">0</span>
                     <button onclick="match.addInning()"><b>+</b></button>
                     <button onclick="match.removeInning()"><b>-</b></button>
-            </td>
+                </td>
 
-        </tr>
-    </table>
-    <table class="player">
-        <tr>
+            </tr>
+        </table>
+        <table class="player">
+            <tr>
                 <td>Player &amp;<br />Current Shooter</td>
                 <td style="vertical-align: bottom">Score</td>
                 <td>Current<br />Rack</td>
                 <td><small>Defensives<br />&amp;timeouts</small></td>
-        </tr>
-        <tr>
-            <td class="player-cell">
-                <div style="display: flex; white-space: nowrap">
-                    <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player1Shooting()">
-                        <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
-                    </button>
-                    &nbsp;
-                    <input type="text" id="player1-input" size="8" style="background: transparent; border: transparent;" />
-                </div>
-                <div class="points-needed">
-                    <small>Needs&nbsp;</small>
-                    <span id="player1-needs">0</span>/
-                    <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
-                </div>
-            </td>
-                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-score">0</span></td>
+            </tr>
+            <tr>
+                <td class="player-cell">
+                    <div style="display: flex; white-space: nowrap">
+                        <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player1Shooting()">
+                            <svg id="player1-cue" width="25" height="25" style="vertical-align: bottom; visibility: visible; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                        </button>
+                        &nbsp;
+                        <input type="text" id="player1-input" size="8" style="background: transparent; border: transparent;" />
+                    </div>
+                    <div class="points-needed">
+                        <small>Needs&nbsp;</small>
+                        <span id="player1-needs">0</span>/
+                        <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
+                    </div>
+                </td>
+                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-rack-score">0</span><br/><span id="player1-score">0</span></td>
                 <td class="player-cell">
                     <div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div>
                 </td>
                 <td class="player-cell" style="text-align: center; padding-top: 3px;">
-                <span id="player1-defensives">0</span>
+                    &#128737;<span id="player1-defensives">0</span>
                     <button class="player-button" onclick="(() => { match.players[player1].addDefensive() })()"><b>+</b></button>
                     <button class="player-button" onclick="(() => { match.players[player1].removeDefensive() })()"><b>-</b></button>
-                    <br /><small>t/o:&nbsp;<span id="player1-timeouts">0</span></small>
-            </td>
-        </tr>
-        <tr>
-            <td class="player-cell">
-                <div style="display: flex; white-space: nowrap">
-                    <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player2Shooting()">
-                        <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
-                    </button>
-                    &nbsp;
-                    <input type="text" id="player2-input" size="8" style="background: transparent; border: transparent;" />
-                </div>
-                <div class="points-needed">
-                    <small>Needs&nbsp;</small>
+                    <br /><small>&#x23F3;&nbsp;<span id="player1-timeouts">0</span></small>
+                </td>
+            </tr>
+            <tr>
+                <td class="player-cell">
+                    <div style="display: flex; white-space: nowrap">
+                        <button style="vertical-align: middle; background: transparent; border: gray;" onclick="player2Shooting()">
+                            <svg id="player2-cue" width="25" height="25" style="vertical-align: bottom; visibility: hidden; filter: drop-shadow(3px 3px 3px)"><circle cx="11" cy="11" r="10" style="fill: white; stroke: black; stroke-width: 1px" /></svg>
+                        </button>
+                        &nbsp;
+                        <input type="text" id="player2-input" size="8" style="background: transparent; border: transparent;" />
+                    </div>
+                    <div class="points-needed">
+                        <small>Needs&nbsp;</small>
                         <span id="player2-needs">0</span>/
-                    <input type="number" min="0" max="99" id="player2-goal" style="background: transparent; border: transparent;" />
-                </div>
-            </td>
-            <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player2-score">0</span></td>
+                        <input type="number" min="0" max="99" id="player2-goal" style="background: transparent; border: transparent;" />
+                    </div>
+                </td>
+                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player2-rack-score">0</span><br /><span id="player2-score">0</span></td>
                 <td class="player-cell">
                     <div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div>
                 </td>
                 <td class="player-cell" style="text-align: center; padding-top: 3px">
-                <div class="defensives">
-                    <span id="player2-defensives">0</span>
+                    <div class="defensives">
+                        &#128737;<span id="player2-defensives">0</span>
                         <button class="player-button" onclick="(() => { match.players[player2].addDefensive() })()"><b>+</b></button>
                         <button class="player-button" onclick="(() => { match.players[player2].removeDefensive() })()"><b>-</b></button>
-                        <br /><small>t/o:&nbsp;<span id="player2-timeouts">0</span></small>
-                </div>
-            </td>
-        </tr>
-    </table>
-        <div id="balls" style="padding: 10px;">
-    </div>
-    <div id="clocks">
-        <table>
-            <tr>
-                    <td><button onclick="resetShotClock()">Shot</button></td>
-                    <td>Match</td>
-                    <td>
-                        <button id="helpOrDebug" onclick="helpOrDebug()">Help</button>
-                    </td>
-            </tr>
-            <tr>
-                <td><span id="shotClock">0:00</span></td>
-                <td><span id="matchClock">0:00</span></td>
-                <td><span id="todClock">0:00</span></td>
+                        <br /><small>&#x23F3;&nbsp;<span id="player2-timeouts">0</span></small>
+                    </div>
+                </td>
             </tr>
         </table>
-    </div>
+        <div id="balls" style="padding: 10px;">
+        </div>
+        <div id="clocks">
+            <table>
+                <tr>
+                    <td style="text-align: center"><button onclick="resetShotClock()" style="border-style: hidden; background: transparent;">&#x23F3;</button></td>
+                    <td>Match</td>
+                </tr>
+                <tr>
+                    <td><span id="shotClock">0:00</span></td>
+                    <td><span id="matchClock">0:00</span></td>
+                    <td><span id="todClock">0:00</span></td>
+                </tr>
+            </table>
+        </div>
         <div id="popup" class="popupBackground" style="visibility: hidden">
             <div class="popup">
                 <p id="popupMessage" style="text-align: center"></p>
@@ -839,6 +856,9 @@
                     <button onclick="(() => { document.getElementById('matchInfo').style.visibility = 'hidden' })()">OK</button>
                 </div>
             </div>
+        </div>
+        <div style="position: absolute; top: 0;right:0">
+            <button style="border-style: hidden;background: transparent" id="helpOrDebug" onclick="helpOrDebug()">Help</button>
         </div>
     </div>
 </body>

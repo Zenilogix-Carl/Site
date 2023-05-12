@@ -362,3 +362,10 @@ function bindOutput(object, property, element, setAction) {
         });
     object[property] = value;
 }
+
+async function getLastModified(url) {
+    var response = await fetch(url, { method: "HEAD" });
+    var lastModified = response.headers.get("Last-Modified");
+
+    return lastModified;
+}
