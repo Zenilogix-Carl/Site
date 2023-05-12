@@ -8,12 +8,6 @@
     <script src="Billiards.js"></script>
     <script src="qrcode.js"></script>
     <script>
-        var currentVersion;
-
-        getLastModified("NineBall.html").then(result => {
-            currentVersion = result;
-        });
-
         window.addEventListener("resize", onResize);
         window.addEventListener("beforeunload", onUnload);
 
@@ -544,7 +538,6 @@
         }
 
         function onLoad() {
-            checkForUpdate(); // check on dom load (not necessarily on page load)
             var cookie = getCookie(isApa ? 'apa-nineball-match' : 'classic-nineball-match');
             load(cookie);
             document.title = isApa ? ('Scoreboard for APA-Style 9-Ball' + (match.isSuddenDeath ? ' (Sudden Death)' : '')): 'Scoreboard for Classic 9-Ball';
@@ -703,16 +696,6 @@
             document.getElementById('popupMessage').innerText = message;
             popupAction = action;
             document.getElementById('popup').style.visibility = 'visible';
-        }
-
-        function checkForUpdate() {
-            getLastModified("NineBall.html").then(result => {
-                if (result > currentVersion) {
-                    confirmBox("This app has been updated.\nDo you want to get the update?", () => {
-                        location.reload();
-                    });
-                }
-            });
         }
 
         function helpOrDebug() {
