@@ -565,7 +565,7 @@
                 match = new NineBallMatch().copy(JSON.parse(cookie));
             }
 
-            document.getElementById("helpOrDebug").innerHTML = isDebug ? 'Debug' : "&#10067;";
+            //document.getElementById("helpOrDebug").innerHTML = isDebug ? 'Debug' : "&#10067;";
 
             var player1Obj = match.players[player1];
             bindInput(player1Obj,
@@ -790,7 +790,7 @@
                         <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
-                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-rack-score">0</span><br/><span id="player1-score">0</span></td>
+                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-rack-score">0</span><br /><span id="player1-score">0</span></td>
                 <td class="player-cell">
                     <div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div>
                 </td>
@@ -841,6 +841,12 @@
                 </tr>
             </table>
         </div>
+        <div style="position: absolute; top: 0;right:0">
+            <!--<button style="border-style: hidden;background: transparent" id="helpOrDebug" onclick="helpOrDebug()">Help</button>-->
+            <div class="menudiv"></div>
+            <div class="menudiv"></div>
+            <div class="menudiv"></div>
+        </div>
         <div id="popup" class="popupBackground" style="visibility: hidden">
             <div class="popup">
                 <p id="popupMessage" style="text-align: center"></p>
@@ -853,7 +859,7 @@
         <div id="matchInfo" class="popupBackground" style="visibility: hidden">
             <div class="popup-large">
                 <p align="center">Summary of Completed Racks<br /><small> <small><span id="summaryInfo"></span><br />(Best viewed in landscape orientation)</small></small></p>
- 
+
                 <div class="div-running-score">
                     <table id="running-score" class="running-score">
                     </table>
@@ -863,9 +869,6 @@
                     <button onclick="(() => { document.getElementById('matchInfo').style.visibility = 'hidden' })()">OK</button>
                 </div>
             </div>
-        </div>
-        <div style="position: absolute; top: 0;right:0">
-            <button style="border-style: hidden;background: transparent" id="helpOrDebug" onclick="helpOrDebug()">Help</button>
         </div>
     </div>
 </body>
