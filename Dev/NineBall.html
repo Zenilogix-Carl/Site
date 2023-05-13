@@ -482,6 +482,15 @@
             resetShotClock();
         }
 
+        function toggleMenu() {
+            var x = document.getElementById("menu");
+            if (x.style.display === "block") {
+                x.style.display = "none";
+            } else {
+                x.style.display = "block";
+            }
+        }
+
         function addMiss(parentId, size) {
             var parentElement = document.getElementById(parentId);
             parentElement.appendChild(new CueBall(size, "End Turn", missedShot).element);
@@ -739,36 +748,7 @@
 </head>
 <body onload='onLoad()'>
     <div class="main" style="background-color: lightblue; min-height: 100vh;">
-        <table>
-            <tr>
-                <td>
-                    <button onclick="startMatchIfConfirmed()">Start Match</button>
-                </td>
-                <td>
-                    <button onclick="endMatchIfConfirmed()"><small>End Match</small></button>
-                </td>
-                <td style="text-align: center">Total Innings</td>
-                <td style="text-align: center">Rack Innings</td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="clearRackIfConfirmed()"><small>Clear Rack</small></button>
-                </td>
-                <td>
-                    <button onclick="showMatch()"><small>Summary</small></button>
-                </td>
-                <td style="text-align: center">
-                    <span id="match-innings">0</span>
-                </td>
-                <td style="text-align: center">
-                    <span id="rack-innings">0</span>
-                    <button onclick="match.addInning()"><b>+</b></button>
-                    <button onclick="match.removeInning()"><b>-</b></button>
-                </td>
-
-            </tr>
-        </table>
-        <table class="player">
+        <table class="player" style="margin-right: 35px">
             <tr>
                 <td>Player &amp;<br />Current Shooter</td>
                 <td style="vertical-align: bottom">Score</td>
@@ -794,9 +774,11 @@
                 <td class="player-cell">
                     <div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div>
                 </td>
-                <td class="player-cell" style="text-align: center; padding-top: 3px;">
-                    <span id="player1-defensives">0</span>
-                    <br /><small>&#x23F3;&nbsp;<span id="player1-timeouts">0</span></small>
+                <td class="player-cell" style="text-align: center; padding-top: 3px; ">
+                    <div class="defensives">
+                        <span id="player1-defensives">0</span>
+                        <br /><small>&#x23F3;&nbsp;<span id="player1-timeouts">0</span></small>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -825,6 +807,26 @@
                     </div>
                 </td>
             </tr>
+            <tr>
+                <td></td>
+                <td style="text-align: center"><small>Match</small></td>
+                <td style="text-align: center"><small>Rack</small></td>
+                <td><small>Adjust</small></td>
+            </tr>
+            <tr>
+                <td>Innings</td>
+                <td style="text-align: center">
+                    <span id="match-innings">0</span>
+                </td>
+                <td style="text-align: center">
+                    <span id="rack-innings">0</span>
+                </td>
+                <td>
+                    <button onclick="match.addInning()"><b>+</b></button>
+                    <button onclick="match.removeInning()"><b>-</b></button>
+                </td>
+
+            </tr>
         </table>
         <div id="balls" style="padding: 10px;">
         </div>
@@ -840,12 +842,6 @@
                     <td><span id="todClock">0:00</span></td>
                 </tr>
             </table>
-        </div>
-        <div style="position: absolute; top: 0;right:0">
-            <!--<button style="border-style: hidden;background: transparent" id="helpOrDebug" onclick="helpOrDebug()">Help</button>-->
-            <div class="menudiv"></div>
-            <div class="menudiv"></div>
-            <div class="menudiv"></div>
         </div>
         <div id="popup" class="popupBackground" style="visibility: hidden">
             <div class="popup">
@@ -869,6 +865,21 @@
                     <button onclick="(() => { document.getElementById('matchInfo').style.visibility = 'hidden' })()">OK</button>
                 </div>
             </div>
+        </div>
+    </div>
+    <div style="position: absolute; top: 0; right: 0; background: lightblue" onclick="toggleMenu()">
+        <!--<button style="border-style: hidden;background: transparent" id="helpOrDebug" onclick="helpOrDebug()">Help</button>-->
+        <div class="menudiv"></div>
+        <div class="menudiv"></div>
+        <div class="menudiv"></div>
+    </div>
+    <div class="topnav">
+        <div id="menu">
+            <span onclick='toggleMenu(); startMatchIfConfirmed();'>Start Match</span>
+            <span onclick='toggleMenu(); endMatchIfConfirmed();'>End Match</span>
+            <span onclick='toggleMenu(); clearRackIfConfirmed();'>Clear Rack</span>
+            <span onclick='toggleMenu(); showMatch();'>Summary</span>
+            <span onclick='toggleMenu(); window.open("NineBallHelp.html");'>Help</span>
         </div>
     </div>
 </body>
