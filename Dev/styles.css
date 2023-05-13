@@ -116,6 +116,11 @@ button {
     left: 0;
 }
 
+.shield {
+    display: inline-block;
+    vertical-align: text-top;
+}
+
 .popupButtons {
     position: absolute;
     right: 0px;

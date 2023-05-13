@@ -228,6 +228,55 @@ class Rack
     }
 }
 
+class Shield {
+    constructor(size, id, label, isDull, clickFn) {
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("id", id);
+        svg.setAttribute('viewBox', '0 0 140 100');
+        svg.setAttribute('height', size);
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.setAttribute('class', 'shield');
+        svg.onclick = function () { clickFn() };
+        var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+
+        var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+        path.setAttribute('d', "M 70 0 Q 50 20 30 20 Q 30 80 70 100 Z");
+        path.setAttribute("style", "fill: " + (isDull? "darkgrey":"gold") + "; stroke-width: 0; stroke: transparent;");
+        g.appendChild(path);
+
+        path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+        path.setAttribute('d', "M 70 0 Q 90 20 110 20 Q 110 80 70 100 Z");
+        path.setAttribute("style", "fill: " + (isDull ? "gainsboro" : "khaki") + "; stroke-width: 0; stroke: transparent;");
+        g.appendChild(path);
+
+        path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+        path.setAttribute('d', "M 70 0 Q 50 20 30 20 Q 30 80 70 100");
+        path.setAttribute("style", "fill: transparent; stroke-width: 1; stroke: black;");
+        g.appendChild(path);
+
+        path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+        path.setAttribute('d', "M 70 0 Q 90 20 110 20 Q 110 80 70 100");
+        path.setAttribute("style", "fill: transparent; stroke-width: 1; stroke: black;");
+        g.appendChild(path);
+
+        svg.appendChild(g);
+        var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+        text.setAttribute("x", 70);
+        text.setAttribute("y", 50);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "middle");
+        text.setAttribute("font-size", "70px");
+        text.setAttribute("font-weight", "bold");
+        text.setAttribute("fill", "black");
+        text.setAttribute("stroke", "black");
+        text.setAttribute("stroke-width", "1");
+        text.innerHTML = label;
+        svg.appendChild(text);
+
+        this.element = svg;
+    }
+}
+
 class Player {
     constructor(name, setupFn) {
         this.name = name;
