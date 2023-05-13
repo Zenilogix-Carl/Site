@@ -8,6 +8,12 @@
     <script src="Billiards.js"></script>
     <script src="qrcode.js"></script>
     <script>
+        var currentVersion;
+
+        getLastModified("NineBall.html").then(result => {
+            currentVersion = result;
+        });
+
         window.addEventListener("resize", onResize);
         window.addEventListener("beforeunload", onUnload);
 
@@ -538,10 +544,17 @@
         }
 
         function onLoad() {
+            checkForUpdate(); // check on dom load (not necessarily on page load)
             var cookie = getCookie(isApa ? 'apa-nineball-match' : 'classic-nineball-match');
             load(cookie);
             document.title = isApa ? ('Scoreboard for APA-Style 9-Ball' + (match.isSuddenDeath ? ' (Sudden Death)' : '')): 'Scoreboard for Classic 9-Ball';
             addBalls("balls");
+            var p1 = document.getElementById("player1-defensives");
+            p1.parentElement.insertBefore(new Shield(ballSizeSmall, "player1-remove-defensive", "-", true, () => match.players[player1].removeDefensive()).element, p1.nextSibling);
+            p1.parentElement.insertBefore(new Shield(ballSizeSmall, "player1-add-defensive", "+", false, () => match.players[player1].addDefensive()).element, p1.nextSibling);
+            var p2 = document.getElementById("player2-defensives");
+            p2.parentElement.insertBefore(new Shield(ballSizeSmall, "player2-remove-defensive", "-", true, () => match.players[player2].removeDefensive()).element, p2.nextSibling);
+            p2.parentElement.insertBefore(new Shield(ballSizeSmall, "player2-add-defensive", "+", false, () => match.players[player2].addDefensive()).element, p2.nextSibling);
             updateBallStates();
             onResize();
             setInterval(updateClock, 1000);
@@ -656,6 +669,11 @@
                 svg.setAttribute('width', ballSizeLarge);
             });
 
+            document.getElementById("player1-add-defensive").setAttribute('height', ballSizeSmall);
+            document.getElementById("player1-remove-defensive").setAttribute('height', ballSizeSmall);
+            document.getElementById("player2-add-defensive").setAttribute('height', ballSizeSmall);
+            document.getElementById("player2-remove-defensive").setAttribute('height', ballSizeSmall);
+
             updateScore();
         }
 
@@ -696,6 +714,16 @@
             document.getElementById('popupMessage').innerText = message;
             popupAction = action;
             document.getElementById('popup').style.visibility = 'visible';
+        }
+
+        function checkForUpdate() {
+            getLastModified("NineBall.html").then(result => {
+                if (result > currentVersion) {
+                    confirmBox("This app has been updated.\nDo you want to get the update?", () => {
+                        location.reload();
+                    });
+                }
+            });
         }
 
         function helpOrDebug() {
@@ -767,9 +795,7 @@
                     <div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div>
                 </td>
                 <td class="player-cell" style="text-align: center; padding-top: 3px;">
-                    &#128737;<span id="player1-defensives">0</span>
-                    <button class="player-button" onclick="(() => { match.players[player1].addDefensive() })()"><b>+</b></button>
-                    <button class="player-button" onclick="(() => { match.players[player1].removeDefensive() })()"><b>-</b></button>
+                    <span id="player1-defensives">0</span>
                     <br /><small>&#x23F3;&nbsp;<span id="player1-timeouts">0</span></small>
                 </td>
             </tr>
@@ -794,9 +820,7 @@
                 </td>
                 <td class="player-cell" style="text-align: center; padding-top: 3px">
                     <div class="defensives">
-                        &#128737;<span id="player2-defensives">0</span>
-                        <button class="player-button" onclick="(() => { match.players[player2].addDefensive() })()"><b>+</b></button>
-                        <button class="player-button" onclick="(() => { match.players[player2].removeDefensive() })()"><b>-</b></button>
+                        <span id="player2-defensives">0</span>
                         <br /><small>&#x23F3;&nbsp;<span id="player2-timeouts">0</span></small>
                     </div>
                 </td>
