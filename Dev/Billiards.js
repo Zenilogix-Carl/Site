@@ -416,6 +416,21 @@ function bindOutput(object, property, element, setAction) {
     object[property] = value;
 }
 
+function setDarkMode(isDarkMode) {
+    var r = document.querySelector(':root');
+    if (isDarkMode) {
+        r.style.setProperty('--background', 'black');
+        r.style.setProperty('--foreground', 'white');
+        r.style.setProperty('--dropShadowFilter', 'none');
+        r.style.setProperty('--ballOutline', 'white');
+    } else {
+        r.style.setProperty('--background', 'lightblue');
+        r.style.setProperty('--foreground', 'black');
+        r.style.setProperty('--dropShadowFilter', 'drop-shadow(10px 10px 5px)');
+        r.style.setProperty('--ballOutline', 'grey');
+    }
+}
+
 async function getLastModified(url) {
     var response = await fetch(url, { method: "HEAD" });
     var lastModified = response.headers.get("Last-Modified");
