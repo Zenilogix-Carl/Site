@@ -604,7 +604,7 @@
 
         function onLoad() {
             checkForUpdate(); // check on dom load (not necessarily on page load)
-            var cookie = getCookie(isApa ? 'apa-nineball-match' : 'classic-nineball-match');
+            var cookie = getCookie(isApa ? (isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match');
             load(cookie);
             document.title = isApa ? ('Scoreboard for APA-Style 9-Ball' + (match.isSuddenDeath ? ' (Sudden Death)' : '')): 'Scoreboard for Classic 9-Ball';
             addBalls("balls");
@@ -687,7 +687,7 @@
             var result = new Date();
             result.setDate(result.getDate() + 30);
             var expiry = result.toString();
-            var cookie = (isApa ? 'apa-nineball-match' : 'classic-nineball-match') + "=" + json + "; expires=" + expiry + ";";
+            var cookie = (match.isApa ? (match.isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match') + "=" + json + "; expires=" + expiry + ";";
             document.cookie = cookie;
         }
 
