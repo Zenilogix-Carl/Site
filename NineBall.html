@@ -425,6 +425,14 @@
                 }
                 row.appendChild(cell2);
             }
+
+            if (!match.started && Object.values(match.players).every(p => p.rackScore == 0)) {
+                var cellx = document.createElement('td');
+                cellx.classList.add("pending-rack");
+                cellx.innerText = player.matchScore.toString();
+                row.appendChild(cellx);
+            }
+
             if (player.totalDefensives > 0) {
                 var celld = document.createElement('td');
                 celld.innerText = player.totalDefensives.toString() + ' defensive(s)';
@@ -477,6 +485,13 @@
                 cellmri.classList.add("pending-rack");
                 cellmri.innerText = match.rackInnings.toString();
                 row.appendChild(cellmri);
+            }
+
+            if (!match.started && Object.values(match.players).every(p => p.rackScore == 0)) {
+                var cellx = document.createElement('td');
+                cellx.classList.add("pending-rack");
+                cellx.innerText = match.totalInnings.toString();
+                row.appendChild(cellx);
             }
 
             table.appendChild(row);
@@ -926,7 +941,7 @@
             <span onclick='toggleMenu(); endMatchIfConfirmed();'>End Match</span>
             <span onclick='toggleMenu(); clearRackIfConfirmed();'>Clear Rack</span>
             <span onclick='toggleMenu(); showMatch();'>Summary</span>
-            <span onclick='toggleMenu(); window.open("index.html", "_self");'>Other games</span>
+            <span onclick='toggleMenu(); window.open("index.html", "_self");'>Home Page</span>
             <span onclick='toggleMenu(); darkMode();'>Dark Mode</span>
             <span onclick='toggleMenu(); helpOrDebug();'>Help</span>
         </div>
