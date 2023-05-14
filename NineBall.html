@@ -410,6 +410,24 @@
                 }
                 row.appendChild(cell);
             }
+            if (player.rackScore > 0 || player.timeouts > 0 || (player.totalDefensives > 0 && (match.rackInnings > 0 || match.ballStates.some(b => b!="normal")))) {
+                var cell2 = document.createElement('td');
+                cell2.classList.add("pending-rack");
+                if (player.rackScore > 0) {
+                    cell2.innerText = player.rackScore.toString();
+                }
+                if (player.timeouts > 0) {
+                    var to2 = document.createElement('sup');
+                    to2.innerText = 'T'.repeat(player.timeouts);
+                    cell2.appendChild(to2);
+                }
+                row.appendChild(cell2);
+            }
+            if (player.totalDefensives > 0) {
+                var celld = document.createElement('td');
+                celld.innerText = player.totalDefensives.toString() + ' defensive(s)';
+                row.appendChild(celld);
+            }
             return row;
         }
 
@@ -452,6 +470,13 @@
                 cell.innerText = match.innings[i].toString();
                 row.appendChild(cell);
             }
+            if (match.rackInnings > 0) {
+                var cellmri = document.createElement('td');
+                cellmri.classList.add("pending-rack");
+                cellmri.innerText = match.rackInnings.toString();
+                row.appendChild(cellmri);
+            }
+
             table.appendChild(row);
             if (isApa) {
                 row = document.createElement('tr');
@@ -463,6 +488,13 @@
                     var cell2 = document.createElement('td');
                     cell2.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
                     row.appendChild(cell2);
+                }
+                var dead = match.ballStates.filter((b) => b == "dead").length;
+                if (dead > 0) {
+                    var celld = document.createElement('td');
+                    celld.classList.add("pending-rack");
+                    celld.innerText = dead.toString();
+                    row.appendChild(celld);
                 }
                 table.appendChild(row);
             }
@@ -860,7 +892,7 @@
 
         <div id="matchInfo" class="popupBackground" style="visibility: hidden">
             <div class="popup-large">
-                <p align="center">Summary of Completed Racks<br /><small> <small><span id="summaryInfo"></span><br />(Best viewed in landscape orientation)</small></small></p>
+                <p align="center">Match Summary<br /><small> <small><span id="summaryInfo"></span><br />(Best viewed in landscape orientation)</small></small></p>
 
                 <div class="div-running-score">
                     <table id="running-score" class="running-score">
