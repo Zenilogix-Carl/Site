@@ -1,5 +1,13 @@
+:root {
+    --foreground: black;
+    --background: lightblue;
+    --dropShadowFilter: drop-shadow(10px 10px 5px);
+    --ballOutline: grey;
+}
+
 input {
     font-size: 20pt;
+    color: var(--foreground);
 }
 
 button {
@@ -17,8 +25,8 @@ td {
 }
 
 body {
-    background-color: lightblue;
-    color: black;
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: Verdana, sans-serif;
     font-size: 20pt;
     padding: 0px;
@@ -40,28 +48,26 @@ button {
 }
 
 .menuIcon {
-    background-color: lightblue;
+    background-color: var(--background);
 }
 
 .menudiv {
     width: 35px;
     height: 5px;
-    background-color: black;
+    background-color: var(--foreground);
     margin: 6px 0;
-}
-
-.dark-mode {
-    background-color: black;
-    color: white;
-}
-
-.menudiv-dark-mode {
-    background-color: white;
-    color: black;
 }
 
 .main {
     padding: 20px;
+}
+
+.dimmed {
+    filter: brightness(30%);
+}
+
+.dropShadow {
+    filter: var(--dropShadowFilter);
 }
 
 .points-needed {
