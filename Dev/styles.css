@@ -183,6 +183,10 @@ button {
     color: black;
 }
 
+.pending-rack {
+    font-weight: bold;
+}
+
 #clocks {
     position: absolute;
     right: 0px;
