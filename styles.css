@@ -39,6 +39,7 @@ body {
 
 button {
     font-size: 18pt;
+    min-width: 30px;
 }
 
 #menuIcon {
@@ -315,6 +316,7 @@ button {
 
     button {
         font-size: 11pt;
+        min-width: 25px;
     }
 
     input {
