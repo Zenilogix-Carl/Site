@@ -31,14 +31,14 @@ class BilliardBall {
             circle.setAttribute('cx', 50);
             circle.setAttribute('cy', 50);
             circle.setAttribute('r', 48);
-            circle.setAttribute("style", "fill: transparent; stroke-width: 1; stroke: grey;");
+            circle.setAttribute("style", "fill: transparent; stroke-width: 1; stroke: var(--ballOutline);");
             g.appendChild(circle);
 
         } else {
             circle.setAttribute('cx', 50);
             circle.setAttribute('cy', 50);
             circle.setAttribute('r', 48);
-            circle.setAttribute("style", "fill: " + color + "; stroke-width: 1; stroke: grey;");
+            circle.setAttribute("style", "fill: " + color + "; stroke-width: 1; stroke: var(--ballOutline);");
             g.appendChild(circle);
         }
 
@@ -71,7 +71,8 @@ class BilliardBallWithState extends BilliardBall {
         var svg = this.element;
         svg.onclick = function () { clickFn(number)};
         var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-        text.setAttribute("style", "visibility: hidden; filter: drop-shadow(10px 10px 5px)");
+        text.setAttribute("style", "visibility: hidden;");
+        text.classList.add('dropShadow');
         text.setAttribute("x", 50);
         text.setAttribute("y", 50);
         text.setAttribute("text-anchor", "middle");
@@ -84,7 +85,8 @@ class BilliardBallWithState extends BilliardBall {
         svg.appendChild(text);
         this.foulText = text;
         text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-        text.setAttribute("style", "visibility: hidden; filter: drop-shadow(10px 10px 5px)");
+        text.setAttribute("style", "visibility: hidden;");
+        text.classList.add('dropShadow');
         text.setAttribute("x", 40);
         text.setAttribute("y", 90);
         text.setAttribute("font-size", "80px");
@@ -100,9 +102,11 @@ class BilliardBallWithState extends BilliardBall {
 
     dimElement(elem, dim) {
         if (dim) {
-            elem.style.filter = "brightness(30%)";
+            elem.classList.remove('dropShadow');
+            elem.classList.add('dimmed');
         } else {
-            elem.style.filter = "drop-shadow(10px 10px 5px)";
+            elem.classList.add('dropShadow');
+            elem.classList.remove('dimmed');
         }
     }
 
@@ -164,7 +168,7 @@ class CueBall {
         svg.setAttribute('width', size);
         svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
         svg.onclick = function () { clickFn()};
-        svg.setAttribute("style", "filter: drop-shadow(10px 10px 5px)");
+        svg.classList.add('dropShadow');
         var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
         var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
 
@@ -176,7 +180,7 @@ class CueBall {
 
         svg.appendChild(g);
         var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-        text.setAttribute("style", "filter: drop-shadow(10px 10px 5px)");
+        text.classList.add('dropShadow');
         text.setAttribute("x", 50);
         text.setAttribute("y", 50);
         text.setAttribute("text-anchor", "middle");
@@ -201,7 +205,7 @@ class Rack
         svg.setAttribute('width', size);
         svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
         svg.onclick = function () { clickFn() };
-        svg.setAttribute("style", "filter: drop-shadow(10px 10px 5px)");
+        svg.classList.add('dropShadow');
         var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
 
         var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
@@ -211,7 +215,7 @@ class Rack
 
         svg.appendChild(g);
         var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-        text.setAttribute("style", "filter: drop-shadow(10px 10px 5px)");
+        text.classList.add('dropShadow');
         text.setAttribute("x", 50);
         text.setAttribute("y", 50);
         text.setAttribute("text-anchor", "middle");
