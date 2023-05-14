@@ -482,6 +482,23 @@
             resetShotClock();
         }
 
+        function toggleMenu() {
+            var x = document.getElementById("menu");
+            if (x.style.display === "block") {
+                x.style.display = "none";
+            } else {
+                x.style.display = "block";
+            }
+        }
+
+        function darkMode() {
+            document.getElementById("menuIcon").classList.toggle("dark-mode");
+            var element = document.body;
+            element.classList.toggle("dark-mode");
+            document.querySelectorAll('input').forEach(function (input) { input.classList.toggle("dark-mode") });
+            document.querySelectorAll('.menudiv').forEach(function (div) { div.classList.toggle("menudiv-dark-mode") });
+        }
+
         function addMiss(parentId, size) {
             var parentElement = document.getElementById(parentId);
             parentElement.appendChild(new CueBall(size, "End Turn", missedShot).element);
@@ -564,8 +581,6 @@
             if (!(cookie === undefined) && cookie.length > 0) {
                 match = new NineBallMatch().copy(JSON.parse(cookie));
             }
-
-            document.getElementById("helpOrDebug").innerHTML = isDebug ? 'Debug' : "&#10067;";
 
             var player1Obj = match.players[player1];
             bindInput(player1Obj,
@@ -738,37 +753,8 @@
     </script>
 </head>
 <body onload='onLoad()'>
-    <div class="main" style="background-color: lightblue; min-height: 100vh;">
-        <table>
-            <tr>
-                <td>
-                    <button onclick="startMatchIfConfirmed()">Start Match</button>
-                </td>
-                <td>
-                    <button onclick="endMatchIfConfirmed()"><small>End Match</small></button>
-                </td>
-                <td style="text-align: center">Total Innings</td>
-                <td style="text-align: center">Rack Innings</td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="clearRackIfConfirmed()"><small>Clear Rack</small></button>
-                </td>
-                <td>
-                    <button onclick="showMatch()"><small>Summary</small></button>
-                </td>
-                <td style="text-align: center">
-                    <span id="match-innings">0</span>
-                </td>
-                <td style="text-align: center">
-                    <span id="rack-innings">0</span>
-                    <button onclick="match.addInning()"><b>+</b></button>
-                    <button onclick="match.removeInning()"><b>-</b></button>
-                </td>
-
-            </tr>
-        </table>
-        <table class="player">
+    <div class="main" style="min-height: 100vh;">
+        <table class="player" style="margin-right: 35px">
             <tr>
                 <td>Player &amp;<br />Current Shooter</td>
                 <td style="vertical-align: bottom">Score</td>
@@ -790,13 +776,15 @@
                         <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
-                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-rack-score">0</span><br/><span id="player1-score">0</span></td>
+                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-rack-score">0</span><br /><span id="player1-score">0</span></td>
                 <td class="player-cell">
                     <div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div>
                 </td>
-                <td class="player-cell" style="text-align: center; padding-top: 3px;">
-                    <span id="player1-defensives">0</span>
-                    <br /><small>&#x23F3;&nbsp;<span id="player1-timeouts">0</span></small>
+                <td class="player-cell" style="text-align: center; padding-top: 3px; ">
+                    <div class="defensives">
+                        <span id="player1-defensives">0</span>
+                        <br /><small>&#x23F3;&nbsp;<span id="player1-timeouts">0</span></small>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -824,6 +812,26 @@
                         <br /><small>&#x23F3;&nbsp;<span id="player2-timeouts">0</span></small>
                     </div>
                 </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td style="text-align: center"><small>Match</small></td>
+                <td style="text-align: center"><small>Rack</small></td>
+                <td><small>Adjust</small></td>
+            </tr>
+            <tr>
+                <td>Innings</td>
+                <td style="text-align: center">
+                    <span id="match-innings">0</span>
+                </td>
+                <td style="text-align: center">
+                    <span id="rack-innings">0</span>
+                </td>
+                <td>
+                    <button onclick="match.addInning()"><b>+</b></button>
+                    <button onclick="match.removeInning()"><b>-</b></button>
+                </td>
+
             </tr>
         </table>
         <div id="balls" style="padding: 10px;">
@@ -853,7 +861,7 @@
         <div id="matchInfo" class="popupBackground" style="visibility: hidden">
             <div class="popup-large">
                 <p align="center">Summary of Completed Racks<br /><small> <small><span id="summaryInfo"></span><br />(Best viewed in landscape orientation)</small></small></p>
- 
+
                 <div class="div-running-score">
                     <table id="running-score" class="running-score">
                     </table>
@@ -864,8 +872,20 @@
                 </div>
             </div>
         </div>
-        <div style="position: absolute; top: 0;right:0">
-            <button style="border-style: hidden;background: transparent" id="helpOrDebug" onclick="helpOrDebug()">Help</button>
+    </div>
+    <div id="menuIcon" class="menuIcon" onclick="toggleMenu()">
+        <div class="menudiv"></div>
+        <div class="menudiv"></div>
+        <div class="menudiv"></div>
+    </div>
+    <div class="topnav">
+        <div id="menu">
+            <span onclick='toggleMenu(); startMatchIfConfirmed();'>Start Match</span>
+            <span onclick='toggleMenu(); endMatchIfConfirmed();'>End Match</span>
+            <span onclick='toggleMenu(); clearRackIfConfirmed();'>Clear Rack</span>
+            <span onclick='toggleMenu(); showMatch();'>Summary</span>
+            <span onclick='toggleMenu(); darkMode();'>Dark Mode</span>
+            <span onclick='toggleMenu(); helpOrDebug();'>Help</span>
         </div>
     </div>
 </body>
