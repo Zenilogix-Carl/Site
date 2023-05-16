@@ -236,6 +236,7 @@
             confirmBox(reasons[reason], () => {
                 match.players[getOpponent(match.currentPlayer)].rackScore = 1;
                 match.players[getOpponent(match.currentPlayer)].reason = reason;
+                missedShot();
                 updateScore();
                 advanceToNextRack();
             });
@@ -399,6 +400,12 @@
             setDarkMode(isDarkMode);
         }
 
+        function addBall(parentId, size) {
+            var parentElement = document.getElementById(parentId);
+            var ball = new BilliardBallWithClick("&#x23F3;", size, resetShotClock, '');
+            parentElement.appendChild(ball.element);
+        }
+
         function addMiss(parentId, size) {
             var parentElement = document.getElementById(parentId);
             parentElement.appendChild(new CueBall(size, "End Turn", missedShot).element);
@@ -426,7 +433,7 @@
 
         function addScratch8(parentId, size) {
             var parentElement = document.getElementById(parentId);
-            parentElement.appendChild(new CueBall(size, "Scratch-8", () => loss(scratchEight), "red").element);
+            parentElement.appendChild(new CueBall(size, "Scratch\n8", () => loss(scratchEight), "red").element);
         }
 
         function addEarly8(parentId, size) {
@@ -436,7 +443,7 @@
 
         function addWrongPocket(parentId, size) {
             var parentElement = document.getElementById(parentId);
-            parentElement.appendChild(new CueBall(size, "Wrong Pocket", () => loss(wrongPocket), "red").element);
+            parentElement.appendChild(new CueBall(size, "Wrong\nPocket", () => loss(wrongPocket), "red").element);
         }
 
         function addRack(parentId, size) {
@@ -446,6 +453,7 @@
 
 
         function addBalls(elementId) {
+            addBall(elementId, ballSizeLarge);
             addMiss(elementId, ballSizeLarge);
             addTimeout(elementId, ballSizeLarge);
             add8Ball(elementId, ballSizeLarge);
@@ -669,8 +677,7 @@
         <table class="player" style="margin-right: 35px">
             <tr>
                 <td>Player &amp;<br />Current Shooter</td>
-                <td style="vertical-align: bottom">Score</td>
-                <td>Current<br />Rack</td>
+                <td style="vertical-align: bottom; text-align: center" colspan="2">Score</td>
                 <td><small>Defensives<br />&amp;timeouts</small></td>
             </tr>
             <tr>
@@ -688,10 +695,7 @@
                         <input type="number" min="0" max="99" id="player1-goal" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
-                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player1-score">0</span></td>
-                <td class="player-cell">
-                    <div id="player1-balls" style="padding-top: 3px; padding-left: 3px;"></div>
-                </td>
+                <td class="player-cell" style="text-align: center; padding-top: 5px;" colspan="2"><span id="player1-score">0</span></td>
                 <td class="player-cell" style="text-align: center; padding-top: 3px; ">
                     <div class="defensives">
                         <span id="player1-defensives">0</span>
@@ -714,10 +718,7 @@
                         <input type="number" min="0" max="99" id="player2-goal" style="background: transparent; border: transparent;" />
                     </div>
                 </td>
-                <td class="player-cell" style="text-align: center; padding-top: 5px;"><span id="player2-score">0</span></td>
-                <td class="player-cell">
-                    <div id="player2-balls" style="padding-top: 3px; padding-left: 3px;"></div>
-                </td>
+                <td class="player-cell" style="text-align: center; padding-top: 5px;" colspan="2"><span id="player2-score">0</span></td>
                 <td class="player-cell" style="text-align: center; padding-top: 3px">
                     <div class="defensives">
                         <span id="player2-defensives">0</span>

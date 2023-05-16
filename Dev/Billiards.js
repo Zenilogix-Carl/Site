@@ -2,8 +2,8 @@
 class BilliardBall {
     constructor(number, size, allowForShadow) {
         var colors = ["yellow", "blue", "red", "purple", "orange", "green", "brown", "black"];
-        var color = colors[(number - 1) % 8];
-        var isStripe = (((number - 1) / 8) >= 1);
+        var color = Number.isInteger(number) ? colors[(number - 1) % 8] : colors[0];
+        var isStripe = Number.isInteger(number) ? (((number - 1) / 8) >= 1) : false;
 
         this.number = number;
 
@@ -190,7 +190,24 @@ class CueBall {
         text.setAttribute("fill", textColor === undefined ? "red" : textColor);
         text.setAttribute("stroke", "darkred");
         text.setAttribute("stroke-width", "1");
-        text.innerHTML = label;
+        var labelLines = label.split('\n');
+        if (labelLines.length > 1) {
+            var first = true;
+            labelLines.forEach((line) => {
+                var tspan = document.createElementNS("http://www.w3.org/2000/svg", 'tspan');
+                tspan.setAttribute('x', 50);
+                if (first) {
+                    tspan.setAttribute('dy', ((1-labelLines.length)/2).toString()+ 'em');
+                } else {
+                    tspan.setAttribute('dy', '1.2em');
+                }
+                tspan.textContent = line;
+                text.append(tspan);
+                first = false;
+            });
+        } else {
+            text.textContent = label;
+        }
         svg.appendChild(text);
 
         this.element = svg;
