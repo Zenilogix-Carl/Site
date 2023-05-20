@@ -1,6 +1,7 @@
 :root {
     --foreground: black;
     --background: lightblue;
+    --popupBackground: white;
     --dropShadowFilter: drop-shadow(10px 10px 5px);
     --ballOutline: grey;
 }
@@ -108,9 +109,9 @@ button {
     width: 60%;
     height: 40%;
     z-index: 99999999;
-    background: white;
-    color: black;
-    border: 2px solid black;
+    background: var(--popupBackground);
+    color: var(--foreground);
+    border: 2px solid var(--foreground);
 }
 
 .popup-large {
@@ -124,9 +125,9 @@ button {
     width: 95%;
     height: 95%;
     z-index: 99999999;
-    background: white;
-    color: black;
-    border: 2px solid black;
+    background: var(--popupBackground);
+    color: var(--foreground);
+    border: 2px solid var(--foreground);
 }
 
 .running-score {
