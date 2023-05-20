@@ -1,7 +1,38 @@
+class Preferences {
+    static DarkMode = false;
+    static BackgroundColor = 'lightblue';
+
+    constructor() {
+        this.isDarkMode = false;
+        this.backgroundColor = 'lightblue';
+    }
+
+    static Save() {
+        var preferences = new Preferences();
+        preferences.isDarkMode = Preferences.DarkMode;
+        preferences.backgroundColor = Preferences.BackgroundColor;
+
+        var json = JSON.stringify(preferences);
+        var result = new Date();
+        result.setDate(result.getDate() + 365);
+        var expiry = result.toString();
+        var cookie = ('preferences') + "=" + json + "; expires=" + expiry + ";";
+        document.cookie = cookie;
+    }
+
+    static Restore() {
+        var cookie = getCookie('preferences');
+        var preferences = cookie.length > 0 ? JSON.parse(cookie) : new Preferences();
+        Preferences.DarkMode = preferences.isDarkMode;
+        Preferences.BackgroundColor = preferences.backgroundColor;
+
+        setDarkMode(Preferences.DarkMode);
+    }
+}
 
 class BilliardBall {
     constructor(number, size, allowForShadow) {
-        var colors = ["yellow", "blue", "red", "purple", "orange", "green", "brown", "black"];
+        var colors = ["yellow", "blue", "red", "purple", "orange", "green", "brown", "var(--ballBlack)"];
         var color = Number.isInteger(number) ? colors[(number - 1) % 8] : colors[0];
         var isStripe = Number.isInteger(number) ? (((number - 1) / 8) >= 1) : false;
 
@@ -441,13 +472,31 @@ function setDarkMode(isDarkMode) {
         r.style.setProperty('--foreground', 'white');
         r.style.setProperty('--dropShadowFilter', 'none');
         r.style.setProperty('--ballOutline', 'white');
+        r.style.setProperty('--ballBlack', '#333');
     } else {
         r.style.setProperty('--background', 'lightblue');
         r.style.setProperty('--popupBackground', 'white');
         r.style.setProperty('--foreground', 'black');
         r.style.setProperty('--dropShadowFilter', 'drop-shadow(10px 10px 5px)');
         r.style.setProperty('--ballOutline', 'grey');
+        r.style.setProperty('--ballBlack', 'black');
     }
+}
+
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
 }
 
 async function getLastModified(url) {

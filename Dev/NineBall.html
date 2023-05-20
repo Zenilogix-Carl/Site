@@ -145,8 +145,6 @@
         var ballSizeLarge = '20%';
         var ballSizeSmall = '32px';
 
-        var isDarkMode = false;
-
         var qs = location.search.substring(1).split('&');
         var qqs = {};
         qs.forEach((nvp) => {
@@ -542,8 +540,8 @@
         }
 
         function darkMode() {
-            isDarkMode = !isDarkMode;
-            setDarkMode(isDarkMode);
+            Preferences.DarkMode = !Preferences.DarkMode;
+            setDarkMode(Preferences.DarkMode);
         }
 
         function addMiss(parentId, size) {
@@ -591,24 +589,9 @@
             return str[0].toUpperCase() + str.substring(1);
         }
 
-        function getCookie(cname) {
-            let name = cname + "=";
-            let decodedCookie = decodeURIComponent(document.cookie);
-            let ca = decodedCookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
-        }
-
         function onLoad() {
             checkForUpdate(); // check on dom load (not necessarily on page load)
+            Preferences.Restore();
             var cookie = getCookie(isApa ? (isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match');
             load(cookie);
             document.title = isApa ? ('Scoreboard for APA-Style 9-Ball' + (match.isSuddenDeath ? ' (Sudden Death)' : '')): 'Scoreboard for Classic 9-Ball';
@@ -688,6 +671,7 @@
         }
 
         function onUnload() {
+            Preferences.Save();
             var json = JSON.stringify(match);
             var result = new Date();
             result.setDate(result.getDate() + 30);
