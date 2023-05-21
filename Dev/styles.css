@@ -2,14 +2,19 @@
     --foreground: black;
     --background: lightblue;
     --popupBackground: white;
-    --dropShadowFilter: drop-shadow(10px 10px 5px);
+    --dropShadowFilter: drop-shadow(10px 10px 5px black);
     --ballOutline: grey;
     --ballBlack: black;
 }
 
-input {
+input, select {
     font-size: 20pt;
     color: var(--foreground);
+}
+
+input.checkbox {
+    width: 40px;
+    height: 40px;
 }
 
 button {
@@ -212,8 +217,13 @@ button {
         font-size: 16pt;
     }
 
-    input {
+    input, select {
         font-size: 15pt;
+    }
+
+    input.checkbox {
+        width: 35px;
+        height: 35px;
     }
 
     td {
@@ -248,8 +258,13 @@ button {
         font-size: 15pt;
     }
 
-    input {
+    input, select {
         font-size: 12pt;
+    }
+
+    input.checkbox {
+        width: 30px;
+        height: 30px;
     }
 
     td {
@@ -284,8 +299,13 @@ button {
         font-size: 13pt;
     }
 
-    input {
+    input, select {
         font-size: 10pt;
+    }
+
+    input.checkbox {
+        width: 24px;
+        height: 24px;
     }
 
     td {
@@ -321,8 +341,13 @@ button {
         min-width: 25px;
     }
 
-    input {
+    input, select {
         font-size: 10pt;
+    }
+
+    input.checkbox {
+        width: 20px;
+        height: 20px;
     }
 
     td {

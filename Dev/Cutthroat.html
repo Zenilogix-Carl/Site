@@ -388,6 +388,15 @@
             updateScore();
         }
 
+        function toggleMenu() {
+            var x = document.getElementById("menu");
+            if (x.style.display === "block") {
+                x.style.display = "none";
+            } else {
+                x.style.display = "block";
+            }
+        }
+
         function addMiss(parentId, size) {
             var parentElement = document.getElementById(parentId);
             parentElement.appendChild(new CueBall(size, "End Turn", missedShot).element);
@@ -420,6 +429,7 @@
         }
 
         function onLoad() {
+            Preferences.Restore();
             addBalls("balls");
             for (var i = 0; i < 3; i++) {
                 var playerPrefix = "player" + (i + 1);
@@ -559,5 +569,16 @@
             </div>
         </div>
     </div>
+<div id="menuIcon" class="menuIcon" onclick="toggleMenu()">
+    <div class="menudiv"></div>
+    <div class="menudiv"></div>
+    <div class="menudiv"></div>
+</div>
+<div class="topnav">
+    <div id="menu">
+        <span onclick='toggleMenu(); window.open("index.html", "_self");'>Home Page</span>
+        <span onclick='toggleMenu(); window.open("Preferences.html?return="+encodeURIComponent(document.documentURI), "_self");'>Preferences</span>
+    </div>
+</div>
 </body>
 </html>

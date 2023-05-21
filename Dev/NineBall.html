@@ -539,11 +539,6 @@
             }
         }
 
-        function darkMode() {
-            Preferences.DarkMode = !Preferences.DarkMode;
-            setDarkMode(Preferences.DarkMode);
-        }
-
         function addMiss(parentId, size) {
             var parentElement = document.getElementById(parentId);
             parentElement.appendChild(new CueBall(size, "End Turn", missedShot).element);
@@ -671,7 +666,6 @@
         }
 
         function onUnload() {
-            Preferences.Save();
             var json = JSON.stringify(match);
             var result = new Date();
             result.setDate(result.getDate() + 30);
@@ -916,7 +910,7 @@
             <span onclick='toggleMenu(); clearRackIfConfirmed();'>Clear Rack</span>
             <span onclick='toggleMenu(); showMatch();'>Summary</span>
             <span onclick='toggleMenu(); window.open("index.html", "_self");'>Home Page</span>
-            <span onclick='toggleMenu(); darkMode();'>Dark Mode</span>
+            <span onclick='toggleMenu(); window.open("Preferences.html?return="+encodeURIComponent(document.documentURI), "_self");'>Preferences</span>
             <span onclick='toggleMenu(); helpOrDebug();'>Help</span>
         </div>
     </div>
