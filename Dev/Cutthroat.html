@@ -8,22 +8,58 @@
     <script src="Billiards.js"></script>
 <script>
         window.addEventListener("resize", onResize);
+        window.addEventListener("beforeunload", onUnload);
         // Ball states:
         // 0 = in-play
         // 1..3 = won by player
         // -1 out-of-play
         // Player "number" is 1..3 but where arrays are involved, player 1 occupies element 0, etc.
+        const ballCount = 15;
+        const playerCount = 3;
+
         class CutthroatPlayer extends Player {
             constructor(name, setupFn) {
                 super(name, setupFn);
             }
         }
 
+        class CutthroatGame {
+            constructor() {
+                this.ballOrder = [];
+
+                this.ballStates = Array(ballCount).fill(0);
+                this.playerStates = Array(3).fill(0);
+
+                this.players = [
+                    new CutthroatPlayer("Player 1"),
+                    new CutthroatPlayer("Player 2"),
+                    new CutthroatPlayer("Player 3")
+                ];
+
+                this.currentPlayerIndex = 0;
+                this.startingPlayerIndex = this.currentPlayerIndex;
+            }
+
+            copy(src) {
+                this.ballOrder = src.ballOrder;
+
+                this.ballStates = src.ballStates;
+                this.playerStates = src.playerStates;
+
+                this.players = src.players;
+
+                this.currentPlayerIndex = src.currentPlayerIndex;
+                this.startingPlayerIndex = src.startingPlayerIndex;
+
+                return this;
+            }
+        }
+
+        var game = new CutthroatGame();
+
+        var balls = {};
         var ballSizeLarge = '9%';
         var ballSizeSmall = '32px';
-
-        const ballCount = 15;
-        const playerCount = 3;
 
         const playerCategoryNames = [
             "Open", "Not Low", "Not Middle", "High", "Not High", "Middle", "Low", "Foul"];
@@ -31,25 +67,9 @@
         const ballsToPlay = [
             "1..15", "1..15", "1..15", "1..10", "1..15", "1..5 &amp; 10..15", "6..15"];
 
-        var ballOrder = [];
-
-        var balls = {};
-
-        var ballStates = Array(ballCount).fill(0);
-        var playerStates = Array(3).fill(0);
-
-        var players = [
-            new CutthroatPlayer("Player 1"),
-            new CutthroatPlayer("Player 2"),
-            new CutthroatPlayer("Player 3")
-        ];
-
-        var currentPlayerIndex = 0;
-        var startingPlayerIndex = currentPlayerIndex;
-
         function clearRack() {
-            ballStates = Array(ballCount).fill(0);
-            ballOrder = [];
+            game.ballStates = Array(ballCount).fill(0);
+            game.ballOrder = [];
             for (var i = 1; i <= ballCount; i++) {
                 updateBallState(i);
             }
@@ -57,17 +77,11 @@
             updateScore();
         }
 
-        function startMatch() {
-            ballStates = Array(ballCount).fill(0);
-            clearRack();
-            startingPlayerIndex = currentPlayerIndex;
-        }
-
         function nextPlayer() {
             var i = playerCount;
             do {
-                currentPlayerIndex = (currentPlayerIndex + 1) % 3;
-            } while (--i > 0 && isOut(currentPlayerIndex, playerStates));
+                game.currentPlayerIndex = (game.currentPlayerIndex + 1) % 3;
+            } while (--i > 0 && isOut(game.currentPlayerIndex, game.playerStates));
         }
 
         function missedShot() {
@@ -77,24 +91,24 @@
         }
 
         function player1Shooting() {
-            if (currentPlayerIndex != 0) {
-                currentPlayerIndex = 0;
+            if (game.currentPlayerIndex != 0) {
+                game.currentPlayerIndex = 0;
                 setCurrentPlayer();
                 updateBallStates();
             }
         }
 
         function player2Shooting() {
-            if (currentPlayerIndex != 1) {
-                currentPlayerIndex = 1;
+            if (game.currentPlayerIndex != 1) {
+                game.currentPlayerIndex = 1;
                 setCurrentPlayer();
                 updateBallStates();
             }
         }
 
         function player3Shooting() {
-            if (currentPlayerIndex != 2) {
-                currentPlayerIndex = 2;
+            if (game.currentPlayerIndex != 2) {
+                game.currentPlayerIndex = 2;
                 setCurrentPlayer();
                 updateBallStates();
             }
@@ -118,10 +132,10 @@
 
             var categories = Array(3).fill(0);
 
-            for (var i = 0; i < ballOrder.length; i++) {
-                var number = ballOrder[i];
+            for (var i = 0; i < game.ballOrder.length; i++) {
+                var number = game.ballOrder[i];
                 var ballCategory = getBallCategory(number);
-                var ballState = ballStates[number - 1];
+                var ballState = game.ballStates[number - 1];
                 if (ballState > 0) {
                     var playerBall = new BilliardBall(number, ballSizeSmall);
                     document.getElementById('player' + ballState + '-balls').appendChild(playerBall.element);
@@ -138,7 +152,7 @@
                 }
             }
 
-            for (var p2 = 0; p2 < players.length; p2++) {
+            for (var p2 = 0; p2 < game.players.length; p2++) {
                 document.getElementById('player' + (p2 + 1) + '-category').innerHTML = isOut(p2, categories) ? 'Out' : playerCategoryNames[categories[p2]];
                 document.getElementById('player' + (p2 + 1) + '-input').style.textDecoration = isOut(p2, categories) ? 'line-through' : 'none';
 
@@ -146,7 +160,7 @@
                 if (isCategoryDecided(playerCategory2, categories.length)) {
                     var base = getCategoryBase(playerCategory2);
                     for (var b = 0; b < ballCount / categories.length; b++) {
-                        if (ballStates[base + b] == 0) {
+                        if (game.ballStates[base + b] == 0) {
                             var ball = new BilliardBall(base + b + 1, ballSizeSmall);
                             document.getElementById('player' + (p2 + 1) + '-owns').appendChild(ball.element);
                         }
@@ -155,7 +169,7 @@
 
                 if (!isOut(p2, categories)) {
                     for (var b2 = 0; b2 < ballCount; b2++) {
-                        if (canPlayBall(p2, categories, ballStates, b2 + 1)) {
+                        if (canPlayBall(p2, categories, game.ballStates, b2 + 1)) {
                             var ball2 = new BilliardBall(b2 + 1, ballSizeSmall);
                             document.getElementById('player' + (p2 + 1) + '-canShoot').appendChild(ball2.element);
                         }
@@ -163,7 +177,7 @@
                 }
             }
 
-            playerStates = categories;
+            game.playerStates = categories;
         }
 
         function updateOpponentCategory(playerIndex, categories) {
@@ -274,7 +288,7 @@
             }
             if (isCategoryDecided(category, categories.length)) {
                 for (var i = 0; i < ballCount / categories.length; i++) {
-                    if (ballStates[base + i] == 0) {
+                    if (game.ballStates[base + i] == 0) {
                         return false;
                     }
                 }
@@ -297,7 +311,7 @@
             var player1Input = document.getElementById("player1-input");
             var player2Input = document.getElementById("player2-input");
             var player3Input = document.getElementById("player3-input");
-            switch (currentPlayerIndex) {
+            switch (game.currentPlayerIndex) {
                 case 0:
                     player1Cue.style.visibility = "visible";
                     player2Cue.style.visibility = "hidden";
@@ -333,7 +347,7 @@
 
         function updateBallState(number) {
 
-            var currentBallState = ballStates[number - 1];
+            var currentBallState = game.ballStates[number - 1];
             var ball = balls[number];
 
             switch (currentBallState) {
@@ -346,43 +360,43 @@
                     break;
 
                 default:
-                    ball.showPocketed(currentBallState == (currentPlayerIndex + 1));
+                    ball.showPocketed(currentBallState == (game.currentPlayerIndex + 1));
                     break;
             }
         }
 
         function ballClick(number) {
 
-            var currentBallState = ballStates[number - 1];
+            var currentBallState = game.ballStates[number - 1];
 
             switch (currentBallState) {
                 case 0:
                     // ball in-play (0) so give to current player
-                    currentBallState = currentPlayerIndex + 1;
+                    currentBallState = game.currentPlayerIndex + 1;
 
-                    ballOrder = ballOrder.filter(e => !(e === number));
-                    ballOrder.push(number);
+                    game.ballOrder = game.ballOrder.filter(e => !(e === number));
+                    game.ballOrder.push(number);
 
                     break;
                 case -1:
                     // currently foul so give to next player
-                    currentBallState = ((currentPlayerIndex + 1) % 3) + 1;
+                    currentBallState = ((game.currentPlayerIndex + 1) % 3) + 1;
                     break;
                 default:
-                    if (currentBallState == currentPlayerIndex + 1) {
+                    if (currentBallState == game.currentPlayerIndex + 1) {
                         // currently won by current player, mark as foul
                         currentBallState = -1;
                     } else {
                         // give to next player
                         currentBallState = ((currentBallState) % 3) + 1;
-                        if (currentBallState == currentPlayerIndex + 1) {
+                        if (currentBallState == game.currentPlayerIndex + 1) {
                             // back to current so mark in-play
                             currentBallState = 0;
                         }
                     }
             }
 
-            ballStates[number - 1] = currentBallState;
+            game.ballStates[number - 1] = currentBallState;
 
             updateBallState(number);
             updateScore();
@@ -428,12 +442,20 @@
             return str[0].toUpperCase() + str.substring(1);
         }
 
+        function load(cookie) {
+            if (!(cookie === undefined) && cookie.length > 0) {
+                game = new CutthroatGame().copy(JSON.parse(cookie));
+            }
+        }
+
         function onLoad() {
             Preferences.Restore();
+            var cookie = getCookie('cutthroat-game');
+            load(cookie);
             addBalls("balls");
             for (var i = 0; i < 3; i++) {
                 var playerPrefix = "player" + (i + 1);
-                var player = players[i];
+                var player = game.players[i];
 
                 bindInput(player,
                     "name",
@@ -447,10 +469,19 @@
                     });
             }
 
-            clearRack();
             setCurrentPlayer();
             updateScore();
+            updateBallStates();
             setInterval(updateClock, 1000);
+        }
+
+        function onUnload() {
+            var json = JSON.stringify(game);
+            var result = new Date();
+            result.setDate(result.getDate() + 30);
+            var expiry = result.toString();
+            var cookie = ('cutthroat-game') + "=" + json + "; expires=" + expiry + ";";
+            document.cookie = cookie;
         }
 
         function updateClock() {
@@ -467,14 +498,17 @@
         function onResize() {
             var width = document.documentElement.clientWidth;
             if (width > 1000) {
-                ballSizeLarge = '10%';
+                ballSizeLarge = '9%';
                 ballSizeSmall = '32px';
             } else if (width > 800) {
-                ballSizeLarge = '10%';
+                ballSizeLarge = '9%';
                 ballSizeSmall = '30px';
-            } else {
-                ballSizeLarge = '10%';
+            } else if (width > 600) {
+                ballSizeLarge = '20%';
                 ballSizeSmall = '25px';
+            } else {
+                ballSizeLarge = '20%';
+                ballSizeSmall = '20px';
             }
 
             var parentElement = document.getElementById("balls");
@@ -500,7 +534,7 @@
     </script>
 </head>
 <body onload='onLoad()'>
-    <div style="padding: 20px;">
+    <div class="main" style="min-height: 100vh;">
         <table>
             <tr>
                 <td>Player</td>
@@ -569,16 +603,16 @@
             </div>
         </div>
     </div>
-<div id="menuIcon" class="menuIcon" onclick="toggleMenu()">
-    <div class="menudiv"></div>
-    <div class="menudiv"></div>
-    <div class="menudiv"></div>
-</div>
-<div class="topnav">
-    <div id="menu">
-        <span onclick='toggleMenu(); window.open("index.html", "_self");'>Home Page</span>
-        <span onclick='toggleMenu(); window.open("Preferences.html?return="+encodeURIComponent(document.documentURI), "_self");'>Preferences</span>
+    <div id="menuIcon" class="menuIcon" onclick="toggleMenu()">
+        <div class="menudiv"></div>
+        <div class="menudiv"></div>
+        <div class="menudiv"></div>
     </div>
-</div>
+    <div class="topnav">
+        <div id="menu">
+            <span onclick='toggleMenu(); window.open("index.html", "_self");'>Home Page</span>
+            <span onclick='toggleMenu(); window.open("Preferences.html?return="+encodeURIComponent(document.documentURI), "_self");'>Preferences</span>
+        </div>
+    </div>
 </body>
 </html>
