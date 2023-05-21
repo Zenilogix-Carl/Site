@@ -1,7 +1,64 @@
+class Preferences {
+    static DarkMode = false;
+    static BackgroundColor = 'lightblue';
+    static PopupBackground = 'white';
+    static BackgroundContrast = 'black';
+
+    constructor() {
+        this.isDarkMode = Preferences.DarkMode;
+        this.backgroundColor = Preferences.BackgroundColor;
+        this.backgroundContrast = Preferences.BackgroundContrast;
+        this.popupBackground = Preferences.PopupBackground;
+    }
+
+    static Save() {
+        var preferences = new Preferences();
+        preferences.isDarkMode = Preferences.DarkMode;
+        preferences.backgroundColor = Preferences.BackgroundColor;
+        preferences.popupBackground = Preferences.PopupBackground;
+
+        var json = JSON.stringify(preferences);
+        var result = new Date();
+        result.setDate(result.getDate() + 365);
+        var expiry = result.toString();
+        var cookie = ('preferences') + "=" + json + "; expires=" + expiry + ";";
+        document.cookie = cookie;
+    }
+
+    static Restore() {
+        var cookie = getCookie('preferences');
+        var preferences = cookie.length > 0 ? JSON.parse(cookie) : new Preferences();
+        Preferences.DarkMode = preferences.isDarkMode;
+        Preferences.BackgroundColor = preferences.backgroundColor;
+        Preferences.BackgroundContrast = preferences.backgroundContrast;
+        Preferences.PopupBackground = preferences.popupBackground;
+
+        Preferences.SetScheme();
+    }
+    
+    static SetScheme() {
+        var r = document.querySelector(':root');
+        if (Preferences.DarkMode) {
+            r.style.setProperty('--background', 'black');
+            r.style.setProperty('--popupBackground', 'black');
+            r.style.setProperty('--foreground', 'white');
+            r.style.setProperty('--dropShadowFilter', 'none');
+            r.style.setProperty('--ballOutline', 'white');
+            r.style.setProperty('--ballBlack', '#333');
+        } else {
+            r.style.setProperty('--background', Preferences.BackgroundColor);
+            r.style.setProperty('--popupBackground', Preferences.PopupBackground);
+            r.style.setProperty('--foreground', Preferences.BackgroundContrast);
+            r.style.setProperty('--dropShadowFilter', 'drop-shadow(10px 10px 5px black)');
+            r.style.setProperty('--ballOutline', 'grey');
+            r.style.setProperty('--ballBlack', 'black');
+        }
+    }
+}
 
 class BilliardBall {
     constructor(number, size, allowForShadow) {
-        var colors = ["yellow", "blue", "red", "purple", "orange", "green", "brown", "black"];
+        var colors = ["yellow", "blue", "red", "purple", "orange", "green", "brown", "var(--ballBlack)"];
         var color = Number.isInteger(number) ? colors[(number - 1) % 8] : colors[0];
         var isStripe = Number.isInteger(number) ? (((number - 1) / 8) >= 1) : false;
 
@@ -433,19 +490,20 @@ function bindOutput(object, property, element, setAction) {
     object[property] = value;
 }
 
-function setDarkMode(isDarkMode) {
-    var r = document.querySelector(':root');
-    if (isDarkMode) {
-        r.style.setProperty('--background', 'black');
-        r.style.setProperty('--foreground', 'white');
-        r.style.setProperty('--dropShadowFilter', 'none');
-        r.style.setProperty('--ballOutline', 'white');
-    } else {
-        r.style.setProperty('--background', 'lightblue');
-        r.style.setProperty('--foreground', 'black');
-        r.style.setProperty('--dropShadowFilter', 'drop-shadow(10px 10px 5px)');
-        r.style.setProperty('--ballOutline', 'grey');
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
     }
+    return "";
 }
 
 async function getLastModified(url) {

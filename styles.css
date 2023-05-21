@@ -1,13 +1,20 @@
 :root {
     --foreground: black;
     --background: lightblue;
-    --dropShadowFilter: drop-shadow(10px 10px 5px);
+    --popupBackground: white;
+    --dropShadowFilter: drop-shadow(10px 10px 5px black);
     --ballOutline: grey;
+    --ballBlack: black;
 }
 
-input {
+input, select {
     font-size: 20pt;
     color: var(--foreground);
+}
+
+input.checkbox {
+    width: 40px;
+    height: 40px;
 }
 
 button {
@@ -108,9 +115,9 @@ button {
     width: 60%;
     height: 40%;
     z-index: 99999999;
-    background: white;
-    color: black;
-    border: 2px solid black;
+    background: var(--popupBackground);
+    color: var(--foreground);
+    border: 2px solid var(--foreground);
 }
 
 .popup-large {
@@ -124,9 +131,9 @@ button {
     width: 95%;
     height: 95%;
     z-index: 99999999;
-    background: white;
-    color: black;
-    border: 2px solid black;
+    background: var(--popupBackground);
+    color: var(--foreground);
+    border: 2px solid var(--foreground);
 }
 
 .running-score {
@@ -210,8 +217,13 @@ button {
         font-size: 16pt;
     }
 
-    input {
+    input, select {
         font-size: 15pt;
+    }
+
+    input.checkbox {
+        width: 35px;
+        height: 35px;
     }
 
     td {
@@ -246,8 +258,13 @@ button {
         font-size: 15pt;
     }
 
-    input {
+    input, select {
         font-size: 12pt;
+    }
+
+    input.checkbox {
+        width: 30px;
+        height: 30px;
     }
 
     td {
@@ -282,8 +299,13 @@ button {
         font-size: 13pt;
     }
 
-    input {
+    input, select {
         font-size: 10pt;
+    }
+
+    input.checkbox {
+        width: 24px;
+        height: 24px;
     }
 
     td {
@@ -319,8 +341,13 @@ button {
         min-width: 25px;
     }
 
-    input {
+    input, select {
         font-size: 10pt;
+    }
+
+    input.checkbox {
+        width: 20px;
+        height: 20px;
     }
 
     td {

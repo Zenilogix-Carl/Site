@@ -395,11 +395,6 @@
             }
         }
 
-        function darkMode() {
-            isDarkMode = !isDarkMode;
-            setDarkMode(isDarkMode);
-        }
-
         function addBall(parentId, size) {
             var parentElement = document.getElementById(parentId);
             var ball = new BilliardBallWithClick("&#x23F3;", size, resetShotClock, '');
@@ -462,30 +457,14 @@
             addScratch8(elementId, ballSizeLarge);
             addEarly8(elementId, ballSizeLarge);
             addWrongPocket(elementId, ballSizeLarge);
-        //    addRack(elementId, ballSizeLarge);
         }
 
         function initialCaps(str) {
             return str[0].toUpperCase() + str.substring(1);
         }
 
-        function getCookie(cname) {
-            let name = cname + "=";
-            let decodedCookie = decodeURIComponent(document.cookie);
-            let ca = decodedCookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
-        }
-
         function onLoad() {
+            Preferences.Restore();
             var cookie = getCookie('eightball-match');
             load(cookie);
             document.title = 'Scoreboard for 8-Ball';
@@ -798,7 +777,7 @@
             <span onclick='toggleMenu(); clearRackIfConfirmed();'>Clear Rack</span>
             <span onclick='toggleMenu(); showMatch();'>Summary</span>
             <span onclick='toggleMenu(); window.open("index.html", "_self");'>Home Page</span>
-            <span onclick='toggleMenu(); darkMode();'>Dark Mode</span>
+            <span onclick='toggleMenu(); window.open("Preferences.html?return="+encodeURIComponent(document.documentURI), "_self");'>Preferences</span>
             <span onclick='toggleMenu(); helpOrDebug();'>Help</span>
         </div>
     </div>

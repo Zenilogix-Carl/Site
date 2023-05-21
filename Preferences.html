@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Preferences</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="Billiards.js"></script>
+    <script>
+        class ColorScheme {
+            constructor(background, backgroundContrast, popupBackground, name) {
+                this.background = background;
+                this.backgroundContrast = backgroundContrast;
+                this.popupBackground = popupBackground;
+                this.name = name;
+            }
+        }
+
+        window.addEventListener("beforeunload", onUnload);
+        var qs = location.search.substring(1).split('&');
+        var qqs = {};
+        qs.forEach((nvp) => {
+            var e = nvp.split('=');
+            if (e.length == 2) {
+                qqs[e[0].trim()] = e[1].trim();
+            }
+        });
+        var returnUrl = decodeURIComponent(qqs['return']);
+
+        var colorSchemes = [
+            new ColorScheme('lightblue', 'black', 'white', 'Blue'),
+            new ColorScheme('darkgreen', 'white', 'black', 'Green'),
+            new ColorScheme('lightgrey', 'black', 'white', 'Grey'),
+            new ColorScheme('navy', 'white', 'navy', 'Navy'),
+            new ColorScheme('#004000', 'white', 'black', 'Dark Green'),
+            new ColorScheme('#C19A6B', 'black', 'white', 'Camel'),
+            new ColorScheme('#8C001A', 'white', 'black', 'Burgundy')
+            ];
+
+        function onLoad() {
+            Preferences.Restore();
+
+            var palette = document.getElementById('color');
+            var currentScheme = 0;
+            for (var i = 0; i < colorSchemes.length; i++) {
+                var colorItem = document.createElement('option');
+                colorItem.setAttribute('value', i);
+                colorItem.setAttribute('style', 'background:' + colorSchemes[i].background + '; color:' + colorSchemes[i].backgroundContrast + ';');
+                colorItem.innerHTML = '&nbsp;' + colorSchemes[i].name;
+                palette.appendChild(colorItem);
+                if (colorSchemes[i].background == Preferences.BackgroundColor) {
+                    currentScheme = i;
+                }
+            };
+
+            palette.value = currentScheme;
+            document.getElementById('darkMode').checked = Preferences.DarkMode;
+        }
+
+        function onDarkModeChange() {
+            Preferences.DarkMode = document.getElementById('darkMode').checked;
+            Preferences.SetScheme();
+        }
+
+        function onColorChange() {
+            var scheme = document.getElementById('color').value;
+            Preferences.BackgroundColor = colorSchemes[scheme].background;
+            Preferences.BackgroundContrast = colorSchemes[scheme].backgroundContrast;
+            Preferences.PopupBackground = colorSchemes[scheme].popupBackground;
+
+            Preferences.SetScheme();
+        }
+
+        function onUnload() {
+            Preferences.Save();
+        }
+    </script>
+</head>
+<body class="main" style="padding: 20px" onload='onLoad()'>
+<h1>Preferences</h1>
+<label for="color">Background Color:</label>
+<br/>
+<select name="color" id="color" style="color: black" onchange="onColorChange()">
+</select>
+<br/>
+<label for="darkMode">Dark Mode:</label>
+<br/>
+<input class="checkbox" type="checkbox" id="darkMode" onchange="onDarkModeChange()"/>
+<br/>
+<button onclick='window.open(returnUrl, "_self")'>Return</button>
+</body>
+</html>
