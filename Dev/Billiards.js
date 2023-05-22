@@ -507,9 +507,9 @@ function getCookie(cname) {
     return "";
 }
 
-async function getLastModified(url) {
-    const response = await fetch(url, { method: "HEAD" });
-    const lastModified = response.headers.get("Last-Modified");
+//async function getLastModified(url) {
+//    const response = await fetch(url, { method: "HEAD" });
+//    const lastModified = response.headers.get("Last-Modified");
 
-    return lastModified;
-}
+//    return lastModified;
+//}

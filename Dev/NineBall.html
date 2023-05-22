@@ -9,11 +9,11 @@
     <script src="qrcode.js"></script>
     <script>
         "use strict";
-        var currentVersion;
+        //var currentVersion;
 
-        getLastModified("NineBall.html").then(result => {
-            currentVersion = result;
-        });
+        //getLastModified("NineBall.html").then(result => {
+        //    currentVersion = result;
+        //});
 
         window.addEventListener("resize", onResize);
         window.addEventListener("beforeunload", onUnload);
@@ -585,7 +585,7 @@
         }
 
         function onLoad() {
-            checkForUpdate(); // check on dom load (not necessarily on page load)
+            //checkForUpdate(); // check on dom load (not necessarily on page load)
             Preferences.Restore();
             const cookie = getCookie(isApa ? (isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match');
             load(cookie);
@@ -754,15 +754,15 @@
             document.getElementById('popup').style.visibility = 'visible';
         }
 
-        function checkForUpdate() {
-            getLastModified("NineBall.html").then(result => {
-                if (result > currentVersion) {
-                    confirmBox("This app has been updated.\nDo you want to get the update?", () => {
-                        location.reload();
-                    });
-                }
-            });
-        }
+        //function checkForUpdate() {
+        //    getLastModified("NineBall.html").then(result => {
+        //        if (result > currentVersion) {
+        //            confirmBox("This app has been updated.\nDo you want to get the update?", () => {
+        //                location.reload();
+        //            });
+        ////        }
+        //    });
+        //}
 
         function helpOrDebug() {
             if (isDebug) {
