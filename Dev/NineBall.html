@@ -8,6 +8,7 @@
     <script src="Billiards.js"></script>
     <script src="qrcode.js"></script>
     <script>
+        "use strict";
         var currentVersion;
 
         getLastModified("NineBall.html").then(result => {
@@ -115,8 +116,8 @@
             }
 
             copy(src) {
-                this.isApa = (src.isApa === undefined) ? false : src.isApa;
-                this.isSuddenDeath = (src.isSuddenDeath === undefined) ? false : src.isSuddenDeath;
+                this.isApa = src.isApa === undefined ? false : src.isApa;
+                this.isSuddenDeath = src.isSuddenDeath === undefined ? false : src.isSuddenDeath;
                 this.innings = src.innings;
                 this.rackInnings = src.rackInnings;
                 this.matchInnings = src.matchInnings;
@@ -149,13 +150,13 @@
         var qqs = {};
         qs.forEach((nvp) => {
             var e = nvp.split('=');
-            if (e.length == 2) {
+            if (e.length === 2) {
                 qqs[e[0].trim()] = e[1].trim();
             }
         });
-        var isApa = (!(qqs['style'] === undefined) && qqs['style'].toLowerCase() == 'apa');
-        var isSuddenDeath = (!(qqs['sd'] === undefined) && qqs['sd'].toLowerCase() == 'true');
-        var isDebug = (!(qqs['debug'] === undefined) && qqs['debug'].toLowerCase() == 'true');
+        var isApa = (!(qqs['style'] === undefined) && qqs['style'].toLowerCase() === 'apa');
+        var isSuddenDeath = (!(qqs['sd'] === undefined) && qqs['sd'].toLowerCase() === 'true');
+        var isDebug = (!(qqs['debug'] === undefined) && qqs['debug'].toLowerCase() === 'true');
 
         var balls = {};
 
@@ -183,13 +184,13 @@
             match.ballStates = Array(ballCount).fill("normal");
             match.clearRack();
             updateBallStates();
-            updateScore();
+            updateRackScore();
 
             match.shotTime = new Date();
         }
 
         function startMatchIfConfirmed() {
-            confirmBox("Start a new " + (isApa ? 'APA ' : '') + (isSuddenDeath ? 'sudden death ':'') + "match\n(clear current status)?", startMatch);
+            confirmBox(`Start a new ${isApa ? 'APA ' : ''}${isSuddenDeath ? 'sudden death ':''}match\n(clear current status)?`, startMatch);
         }
 
         function endMatchIfConfirmed() {
@@ -219,14 +220,14 @@
         }
 
         function switchPlayerBalls() {
-            for (var i = 0; i < match.ballStates.length; i++) {
+            for (let i = 0; i < match.ballStates.length; i++) {
                 match.ballStates[i] = invert[match.ballStates[i]];
                 updateBallState(i + 1);
             }
         }
 
         function missedShot() {
-            if (match.currentPlayer == player1) {
+            if (match.currentPlayer === player1) {
                 match.currentPlayer = player2;
             } else {
                 match.currentPlayer = player1;
@@ -234,7 +235,7 @@
             switchPlayerBalls();
             setCurrentPlayer();
 
-            if (match.currentPlayer == match.startingPlayer) {
+            if (match.currentPlayer === match.startingPlayer) {
                 match.addInning();
             }
 
@@ -250,24 +251,24 @@
             confirmBox("9-Snap ends this rack.\nCancel if you need to mark any additional balls, otherwise proceed to the next rack.", () => {
                 match.ballStates[match.ballStates.length - 1] = "won";
                 match.players[match.currentPlayer].nineSnap = true;
-                updateScore();
+                updateRackScore();
                 advanceToNextRack();
             });
         }
 
         function nineRun() {
             confirmBox("9-Run ends this rack.\nPlayer will earn all rack points.", () => {
-                for (var i = 0; i < 9; i++) {
+                for (let i = 0; i < 9; i++) {
                     match.ballStates[i] = "won";
                 }
                 match.players[match.currentPlayer].nineRun = true;
-                updateScore();
+                updateRackScore();
                 advanceToNextRack();
             });
         }
 
         function player1Shooting() {
-            if (match.currentPlayer != player1) {
+            if (match.currentPlayer !== player1) {
                 switchPlayerBalls();
                 match.currentPlayer = player1;
                 setCurrentPlayer();
@@ -275,14 +276,14 @@
         }
 
         function player2Shooting() {
-            if (match.currentPlayer != player2) {
+            if (match.currentPlayer !== player2) {
                 switchPlayerBalls();
                 match.currentPlayer = player2;
                 setCurrentPlayer();
             }
         }
 
-        function updateScore() {
+        function updateRackScore() {
             var player1RackScore = 0;
             var player2RackScore = 0;
             var parent1 = document.getElementById("player1-balls");
@@ -295,11 +296,11 @@
             }
             for (var i = 0; i < match.ballStates.length; i++) {
                 var ballState = match.ballStates[i];
-                if ((match.currentPlayer == player1 && ballState == "won") || (match.currentPlayer == player2 && ballState == "lost")) {
+                if ((match.currentPlayer === player1 && ballState === "won") || (match.currentPlayer === player2 && ballState === "lost")) {
                     player1RackScore += match.ballValues[i];
                     parent1.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
-                if ((match.currentPlayer == player1 && ballState == "lost") || (match.currentPlayer == player2 && ballState == "won")) {
+                if ((match.currentPlayer === player1 && ballState === "lost") || (match.currentPlayer === player2 && ballState === "won")) {
                     player2RackScore += match.ballValues[i];
                     parent2.appendChild(new BilliardBall(i + 1, ballSizeSmall).element);
                 }
@@ -317,7 +318,7 @@
         }
 
         function advanceToNextRack() {
-            if (match.rackInnings > 0 || match.ballStates.some(b => b != "normal") || Object.values(match.players).some(p => p.rackScore > 0 || p.timeouts > 0 || p.rackDefensives > 0 || p.nineSnap || p.nineRun)) {
+            if (match.rackInnings > 0 || match.ballStates.some(b => b !== "normal") || Object.values(match.players).some(p => p.rackScore > 0 || p.timeouts > 0 || p.rackDefensives > 0 || p.nineSnap || p.nineRun)) {
                for (const [key, value] of Object.entries(match.players)) {
                     value.matchScore += value.rackScore;
                     value.scores.push(value.rackScore);
@@ -331,12 +332,11 @@
                 match.matchInnings += match.rackInnings;
             }
             clearRack();
-            updateScore();
         }
 
         function nextRack() {
-            var hasWinner = Object.values(match.players).every(v => v.neededToWin > 0) && Object.values(match.players).some(v => v.remaining == 0);
-            var missingBalls = match.ballStates.some(b => b == "normal") && !Object.values(match.players).some(v => v.remaining == 0);
+            var hasWinner = Object.values(match.players).every(v => v.neededToWin > 0) && Object.values(match.players).some(v => v.remaining === 0);
+            var missingBalls = match.ballStates.some(b => b === "normal") && !Object.values(match.players).some(v => v.remaining === 0);
             var warning = missingBalls ? 'WARNING\nYou have not marked all balls.' : "Make sure scoring for this rack is correct before you proceed; you won't be able to edit it later.";
             confirmBox((hasWinner ? "Record final rack?\n" : "Advance to the next rack?\n") + warning, advanceToNextRack);
         }
@@ -346,7 +346,7 @@
             var player2Cue = document.getElementById("player2-cue");
             var player1Input = document.getElementById("player1-input");
             var player2Input = document.getElementById("player2-input");
-            if (match.currentPlayer == player1) {
+            if (match.currentPlayer === player1) {
                 player1Cue.style.visibility = "visible";
                 player2Cue.style.visibility = "hidden";
                 player1Input.style.fontWeight = "bold";
@@ -360,14 +360,14 @@
         }
 
         function updateBallStates() {
-            for (var i = 0; i < match.ballStates.length; i++) {
+            for (let i = 0; i < match.ballStates.length; i++) {
                 updateBallState(i + 1);
             }
         }
 
         function updateBallState(number) {
-            var currentBallState = match.ballStates[number - 1];
-            var ball = balls[number];
+            const currentBallState = match.ballStates[number - 1];
+            const ball = balls[number];
 
             switch (currentBallState) {
                 case "normal":
@@ -379,7 +379,7 @@
                     break;
 
                 default:
-                    ball.showPocketed(currentBallState == "won");
+                    ball.showPocketed(currentBallState === "won");
                     break;
             }
         }
@@ -390,58 +390,58 @@
             hdr.style.fontWeight = 'bold';
             hdr.innerText = player.displayName;
             row.appendChild(hdr);
-            for (var i = 0; i < player.scores.length; i++) {
-                var cell = document.createElement('td');
+            for (let i = 0; i < player.scores.length; i++) {
+                let cell = document.createElement('td');
                 cell.innerText = player.scores[i].toString();
                 if (player.nineSnaps[i]) {
-                    var ns = document.createElement('small');
+                    let ns = document.createElement('small');
                     ns.innerText = '(9-Snap)';
                     cell.appendChild(ns);
                 }
                 if (player.nineRuns[i]) {
-                    var nr = document.createElement('small');
+                    let nr = document.createElement('small');
                     nr.innerText = '(9-Run)';
                     cell.appendChild(nr);
                 }
                 if (player.rackTimeouts[i] > 0) {
-                    var to = document.createElement('sup');
+                    let to = document.createElement('sup');
                     to.innerText = 'T'.repeat(player.rackTimeouts[i]);
                     cell.appendChild(to);
                 }
                 row.appendChild(cell);
             }
-            if (player.rackScore > 0 || player.timeouts > 0 || (player.totalDefensives > 0 && (match.rackInnings > 0 || match.ballStates.some(b => b!="normal")))) {
-                var cell2 = document.createElement('td');
-                cell2.classList.add("pending-rack");
+            if (player.rackScore > 0 || player.timeouts > 0 || (player.totalDefensives > 0 && (match.rackInnings > 0 || match.ballStates.some(b => b!=="normal")))) {
+                let cell = document.createElement('td');
+                cell.classList.add("pending-rack");
                 if (player.rackScore > 0) {
-                    cell2.innerText = player.rackScore.toString();
+                    cell.innerText = player.rackScore.toString();
                 }
                 if (player.timeouts > 0) {
-                    var to2 = document.createElement('sup');
-                    to2.innerText = 'T'.repeat(player.timeouts);
-                    cell2.appendChild(to2);
+                    let to = document.createElement('sup');
+                    to.innerText = 'T'.repeat(player.timeouts);
+                    cell.appendChild(to);
                 }
-                row.appendChild(cell2);
+                row.appendChild(cell);
             }
 
-            if (!match.started && Object.values(match.players).every(p => p.rackScore == 0)) {
-                var cellx = document.createElement('td');
-                cellx.classList.add("pending-rack");
-                cellx.innerText = player.matchScore.toString();
-                row.appendChild(cellx);
+            if (!match.started && Object.values(match.players).every(p => p.rackScore === 0)) {
+                let cell = document.createElement('td');
+                cell.classList.add("pending-rack");
+                cell.innerText = player.matchScore.toString();
+                row.appendChild(cell);
             }
 
             if (player.totalDefensives > 0) {
-                var celld = document.createElement('td');
-                celld.innerText = player.totalDefensives.toString() + ' defensive(s)';
-                row.appendChild(celld);
+                let cell = document.createElement('td');
+                cell.innerText = player.totalDefensives.toString() + ' defensive(s)';
+                row.appendChild(cell);
             }
             return row;
         }
 
         function showMatch() {
             document.getElementById("summaryStatus").innerText = match.started ? "In-Progress " : "Completed ";
-            var info = document.getElementById('summaryInfo');
+            let info = document.getElementById('summaryInfo');
             //var qr = document.getElementById('qr');
 
             //while (qr.firstChild) {
@@ -464,33 +464,33 @@
 
             info.innerText = match.players[player1].displayName + ' vs ' + match.players[player2].displayName + ' Started ' + match.matchTime.toLocaleString("en-US", options) + (match.isSuddenDeath ? ' (Sudden Death)' : '');
 
-            var table = document.getElementById('running-score');
+            let table = document.getElementById('running-score');
             while (table.firstChild) {
                 table.firstChild.remove();
             }
 
             table.appendChild(createScoresRow(match.players[player1]));
-            var row = document.createElement('tr');
-            var hdr = document.createElement('td');
+            let row = document.createElement('tr');
+            let hdr = document.createElement('td');
             hdr.innerText = 'Innings';
             row.appendChild(hdr);
-            for (var i = 0; i < match.innings.length; i++) {
-                var cell = document.createElement('td');
+            for (let i = 0; i < match.innings.length; i++) {
+                let cell = document.createElement('td');
                 cell.innerText = match.innings[i].toString();
                 row.appendChild(cell);
             }
             if (match.rackInnings > 0) {
-                var cellmri = document.createElement('td');
-                cellmri.classList.add("pending-rack");
-                cellmri.innerText = match.rackInnings.toString();
-                row.appendChild(cellmri);
+                let cell = document.createElement('td');
+                cell.classList.add("pending-rack");
+                cell.innerText = match.rackInnings.toString();
+                row.appendChild(cell);
             }
 
             if (!match.started && Object.values(match.players).every(p => p.rackScore == 0)) {
-                var cellx = document.createElement('td');
-                cellx.classList.add("pending-rack");
-                cellx.innerText = match.totalInnings.toString();
-                row.appendChild(cellx);
+                let cell = document.createElement('td');
+                cell.classList.add("pending-rack");
+                cell.innerText = match.totalInnings.toString();
+                row.appendChild(cell);
             }
 
             table.appendChild(row);
@@ -499,18 +499,18 @@
                 hdr = document.createElement('td');
                 hdr.innerText = 'Dead';
                 row.appendChild(hdr);
-                var rackPoints = match.ballValues.reduce((sum, i) => sum + i);
-                for (var j = 0; j < match.players[player1].scores.length; j++) {
-                    var cell2 = document.createElement('td');
-                    cell2.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
-                    row.appendChild(cell2);
+                let rackPoints = match.ballValues.reduce((sum, i) => sum + i);
+                for (let j = 0; j < match.players[player1].scores.length; j++) {
+                    let cell = document.createElement('td');
+                    cell.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
+                    row.appendChild(cell);
                 }
-                var dead = match.ballStates.filter((b) => b == "dead").length;
+                let dead = match.ballStates.filter((b) => b == "dead").length;
                 if (dead > 0) {
-                    var celld = document.createElement('td');
-                    celld.classList.add("pending-rack");
-                    celld.innerText = dead.toString();
-                    row.appendChild(celld);
+                    let cell = document.createElement('td');
+                    cell.classList.add("pending-rack");
+                    cell.innerText = dead.toString();
+                    row.appendChild(cell);
                 }
                 table.appendChild(row);
             }
@@ -520,18 +520,18 @@
         }
 
         function ballClick(number) {
-            var currentBallState = match.ballStates[number - 1];
+            const currentBallState = match.ballStates[number - 1];
 
-            var nextBallState = cycle[currentBallState];
+            const nextBallState = cycle[currentBallState];
             match.ballStates[number - 1] = nextBallState;
 
             updateBallState(number);
-            updateScore();
+            updateRackScore();
             resetShotClock();
         }
 
         function toggleMenu() {
-            var x = document.getElementById("menu");
+            const x = document.getElementById("menu");
             if (x.style.display === "block") {
                 x.style.display = "none";
             } else {
@@ -540,34 +540,34 @@
         }
 
         function addMiss(parentId, size) {
-            var parentElement = document.getElementById(parentId);
+            const parentElement = document.getElementById(parentId);
             parentElement.appendChild(new CueBall(size, "End Turn", missedShot).element);
         }
 
         function addTimeout(parentId, size) {
-            var parentElement = document.getElementById(parentId);
+            const parentElement = document.getElementById(parentId);
             parentElement.appendChild(new CueBall(size, "Time-out", timeout, "yellow").element);
         }
 
         function add9Snap(parentId, size) {
-            var parentElement = document.getElementById(parentId);
+            const parentElement = document.getElementById(parentId);
             parentElement.appendChild(new BilliardBallWithClick(9, size, nineSnap, "Snap").element);
         }
 
         function add9Run(parentId, size) {
-            var parentElement = document.getElementById(parentId);
+            const parentElement = document.getElementById(parentId);
             parentElement.appendChild(new BilliardBallWithClick(9, size, nineRun, "Run").element);
         }
 
         function addRack(parentId, size) {
-            var parentElement = document.getElementById(parentId);
+            const parentElement = document.getElementById(parentId);
             parentElement.appendChild(new Rack(size, "Next Rack", nextRack).element);
         }
 
 
         function addBalls(elementId) {
-            var parentElement = document.getElementById(elementId);
-            for (var i = 1; i <= ballCount; i++) {
+            const parentElement = document.getElementById(elementId);
+            for (let i = 1; i <= ballCount; i++) {
 
                 balls[i] = new BilliardBallWithState(i, ballSizeLarge, ballClick, 'DEAD');
                 parentElement.appendChild(balls[i].element);
@@ -587,14 +587,14 @@
         function onLoad() {
             checkForUpdate(); // check on dom load (not necessarily on page load)
             Preferences.Restore();
-            var cookie = getCookie(isApa ? (isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match');
+            const cookie = getCookie(isApa ? (isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match');
             load(cookie);
-            document.title = isApa ? ('Scoreboard for APA-Style 9-Ball' + (match.isSuddenDeath ? ' (Sudden Death)' : '')): 'Scoreboard for Classic 9-Ball';
+            document.title = `Scoreboard for ${match.isSuddenDeath ? 'Sudden Death ' : ''}${isApa ? 'APA-Style' : 'Classic'} 9-Ball`;
             addBalls("balls");
-            var p1 = document.getElementById("player1-defensives");
+            const p1 = document.getElementById("player1-defensives");
             p1.parentElement.insertBefore(new Shield(ballSizeSmall, "player1-remove-defensive", "-", true, () => match.players[player1].removeDefensive()).element, p1.nextSibling);
             p1.parentElement.insertBefore(new Shield(ballSizeSmall, "player1-add-defensive", "+", false, () => match.players[player1].addDefensive()).element, p1.nextSibling);
-            var p2 = document.getElementById("player2-defensives");
+            const p2 = document.getElementById("player2-defensives");
             p2.parentElement.insertBefore(new Shield(ballSizeSmall, "player2-remove-defensive", "-", true, () => match.players[player2].removeDefensive()).element, p2.nextSibling);
             p2.parentElement.insertBefore(new Shield(ballSizeSmall, "player2-add-defensive", "+", false, () => match.players[player2].addDefensive()).element, p2.nextSibling);
             updateBallStates();
@@ -607,22 +607,22 @@
                 match = new NineBallMatch().copy(JSON.parse(cookie));
             }
 
-            var player1Obj = match.players[player1];
+            const player1Obj = match.players[player1];
             bindInput(player1Obj,
                 "name",
                 document.getElementById("player1-input"),
                 function () {
-                    var name = player1Obj.name;
+                    const name = player1Obj.name;
                     player1Obj.displayName = initialCaps(name);
-                    if (player1Obj.displayName != name) {
+                    if (player1Obj.displayName !== name) {
                         player1Obj.name = player1Obj.displayName;
                     };
                 });
-            var player2Obj = match.players[player2];
+            const player2Obj = match.players[player2];
             bindInput(player2Obj, "name", document.getElementById("player2-input"), function () {
-                var name = player2Obj.name;
+                const name = player2Obj.name;
                 player2Obj.displayName = initialCaps(name);
-                if (player2Obj.displayName != name) {
+                if (player2Obj.displayName !== name) {
                     player2Obj.name = player2Obj.displayName;
                 };
             });
@@ -658,7 +658,7 @@
             bindOutput(match, "totalInnings", document.getElementById("match-innings"));
 
             setCurrentPlayer();
-            updateScore();
+            updateRackScore();
 
             if (!(finalizeFn === undefined)) {
                 finalizeFn();
@@ -666,16 +666,16 @@
         }
 
         function onUnload() {
-            var json = JSON.stringify(match);
-            var result = new Date();
+            const json = JSON.stringify(match);
+            const result = new Date();
             result.setDate(result.getDate() + 30);
-            var expiry = result.toString();
-            var cookie = (match.isApa ? (match.isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match') + "=" + json + "; expires=" + expiry + ";";
+            const expiry = result.toString();
+            const cookie = `${match.isApa ? (match.isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match'}=${json}; expires=${expiry};`;
             document.cookie = cookie;
         }
 
         function reload() {
-            var json = JSON.stringify(match);
+            const json = JSON.stringify(match);
             match = void 0;
             load(json, updateBallStates);
         }
@@ -714,7 +714,7 @@
             document.getElementById("player2-add-defensive").setAttribute('height', ballSizeSmall);
             document.getElementById("player2-remove-defensive").setAttribute('height', ballSizeSmall);
 
-            updateScore();
+            updateRackScore();
         }
 
         function resetShotClock() {
@@ -722,8 +722,8 @@
         }
 
         function updateClock() {
-            var todClock = document.getElementById("todClock");
-            var now = new Date();
+            const todClock = document.getElementById("todClock");
+            const now = new Date();
 
             todClock.innerText = now.toLocaleTimeString("en-US", {
                 hour: "numeric",
@@ -732,14 +732,12 @@
             });
 
             if (match.started) {
-                var shotElapsed = (now - match.shotTime) / 1000;
-                var matchElapsed = (now - match.matchTime) / 60000;
-                var shotClock = document.getElementById("shotClock");
-                var matchClock = document.getElementById("matchClock");
-                shotClock.innerText = shotElapsed > 1800 ? '--:--' : Math.trunc((shotElapsed / 60)).toString() + ":" +
-                    Math.trunc((shotElapsed % 60)).toString().padStart(2, '0');
-                matchClock.innerText = matchElapsed > (24 * 60) ? '--:--' : Math.trunc((matchElapsed / 60)).toString() + ":" +
-                    Math.trunc((matchElapsed % 60)).toString().padStart(2, '0');
+                const shotElapsed = (now - match.shotTime) / 1000;
+                const matchElapsed = (now - match.matchTime) / 60000;
+                const shotClock = document.getElementById("shotClock");
+                const matchClock = document.getElementById("matchClock");
+                shotClock.innerText = shotElapsed > 1800 ? '--:--' : `${Math.trunc((shotElapsed / 60)).toString()}:${Math.trunc((shotElapsed % 60)).toString().padStart(2, '0')}`;
+                matchClock.innerText = matchElapsed > (24 * 60) ? '--:--' : `${Math.trunc((matchElapsed / 60)).toString()}:${Math.trunc((matchElapsed % 60)).toString().padStart(2, '0')}`;
             }
         }
 
@@ -910,7 +908,7 @@
             <span onclick='toggleMenu(); clearRackIfConfirmed();'>Clear Rack</span>
             <span onclick='toggleMenu(); showMatch();'>Summary</span>
             <span onclick='toggleMenu(); window.open("index.html", "_self");'>Home Page</span>
-            <span onclick='toggleMenu(); window.open("Preferences.html?return="+encodeURIComponent(document.documentURI), "_self");'>Preferences</span>
+            <span onclick='toggleMenu(); window.open(`Preferences.html?return=${encodeURIComponent(document.documentURI)}`, "_self");'>Preferences</span>
             <span onclick='toggleMenu(); helpOrDebug();'>Help</span>
         </div>
     </div>
