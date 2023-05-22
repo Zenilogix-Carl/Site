@@ -39,6 +39,7 @@
 
         function onLoad() {
             Preferences.Restore();
+            document.getElementById('background').style.visibility = Preferences.DarkMode ? "hidden" : "visible";
 
             var palette = document.getElementById('color');
             var currentScheme = 0;
@@ -60,6 +61,7 @@
         function onDarkModeChange() {
             Preferences.DarkMode = document.getElementById('darkMode').checked;
             Preferences.SetScheme();
+            document.getElementById('background').style.visibility = Preferences.DarkMode ? "hidden" : "visible";
         }
 
         function onColorChange() {
@@ -78,11 +80,13 @@
 </head>
 <body class="main" style="padding: 20px" onload='onLoad()'>
 <h1>Preferences</h1>
-<label for="color">Background Color:</label>
-<br/>
-<select name="color" id="color" style="color: black" onchange="onColorChange()">
-</select>
-<br/>
+<div id="background">
+    <label for="color">Background Color:</label>
+    <br />
+    <select name="color" id="color" style="color: black" onchange="onColorChange()">
+    </select>
+    <br />
+</div>
 <label for="darkMode">Dark Mode:</label>
 <br/>
 <input class="checkbox" type="checkbox" id="darkMode" onchange="onDarkModeChange()"/>
