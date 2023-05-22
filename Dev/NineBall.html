@@ -14,9 +14,12 @@
         //getLastModified("NineBall.html").then(result => {
         //    currentVersion = result;
         //});
-
-        window.addEventListener("resize", onResize);
-        window.addEventListener("beforeunload", onUnload);
+        try {
+            window.addEventListener("resize", onResize);
+            window.addEventListener("beforeunload", onUnload);
+        } catch (e) {
+            alert(e.message);
+        } 
 
         class NineBallPlayer extends PlayerWithScore {
             constructor(name, setupFn) {
@@ -585,21 +588,26 @@
         }
 
         function onLoad() {
-            //checkForUpdate(); // check on dom load (not necessarily on page load)
-            Preferences.Restore();
-            const cookie = getCookie(isApa ? (isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match');
-            load(cookie);
-            document.title = `Scoreboard for ${match.isSuddenDeath ? 'Sudden Death ' : ''}${isApa ? 'APA-Style' : 'Classic'} 9-Ball`;
-            addBalls("balls");
-            const p1 = document.getElementById("player1-defensives");
-            p1.parentElement.insertBefore(new Shield(ballSizeSmall, "player1-remove-defensive", "-", true, () => match.players[player1].removeDefensive()).element, p1.nextSibling);
-            p1.parentElement.insertBefore(new Shield(ballSizeSmall, "player1-add-defensive", "+", false, () => match.players[player1].addDefensive()).element, p1.nextSibling);
-            const p2 = document.getElementById("player2-defensives");
-            p2.parentElement.insertBefore(new Shield(ballSizeSmall, "player2-remove-defensive", "-", true, () => match.players[player2].removeDefensive()).element, p2.nextSibling);
-            p2.parentElement.insertBefore(new Shield(ballSizeSmall, "player2-add-defensive", "+", false, () => match.players[player2].addDefensive()).element, p2.nextSibling);
-            updateBallStates();
-            onResize();
-            setInterval(updateClock, 1000);
+            try {
+                //checkForUpdate(); // check on dom load (not necessarily on page load)
+                Preferences.Restore();
+                const cookie = getCookie(isApa ? (isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match');
+                load(cookie);
+                document.title = `Scoreboard for ${match.isSuddenDeath ? 'Sudden Death ' : ''}${isApa ? 'APA-Style' : 'Classic'} 9-Ball`;
+                addBalls("balls");
+                const p1 = document.getElementById("player1-defensives");
+                p1.parentElement.insertBefore(new Shield(ballSizeSmall, "player1-remove-defensive", "-", true, () => match.players[player1].removeDefensive()).element, p1.nextSibling);
+                p1.parentElement.insertBefore(new Shield(ballSizeSmall, "player1-add-defensive", "+", false, () => match.players[player1].addDefensive()).element, p1.nextSibling);
+                const p2 = document.getElementById("player2-defensives");
+                p2.parentElement.insertBefore(new Shield(ballSizeSmall, "player2-remove-defensive", "-", true, () => match.players[player2].removeDefensive()).element, p2.nextSibling);
+                p2.parentElement.insertBefore(new Shield(ballSizeSmall, "player2-add-defensive", "+", false, () => match.players[player2].addDefensive()).element, p2.nextSibling);
+                updateBallStates();
+                onResize();
+                setInterval(updateClock, 1000);
+            } catch (e) {
+                alert(`Page failed to initialize: ${e.message}`);
+                alert(`Stack trace: ${e.trace}`);
+            } 
         }
 
         function load(cookie, finalizeFn) {
