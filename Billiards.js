@@ -1,57 +1,74 @@
+"use strict";
 class Preferences {
     static DarkMode = false;
-    static BackgroundColor = 'lightblue';
-    static PopupBackground = 'white';
-    static BackgroundContrast = 'black';
+    static BackgroundColor = "lightblue";
+    static PopupBackground = "white";
+    static BackgroundContrast = "black";
 
     constructor() {
-        this.isDarkMode = Preferences.DarkMode;
-        this.backgroundColor = Preferences.BackgroundColor;
-        this.backgroundContrast = Preferences.BackgroundContrast;
-        this.popupBackground = Preferences.PopupBackground;
+        try {
+            this.isDarkMode = Preferences.DarkMode;
+            this.backgroundColor = Preferences.BackgroundColor;
+            this.backgroundContrast = Preferences.BackgroundContrast;
+            this.popupBackground = Preferences.PopupBackground;
+        } catch (e) {
+            alert(`Preferences constructor failed: ${e.message}`);
+        } 
     }
 
     static Save() {
-        var preferences = new Preferences();
-        preferences.isDarkMode = Preferences.DarkMode;
-        preferences.backgroundColor = Preferences.BackgroundColor;
-        preferences.popupBackground = Preferences.PopupBackground;
+        try {
+            const preferences = new Preferences();
+            preferences.isDarkMode = Preferences.DarkMode;
+            preferences.backgroundColor = Preferences.BackgroundColor;
+            preferences.popupBackground = Preferences.PopupBackground;
 
-        var json = JSON.stringify(preferences);
-        var result = new Date();
-        result.setDate(result.getDate() + 365);
-        var expiry = result.toString();
-        var cookie = ('preferences') + "=" + json + "; expires=" + expiry + ";";
-        document.cookie = cookie;
+            const json = JSON.stringify(preferences);
+            const result = new Date();
+            result.setDate(result.getDate() + 365);
+            const expiry = result.toString();
+            const cookie = `preferences=${json}; expires=${expiry};`;
+            document.cookie = cookie;
+        } catch (e) {
+            alert(`Preferences Save failed: ${e.message}`);
+        }
     }
 
     static Restore() {
-        var cookie = getCookie('preferences');
-        var preferences = cookie.length > 0 ? JSON.parse(cookie) : new Preferences();
-        Preferences.DarkMode = preferences.isDarkMode;
-        Preferences.BackgroundColor = preferences.backgroundColor;
-        Preferences.BackgroundContrast = preferences.backgroundContrast;
-        Preferences.PopupBackground = preferences.popupBackground;
+        try {
+            const cookie = getCookie("preferences");
+            const preferences = cookie.length > 0 ? JSON.parse(cookie) : new Preferences();
+            Preferences.DarkMode = preferences.isDarkMode;
+            Preferences.BackgroundColor = preferences.backgroundColor;
+            Preferences.BackgroundContrast = preferences.backgroundContrast;
+            Preferences.PopupBackground = preferences.popupBackground;
 
-        Preferences.SetScheme();
+            Preferences.SetScheme();
+        } catch (e) {
+            alert(`Preferences Restore failed: ${e.message}`);
+        }
     }
     
     static SetScheme() {
-        var r = document.querySelector(':root');
-        if (Preferences.DarkMode) {
-            r.style.setProperty('--background', 'black');
-            r.style.setProperty('--popupBackground', 'black');
-            r.style.setProperty('--foreground', 'white');
-            r.style.setProperty('--dropShadowFilter', 'none');
-            r.style.setProperty('--ballOutline', 'white');
-            r.style.setProperty('--ballBlack', '#333');
-        } else {
-            r.style.setProperty('--background', Preferences.BackgroundColor);
-            r.style.setProperty('--popupBackground', Preferences.PopupBackground);
-            r.style.setProperty('--foreground', Preferences.BackgroundContrast);
-            r.style.setProperty('--dropShadowFilter', 'drop-shadow(10px 10px 5px black)');
-            r.style.setProperty('--ballOutline', 'grey');
-            r.style.setProperty('--ballBlack', 'black');
+        try {
+            const r = document.querySelector(":root");
+            if (Preferences.DarkMode) {
+                r.style.setProperty("--background", "black");
+                r.style.setProperty("--popupBackground", "black");
+                r.style.setProperty("--foreground", "white");
+                r.style.setProperty("--dropShadowFilter", "none");
+                r.style.setProperty("--ballOutline", "white");
+                r.style.setProperty("--ballBlack", "#333");
+            } else {
+                r.style.setProperty("--background", Preferences.BackgroundColor);
+                r.style.setProperty("--popupBackground", Preferences.PopupBackground);
+                r.style.setProperty("--foreground", Preferences.BackgroundContrast);
+                r.style.setProperty("--dropShadowFilter", "drop-shadow(10px 10px 5px black)");
+                r.style.setProperty("--ballOutline", "grey");
+                r.style.setProperty("--ballBlack", "black");
+            }
+        } catch (e) {
+            alert(`Preferences SetScheme failed: ${e.message}`);
         }
     }
 }
@@ -65,47 +82,47 @@ class BilliardBall {
         this.number = number;
 
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute('viewBox', allowForShadow ? '0 0 120 120' : '0 0 105 100');
-        svg.setAttribute('width', size);
-        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+        svg.setAttribute("viewBox", allowForShadow ? "0 0 120 120" : "0 0 105 100");
+        svg.setAttribute("width", size);
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.ballGraphic = g;
-        var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
 
         if (isStripe) {
-            circle.setAttribute('cx', 50);
-            circle.setAttribute('cy', 50);
-            circle.setAttribute('r', 48);
+            circle.setAttribute("cx", 50);
+            circle.setAttribute("cy", 50);
+            circle.setAttribute("r", 48);
             circle.setAttribute("style", "fill: white;");
             g.appendChild(circle);
 
-            var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-            path.setAttribute('d', "M 16 16 L 84 16 A 50 50 0 0 1 84 84 L 16 84  A 50 50 0 0 1 16 16 ");
+            var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", "M 16 16 L 84 16 A 50 50 0 0 1 84 84 L 16 84  A 50 50 0 0 1 16 16 ");
             path.setAttribute("style", "fill: " + color + "; stroke-width: 1; stroke: grey;");
             g.appendChild(path);
 
-            circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-            circle.setAttribute('cx', 50);
-            circle.setAttribute('cy', 50);
-            circle.setAttribute('r', 48);
+            circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", 50);
+            circle.setAttribute("cy", 50);
+            circle.setAttribute("r", 48);
             circle.setAttribute("style", "fill: transparent; stroke-width: 1; stroke: var(--ballOutline);");
             g.appendChild(circle);
 
         } else {
-            circle.setAttribute('cx', 50);
-            circle.setAttribute('cy', 50);
-            circle.setAttribute('r', 48);
-            circle.setAttribute("style", "fill: " + color + "; stroke-width: 1; stroke: var(--ballOutline);");
+            circle.setAttribute("cx", 50);
+            circle.setAttribute("cy", 50);
+            circle.setAttribute("r", 48);
+            circle.setAttribute("style", `fill: ${color}; stroke-width: 1; stroke: var(--ballOutline);`);
             g.appendChild(circle);
         }
 
-        circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-        circle.setAttribute('cx', 50);
-        circle.setAttribute('cy', 50);
-        circle.setAttribute('r', 27);
+        circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", 50);
+        circle.setAttribute("cy", 50);
+        circle.setAttribute("r", 27);
         circle.setAttribute("style", "fill: white; stroke-width: 1; stroke: grey;");
         g.appendChild(circle);
-        var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+        var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("x", 50);
         text.setAttribute("y", 53);
         text.setAttribute("text-anchor", "middle");
@@ -125,11 +142,11 @@ class BilliardBallWithState extends BilliardBall {
     constructor(number, size, clickFn, foulText) {
         super(number, size, true);
 
-        var svg = this.element;
+        const svg = this.element;
         svg.onclick = function () { clickFn(number)};
-        var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+        let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("style", "visibility: hidden;");
-        text.classList.add('dropShadow');
+        text.classList.add("dropShadow");
         text.setAttribute("x", 50);
         text.setAttribute("y", 50);
         text.setAttribute("text-anchor", "middle");
@@ -141,9 +158,9 @@ class BilliardBallWithState extends BilliardBall {
         text.innerHTML = foulText;
         svg.appendChild(text);
         this.foulText = text;
-        text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+        text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("style", "visibility: hidden;");
-        text.classList.add('dropShadow');
+        text.classList.add("dropShadow");
         text.setAttribute("x", 40);
         text.setAttribute("y", 90);
         text.setAttribute("font-size", "80px");
@@ -159,11 +176,11 @@ class BilliardBallWithState extends BilliardBall {
 
     dimElement(elem, dim) {
         if (dim) {
-            elem.classList.remove('dropShadow');
-            elem.classList.add('dimmed');
+            elem.classList.remove("dropShadow");
+            elem.classList.add("dimmed");
         } else {
-            elem.classList.add('dropShadow');
-            elem.classList.remove('dimmed');
+            elem.classList.add("dropShadow");
+            elem.classList.remove("dimmed");
         }
     }
 
@@ -193,13 +210,13 @@ class BilliardBallWithState extends BilliardBall {
 class BilliardBallWithClick extends BilliardBallWithState {
     constructor(number, size, clickFn, text) {
         super(number, size, clickFn, text);
-        var svg = this.element;
+        const svg = this.element;
         svg.onclick = clickFn;
         this.dimElement(this.ballGraphic, false);
         this.showElement(this.foulText, true);
         this.showElement(this.checkMark, false);
         this.foulText.setAttribute("y", 75);
-        var textColor;
+        let textColor;
         switch (number) {
         case 1:
         case 9:
@@ -220,24 +237,24 @@ class BilliardBallWithClick extends BilliardBallWithState {
 class CueBall {
     constructor (size, label, clickFn, textColor) {
 
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute('viewBox', '0 0 120 120');
-        svg.setAttribute('width', size);
-        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 120 120");
+        svg.setAttribute("width", size);
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
         svg.onclick = function () { clickFn()};
-        svg.classList.add('dropShadow');
-        var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
-        var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+        svg.classList.add("dropShadow");
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
 
-        circle.setAttribute('cx', 50);
-        circle.setAttribute('cy', 50);
-        circle.setAttribute('r', 48);
+        circle.setAttribute("cx", 50);
+        circle.setAttribute("cy", 50);
+        circle.setAttribute("r", 48);
         circle.setAttribute("style", "fill: white; stroke-width: 1; stroke: grey ;");
         g.appendChild(circle);
 
         svg.appendChild(g);
-        var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-        text.classList.add('dropShadow');
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.classList.add("dropShadow");
         text.setAttribute("x", 50);
         text.setAttribute("y", 50);
         text.setAttribute("text-anchor", "middle");
@@ -247,16 +264,16 @@ class CueBall {
         text.setAttribute("fill", textColor === undefined ? "red" : textColor);
         text.setAttribute("stroke", "darkred");
         text.setAttribute("stroke-width", "1");
-        var labelLines = label.split('\n');
+        const labelLines = label.split("\n");
         if (labelLines.length > 1) {
-            var first = true;
+            let first = true;
             labelLines.forEach((line) => {
-                var tspan = document.createElementNS("http://www.w3.org/2000/svg", 'tspan');
-                tspan.setAttribute('x', 50);
+                const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+                tspan.setAttribute("x", 50);
                 if (first) {
-                    tspan.setAttribute('dy', ((1-labelLines.length)/2).toString()+ 'em');
+                    tspan.setAttribute("dy", `${((1 - labelLines.length) / 2).toString()}em`);
                 } else {
-                    tspan.setAttribute('dy', '1.2em');
+                    tspan.setAttribute("dy", "1.2em");
                 }
                 tspan.textContent = line;
                 text.append(tspan);
@@ -274,22 +291,22 @@ class CueBall {
 class Rack
 {
     constructor(size, label, clickFn) {
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute('viewBox', '0 0 120 120');
-        svg.setAttribute('width', size);
-        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 120 120");
+        svg.setAttribute("width", size);
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
         svg.onclick = function () { clickFn() };
-        svg.classList.add('dropShadow');
-        var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+        svg.classList.add("dropShadow");
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
-        var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-        path.setAttribute('d', "M 10 80 L 50 8 L 90 80 Z");
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M 10 80 L 50 8 L 90 80 Z");
         path.setAttribute("style", "fill: transparent; stroke-width: 8; stroke: brown;");
         g.appendChild(path);
 
         svg.appendChild(g);
-        var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-        text.classList.add('dropShadow');
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.classList.add("dropShadow");
         text.setAttribute("x", 50);
         text.setAttribute("y", 50);
         text.setAttribute("text-anchor", "middle");
@@ -308,37 +325,37 @@ class Rack
 
 class Shield {
     constructor(size, id, label, isDull, clickFn) {
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttribute("id", id);
-        svg.setAttribute('viewBox', '0 0 140 100');
-        svg.setAttribute('height', size);
-        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        svg.setAttribute('class', 'shield');
+        svg.setAttribute("viewBox", "0 0 140 100");
+        svg.setAttribute("height", size);
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        svg.setAttribute("class", "shield");
         svg.onclick = function () { clickFn() };
-        var g = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
-        var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-        path.setAttribute('d', "M 70 0 Q 50 20 30 20 Q 30 80 70 100 Z");
-        path.setAttribute("style", "fill: " + (isDull? "darkgrey":"gold") + "; stroke-width: 0; stroke: transparent;");
+        let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M 70 0 Q 50 20 30 20 Q 30 80 70 100 Z");
+        path.setAttribute("style", `fill: ${isDull? "darkgrey":"gold"}; stroke-width: 0; stroke: transparent;`);
         g.appendChild(path);
 
-        path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-        path.setAttribute('d', "M 70 0 Q 90 20 110 20 Q 110 80 70 100 Z");
-        path.setAttribute("style", "fill: " + (isDull ? "gainsboro" : "khaki") + "; stroke-width: 0; stroke: transparent;");
+        path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M 70 0 Q 90 20 110 20 Q 110 80 70 100 Z");
+        path.setAttribute("style", `fill: ${isDull ? "gainsboro" : "khaki"}; stroke-width: 0; stroke: transparent;`);
         g.appendChild(path);
 
-        path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-        path.setAttribute('d', "M 70 0 Q 50 20 30 20 Q 30 80 70 100");
+        path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M 70 0 Q 50 20 30 20 Q 30 80 70 100");
         path.setAttribute("style", "fill: transparent; stroke-width: 1; stroke: black;");
         g.appendChild(path);
 
-        path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-        path.setAttribute('d', "M 70 0 Q 90 20 110 20 Q 110 80 70 100");
+        path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M 70 0 Q 90 20 110 20 Q 110 80 70 100");
         path.setAttribute("style", "fill: transparent; stroke-width: 1; stroke: black;");
         g.appendChild(path);
 
         svg.appendChild(g);
-        var text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("x", 70);
         text.setAttribute("y", 50);
         text.setAttribute("text-anchor", "middle");
@@ -437,28 +454,28 @@ class PlayerWithScore extends Player {
     }
 
     updateScore() {
-        var remaining = this.neededToWin - this.score;
+        const remaining = this.neededToWin - this.score;
         this.remaining = remaining > 0 ? remaining : 0;
     }
 }
 
 function bindInput(object, property, element, setAction) {
-    object[property + 'SetAction'] = setAction;
+    object[property + "SetAction"] = setAction;
     element.addEventListener("input", function () {
         object[property] = element.value;
     });
-    var value = object[property];
+    const value = object[property];
     Object.defineProperty(object, property,
         {
             get() {
-                return object['_' + property];
+                return object[`_${property}`];
             },
             set(newValue) {
-                object['_' + property] = newValue;
-                var setAction = this[property + 'SetAction'];
+                object[`_${property}`] = newValue;
+                const setAction = this[property + "SetAction"];
                 if (!(setAction === undefined)) {
                     setAction(object);
-                    if (object[property] != element.value) {
+                    if (object[property] !== element.value) {
                         element.value = object[property];
                     }
                 }
@@ -469,8 +486,8 @@ function bindInput(object, property, element, setAction) {
 }
 
 function bindOutput(object, property, element, setAction) {
-    var value = object[property];
-    object[property + 'SetAction'] = setAction;
+    const value = object[property];
+    object[property + "SetAction"] = setAction;
     Object.defineProperty(object, property,
         {
             get() {
@@ -481,7 +498,7 @@ function bindOutput(object, property, element, setAction) {
             },
             set(newValue) {
                 element.innerHTML = newValue;
-                var setAction = this[property + 'SetAction'];
+                const setAction = this[property + "SetAction"];
                 if (!(setAction === undefined)) {
                     setAction();
                 }
@@ -491,24 +508,24 @@ function bindOutput(object, property, element, setAction) {
 }
 
 function getCookie(cname) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
+    const name = cname + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(";");
     for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
-        while (c.charAt(0) == ' ') {
+        while (c.charAt(0) === " ") {
             c = c.substring(1);
         }
-        if (c.indexOf(name) == 0) {
+        if (c.indexOf(name) === 0) {
             return c.substring(name.length, c.length);
         }
     }
     return "";
 }
 
-async function getLastModified(url) {
-    var response = await fetch(url, { method: "HEAD" });
-    var lastModified = response.headers.get("Last-Modified");
+//async function getLastModified(url) {
+//    const response = await fetch(url, { method: "HEAD" });
+//    const lastModified = response.headers.get("Last-Modified");
 
-    return lastModified;
-}
+//    return lastModified;
+//}
