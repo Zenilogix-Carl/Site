@@ -443,83 +443,87 @@
         }
 
         function showMatch() {
-            document.getElementById("summaryStatus").innerText = match.started ? "In-Progress " : "Completed ";
-            let info = document.getElementById('summaryInfo');
-            //var qr = document.getElementById('qr');
+            try {
+                document.getElementById("summaryStatus").innerText = match.started ? "In-Progress " : "Completed ";
+                let info = document.getElementById('summaryInfo');
+                //var qr = document.getElementById('qr');
 
-            //while (qr.firstChild) {
-            //    qr.firstChild.remove();
-            //}
+                //while (qr.firstChild) {
+                //    qr.firstChild.remove();
+                //}
 
-            //var str = JSON.stringify(match);
-            //var str2 = utf8_to_b64(str);
-            //new QRCode(qr, str2);
+                //var str = JSON.stringify(match);
+                //var str2 = utf8_to_b64(str);
+                //new QRCode(qr, str2);
 
-            const options = {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true
-            };
+                const options = {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true
+                };
 
-            info.innerText = match.players[player1].displayName + ' vs ' + match.players[player2].displayName + ' Started ' + match.matchTime.toLocaleString("en-US", options) + (match.isSuddenDeath ? ' (Sudden Death)' : '');
+                info.innerText = match.players[player1].displayName + ' vs ' + match.players[player2].displayName + ' Started ' + match.matchTime.toLocaleString("en-US", options) + (match.isSuddenDeath ? ' (Sudden Death)' : '');
 
-            let table = document.getElementById('running-score');
-            while (table.firstChild) {
-                table.firstChild.remove();
-            }
+                let table = document.getElementById('running-score');
+                while (table.firstChild) {
+                    table.firstChild.remove();
+                }
 
-            table.appendChild(createScoresRow(match.players[player1]));
-            let row = document.createElement('tr');
-            let hdr = document.createElement('td');
-            hdr.innerText = 'Innings';
-            row.appendChild(hdr);
-            for (let i = 0; i < match.innings.length; i++) {
-                let cell = document.createElement('td');
-                cell.innerText = match.innings[i].toString();
-                row.appendChild(cell);
-            }
-            if (match.rackInnings > 0) {
-                let cell = document.createElement('td');
-                cell.classList.add("pending-rack");
-                cell.innerText = match.rackInnings.toString();
-                row.appendChild(cell);
-            }
-
-            if (!match.started && Object.values(match.players).every(p => p.rackScore == 0)) {
-                let cell = document.createElement('td');
-                cell.classList.add("pending-rack");
-                cell.innerText = match.totalInnings.toString();
-                row.appendChild(cell);
-            }
-
-            table.appendChild(row);
-            if (isApa) {
-                row = document.createElement('tr');
-                hdr = document.createElement('td');
-                hdr.innerText = 'Dead';
+                table.appendChild(createScoresRow(match.players[player1]));
+                let row = document.createElement('tr');
+                let hdr = document.createElement('td');
+                hdr.innerText = 'Innings';
                 row.appendChild(hdr);
-                let rackPoints = match.ballValues.reduce((sum, i) => sum + i);
-                for (let j = 0; j < match.players[player1].scores.length; j++) {
+                for (let i = 0; i < match.innings.length; i++) {
                     let cell = document.createElement('td');
-                    cell.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
+                    cell.innerText = match.innings[i].toString();
                     row.appendChild(cell);
                 }
-                let dead = match.ballStates.filter((b) => b == "dead").length;
-                if (dead > 0) {
+                if (match.rackInnings > 0) {
                     let cell = document.createElement('td');
                     cell.classList.add("pending-rack");
-                    cell.innerText = dead.toString();
+                    cell.innerText = match.rackInnings.toString();
                     row.appendChild(cell);
                 }
-                table.appendChild(row);
-            }
-            table.appendChild(createScoresRow(match.players[player2]));
 
-            document.getElementById('matchInfo').style.visibility = 'visible';
+                if (!match.started && Object.values(match.players).every(p => p.rackScore == 0)) {
+                    let cell = document.createElement('td');
+                    cell.classList.add("pending-rack");
+                    cell.innerText = match.totalInnings.toString();
+                    row.appendChild(cell);
+                }
+
+                table.appendChild(row);
+                if (isApa) {
+                    row = document.createElement('tr');
+                    hdr = document.createElement('td');
+                    hdr.innerText = 'Dead';
+                    row.appendChild(hdr);
+                    let rackPoints = match.ballValues.reduce((sum, i) => sum + i);
+                    for (let j = 0; j < match.players[player1].scores.length; j++) {
+                        let cell = document.createElement('td');
+                        cell.innerText = (rackPoints - (match.players[player1].scores[j] + match.players[player2].scores[j])).toString();
+                        row.appendChild(cell);
+                    }
+                    let dead = match.ballStates.filter((b) => b == "dead").length;
+                    if (dead > 0) {
+                        let cell = document.createElement('td');
+                        cell.classList.add("pending-rack");
+                        cell.innerText = dead.toString();
+                        row.appendChild(cell);
+                    }
+                    table.appendChild(row);
+                }
+                table.appendChild(createScoresRow(match.players[player2]));
+
+                document.getElementById('matchInfo').style.visibility = 'visible';
+            } catch (e) {
+                alert(e.message);
+            } 
         }
 
         function ballClick(number) {

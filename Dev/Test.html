@@ -1,0 +1,19 @@
+<html>
+<head>
+    <script src="Test.js"></script>
+    <script>
+        function onLoad() {
+            try{
+                MyClass.MyMethod();
+
+                // (more code)
+            } catch(e) {
+                alert(`Page failed to initialize: ${e.message}`);
+            }
+        }
+    </script>
+</head>
+<body onload='onLoad()'>
+<p>Hello, World</p>
+</body>
+</html>

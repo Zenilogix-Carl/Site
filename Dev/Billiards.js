@@ -6,53 +6,69 @@ class Preferences {
     static BackgroundContrast = "black";
 
     constructor() {
-        this.isDarkMode = Preferences.DarkMode;
-        this.backgroundColor = Preferences.BackgroundColor;
-        this.backgroundContrast = Preferences.BackgroundContrast;
-        this.popupBackground = Preferences.PopupBackground;
+        try {
+            this.isDarkMode = Preferences.DarkMode;
+            this.backgroundColor = Preferences.BackgroundColor;
+            this.backgroundContrast = Preferences.BackgroundContrast;
+            this.popupBackground = Preferences.PopupBackground;
+        } catch (e) {
+            alert(`Preferences constructor failed: ${e.message}`);
+        } 
     }
 
     static Save() {
-        const preferences = new Preferences();
-        preferences.isDarkMode = Preferences.DarkMode;
-        preferences.backgroundColor = Preferences.BackgroundColor;
-        preferences.popupBackground = Preferences.PopupBackground;
+        try {
+            const preferences = new Preferences();
+            preferences.isDarkMode = Preferences.DarkMode;
+            preferences.backgroundColor = Preferences.BackgroundColor;
+            preferences.popupBackground = Preferences.PopupBackground;
 
-        const json = JSON.stringify(preferences);
-        const result = new Date();
-        result.setDate(result.getDate() + 365);
-        const expiry = result.toString();
-        const cookie = `preferences=${json}; expires=${expiry};`;
-        document.cookie = cookie;
+            const json = JSON.stringify(preferences);
+            const result = new Date();
+            result.setDate(result.getDate() + 365);
+            const expiry = result.toString();
+            const cookie = `preferences=${json}; expires=${expiry};`;
+            document.cookie = cookie;
+        } catch (e) {
+            alert(`Preferences Save failed: ${e.message}`);
+        }
     }
 
     static Restore() {
-        const cookie = getCookie("preferences");
-        const preferences = cookie.length > 0 ? JSON.parse(cookie) : new Preferences();
-        Preferences.DarkMode = preferences.isDarkMode;
-        Preferences.BackgroundColor = preferences.backgroundColor;
-        Preferences.BackgroundContrast = preferences.backgroundContrast;
-        Preferences.PopupBackground = preferences.popupBackground;
+        try {
+            const cookie = getCookie("preferences");
+            const preferences = cookie.length > 0 ? JSON.parse(cookie) : new Preferences();
+            Preferences.DarkMode = preferences.isDarkMode;
+            Preferences.BackgroundColor = preferences.backgroundColor;
+            Preferences.BackgroundContrast = preferences.backgroundContrast;
+            Preferences.PopupBackground = preferences.popupBackground;
 
-        Preferences.SetScheme();
+            Preferences.SetScheme();
+        } catch (e) {
+            alert(`Preferences Restore failed: ${e.message}`);
+        }
     }
     
     static SetScheme() {
-        const r = document.querySelector(":root");
-        if (Preferences.DarkMode) {
-            r.style.setProperty("--background", "black");
-            r.style.setProperty("--popupBackground", "black");
-            r.style.setProperty("--foreground", "white");
-            r.style.setProperty("--dropShadowFilter", "none");
-            r.style.setProperty("--ballOutline", "white");
-            r.style.setProperty("--ballBlack", "#333");
-        } else {
-            r.style.setProperty("--background", Preferences.BackgroundColor);
-            r.style.setProperty("--popupBackground", Preferences.PopupBackground);
-            r.style.setProperty("--foreground", Preferences.BackgroundContrast);
-            r.style.setProperty("--dropShadowFilter", "drop-shadow(10px 10px 5px black)");
-            r.style.setProperty("--ballOutline", "grey");
-            r.style.setProperty("--ballBlack", "black");
+        try {
+            const r = document.querySelector(":root");
+            if (Preferences.DarkMode) {
+                r.style.setProperty("--background", "black");
+                r.style.setProperty("--popupBackground", "black");
+                r.style.setProperty("--foreground", "white");
+                r.style.setProperty("--dropShadowFilter", "none");
+                r.style.setProperty("--ballOutline", "white");
+                r.style.setProperty("--ballBlack", "#333");
+            } else {
+                r.style.setProperty("--background", Preferences.BackgroundColor);
+                r.style.setProperty("--popupBackground", Preferences.PopupBackground);
+                r.style.setProperty("--foreground", Preferences.BackgroundContrast);
+                r.style.setProperty("--dropShadowFilter", "drop-shadow(10px 10px 5px black)");
+                r.style.setProperty("--ballOutline", "grey");
+                r.style.setProperty("--ballBlack", "black");
+            }
+        } catch (e) {
+            alert(`Preferences SetScheme failed: ${e.message}`);
         }
     }
 }
