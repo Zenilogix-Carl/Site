@@ -785,6 +785,25 @@
                 window.open("NineBallHelp.html");
             }
         }
+
+        function getMatch() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                var str = this.responseText;
+            }
+            xhttp.open("GET", "https://billiardgamesapi.azurewebsites.net/WeatherForecast", true);
+            xhttp.send();
+        }
+
+        function postMatch() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                var str = this.responseText;
+            }
+            xhttp.open("POST", "https://billiardgamesapi.azurewebsites.net/WeatherForecast", true);
+            xhttp.setRequestHeader("Content-type", "application/json");
+            xhttp.send(JSON.stringify(match));
+        }
     </script>
 </head>
 <body onload='onLoad()'>
@@ -919,6 +938,8 @@
             <span onclick='toggleMenu(); endMatchIfConfirmed();'>End Match</span>
             <span onclick='toggleMenu(); clearRackIfConfirmed();'>Clear Rack</span>
             <span onclick='toggleMenu(); showMatch();'>Summary</span>
+            <span onclick='toggleMenu(); getMatch();'>Get</span>
+            <span onclick='toggleMenu(); postMatch();'>Post</span>
             <span onclick='toggleMenu(); window.open("index.html", "_self");'>Home Page</span>
             <span onclick='toggleMenu(); window.open(`Preferences.html?return=${encodeURIComponent(document.documentURI)}`, "_self");'>Preferences</span>
             <span onclick='toggleMenu(); helpOrDebug();'>Help</span>
