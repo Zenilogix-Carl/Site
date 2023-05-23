@@ -201,6 +201,14 @@ button {
     font-weight: bold;
 }
 
+.optional1 {
+    visibility: visible;
+}
+
+.optional2 {
+    visibility: visible;
+}
+
 #clocks {
     position: absolute;
     right: 0px;
@@ -329,6 +337,15 @@ button {
         padding-left: 43px;
         display: inline;
     }
+
+    .optional1 {
+        visibility: collapse;
+        height: 0;
+    }
+
+    .optional2 {
+        visibility: visible;
+    }
 }
 
 @media only screen and (max-width: 400px) {
@@ -380,5 +397,15 @@ button {
         width: 28px;
         height: 4px;
         margin: 5px 0;
+    }
+
+    .optional1 {
+        visibility: collapse;
+        height: 0;
+    }
+
+    .optional2 {
+        visibility: collapse;
+        height: 0;
     }
 }
