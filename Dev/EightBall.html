@@ -33,9 +33,9 @@
             ];
         var currentVersion;
 
-        getLastModified("EightBall.html").then(result => {
-            currentVersion = result;
-        });
+        //getLastModified("EightBall.html").then(result => {
+        //    currentVersion = result;
+        //});
 
         window.addEventListener("resize", onResize);
         window.addEventListener("beforeunload", onUnload);
@@ -630,15 +630,15 @@
             document.getElementById('popup').style.visibility = 'visible';
         }
 
-        function checkForUpdate() {
-            getLastModified("EightBall.html").then(result => {
-                if (result > currentVersion) {
-                    confirmBox("This app has been updated.\nDo you want to get the update?", () => {
-                        location.reload();
-                    });
-                }
-            });
-        }
+        //function checkForUpdate() {
+        //    getLastModified("EightBall.html").then(result => {
+        //        if (result > currentVersion) {
+        //            confirmBox("This app has been updated.\nDo you want to get the update?", () => {
+        //                location.reload();
+        //            });
+        //        }
+        //    });
+        //}
 
         function helpOrDebug() {
             if (isDebug) {
