@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Preferences</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles2.css">
     <script src="Billiards.js"></script>
     <script>
         class ColorScheme {
@@ -16,7 +16,6 @@
             }
         }
 
-        window.addEventListener("beforeunload", onUnload);
         var qs = location.search.substring(1).split('&');
         var qqs = {};
         qs.forEach((nvp) => {
@@ -72,10 +71,6 @@
 
             Preferences.SetScheme();
         }
-
-        function onUnload() {
-            Preferences.Save();
-        }
     </script>
 </head>
 <body class="main" style="padding: 20px" onload='onLoad()'>
@@ -91,6 +86,6 @@
 <br/>
 <input class="checkbox" type="checkbox" id="darkMode" onchange="onDarkModeChange()"/>
 <br/>
-<button onclick='window.open(returnUrl, "_self")'>Return</button>
+<button onclick='Preferences.Save();window.open(returnUrl, "_self");'>Save</button>
 </body>
 </html>

@@ -1,0 +1,45 @@
+:root {
+    --foreground: black;
+    --background: lightblue;
+    --popupBackground: white;
+    --dropShadowFilter: drop-shadow(10px 10px 5px black);
+    --ballOutline: grey;
+    --ballBlack: black;
+}
+
+input, select {
+    font-size: 20pt;
+    color: var(--foreground);
+}
+
+input.checkbox {
+    width: 40px;
+    height: 40px;
+}
+
+button {
+    font-size: 18pt;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: Verdana, sans-serif;
+    font-size: 20pt;
+    padding: 0px;
+    margin: 0px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    width: 100vw;
+    height: 100vmin;
+}
+
+button {
+    font-size: 18pt;
+    min-width: 30px;
+}
+
+.main {
+    padding: 20px;
+}
+

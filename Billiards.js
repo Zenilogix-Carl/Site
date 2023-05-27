@@ -86,8 +86,9 @@ class BilliardBall {
         svg.setAttribute("width", size);
         svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
         var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        this.ballGraphic = g;
         var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        this.shadowedElement = circle;
+        this.dimmableGroup = g;
 
         if (isStripe) {
             circle.setAttribute("cx", 50);
@@ -174,13 +175,17 @@ class BilliardBallWithState extends BilliardBall {
         this.showNormal();
     }
 
-    dimElement(elem, dim) {
+    dimThis(dim) {
         if (dim) {
-            elem.classList.remove("dropShadow");
-            elem.classList.add("dimmed");
+            this.shadowedElement.classList.remove("dropShadow");
+            for (let child of this.dimmableGroup.childNodes) {
+                child.classList.add("dimmed");
+            }
         } else {
-            elem.classList.add("dropShadow");
-            elem.classList.remove("dimmed");
+            this.shadowedElement.classList.add("dropShadow");
+            for (let child of this.dimmableGroup.childNodes) {
+                child.classList.remove("dimmed");
+            }
         }
     }
 
@@ -189,19 +194,19 @@ class BilliardBallWithState extends BilliardBall {
     }
 
     showNormal() {
-        this.dimElement(this.ballGraphic, false);
+        this.dimThis(false);
         this.showElement(this.foulText, false);
         this.showElement(this.checkMark, false);
     }
 
     showPocketed(checked) {
-        this.dimElement(this.ballGraphic, true);
+        this.dimThis(true);
         this.showElement(this.foulText, false);
         this.showElement(this.checkMark, checked);
     }
 
     showFoul() {
-        this.dimElement(this.ballGraphic, true);
+        this.dimThis(true);
         this.showElement(this.foulText, true);
         this.showElement(this.checkMark, false);
     }
@@ -212,7 +217,7 @@ class BilliardBallWithClick extends BilliardBallWithState {
         super(number, size, clickFn, text);
         const svg = this.element;
         svg.onclick = clickFn;
-        this.dimElement(this.ballGraphic, false);
+        this.dimThis(false);
         this.showElement(this.foulText, true);
         this.showElement(this.checkMark, false);
         this.foulText.setAttribute("y", 75);
