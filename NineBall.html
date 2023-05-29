@@ -6,9 +6,10 @@
     <title></title>
     <link rel="stylesheet" href="styles.css">
     <script src="Billiards.js"></script>
-    <script src="qrcode.js"></script>
+    <!--<script src="qrcode.js"></script>-->
     <script>
         "use strict";
+
         //var currentVersion;
 
         //getLastModified("NineBall.html").then(result => {
@@ -593,6 +594,11 @@
 
         function onLoad() {
             try {
+                const agent = navigator.userAgent;
+
+                if (!agent.includes("Chrome")) {
+                    alert("This was designed for the Chrome browser; it may not appear or operate correctly in your browser. You should install the latest version of Chrome to use here.");
+                }
                 //checkForUpdate(); // check on dom load (not necessarily on page load)
                 Preferences.Restore();
                 const cookie = getCookie(isApa ? (isSuddenDeath ? 'apa-nineball-sd-match' : 'apa-nineball-match') : 'classic-nineball-match');
